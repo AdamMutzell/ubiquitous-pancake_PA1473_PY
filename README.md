@@ -5,7 +5,7 @@
 -- Replace with student information --
 
 - Oliver Sjödin olsj21@bth.student.se
-- Adam Mützell admt21@bth.student.se
+- Adam Mützell admt21@student.bth.se
 - Muhamed Hussein
 - Abbe Möllerström abmo21@student.bth.se
 - Oliver Ivarsson
