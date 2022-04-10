@@ -35,3 +35,5 @@
 - [ ] Be informed by what operation a truck is performing. 2 USP
 - [ ] Exit the specified area in a safe manner. 5 USP
 - [ ] Return to the specified area in a safe manner. 3 USP
+
+# test
