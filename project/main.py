@@ -4,6 +4,11 @@ import __init__
 from pybrick.hubs import EV3Hub
 from pybrick.ev3devices import Motor
 from pybrick.parameters import Port
+from pybricks.pupdevices import ColorSensor, ForceSensor, UltrasonicSensor
+# "ColorSensor": [one Color Sensor] for measuring line colors to follow the line .
+# "ForceSensor": [one Touch Sensor] for detecting a pallet on the forks" .
+#"UltrasonicSensor": [one Ultrasonic Sensor] for detection of obstacles.
+
 
 EV3 = EV3Hub()
 
