@@ -72,7 +72,7 @@ def crane_pickup(crane_port, DriveBase, angle_of_crane, max_angle, min_angle):
 
     Returns null
     """
-    # Initazling the variables
+    # Initializing the variables
     speed_of_crane = 50
     raise_angle = 5
     Crane_motor = Motor(crane_port)
@@ -88,7 +88,7 @@ def crane_pickup(crane_port, DriveBase, angle_of_crane, max_angle, min_angle):
     # Drive forward for 100mm
     while button_pressed() is False:
         ROBOT.straight(100)
-        distance_traveled += 100
+        distance_traveled -= 100
 
     # Raise the crane slightly to hold the planet
     if (angle_of_crane + raise_angle) <= max_angle:
@@ -97,7 +97,7 @@ def crane_pickup(crane_port, DriveBase, angle_of_crane, max_angle, min_angle):
         Crane_motor.run_target(speed_of_crane, max_angle)
 
     # Drive back
-    ROBOT.straight(-distance_traveled)
+    ROBOT.straight(distance_traveled)
 
 
 if __name__ == '__main__':  # Keep this!
