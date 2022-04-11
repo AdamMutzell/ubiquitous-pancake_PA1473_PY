@@ -6,9 +6,9 @@ from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor
 from pybricks.parameters import Port
 from pybricks.robotics import DriveBase
-from pybricks.pupdevices import ColorSensor, ForceSensor, UltrasonicSensor, TouchSensor
+from pybricks.pupdevices import ColorSensor, UltrasonicSensor
 # "ColorSensor": [one Color Sensor] for measuring line colors to follow the line .
-# "ForceSensor": [one Touch Sensor] for detecting a pallet on the forks" .
+# "TouchSensor": [one Touch Sensor] for detecting a pallet on the forks" .
 # "UltrasonicSensor": [one Ultrasonic Sensor] for detection of obstacles.
 
 
@@ -31,8 +31,8 @@ def main():  # Main Class
     return 0
 
 
-def button_pressed(port):  # Function for detecting button press
-    Front_button = TouchSensor(port)
+def button_pressed(button_port):  # Function for detecting button press
+    Front_button = TouchSensor(button_port)
     if Front_button.pressed():
         return True
     else:
@@ -65,7 +65,7 @@ def crane_down(crane_port):  # Function for moving the crane down
 def crane_pickup(crane_port, DriveBase, angle_of_crane, max_angle, min_angle):
     """
     Crane_port - Class contatning the port, containing the port of the crane
-    Motor_ports - Tuple, containing the ports of the motors
+    DriveBase - Class that handles the drving of the robot
     angle_of_crane - Int, containing the angle the crane should be
     max_angle - int, containing the maximum angle the crane can be
     min_angle - int, containing the minimum angle the crane can be
