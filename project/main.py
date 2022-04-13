@@ -14,9 +14,11 @@ from pybricks.pupdevices import ColorSensor, UltrasonicSensor
 
 EV3 = EV3Brick()
 
-Left_drive = Port.C
-Right_drive = Port.B
-Crane_motor = Port.A
+Left_drive = Motor(
+    Port.C, positive_direction=Direction.COUNTERCLOCKWISE, gears=[12, 20])
+Right_drive = Motor(
+    Port.B, positive_direction=Direction.COUNTERCLOCKWISE, gears=[12, 20])
+Crane_motor = Motor(Port.A, gears=[12, 36])
 Front_button = Port.S1
 Light_sensor = Port.S3
 Ultrasonic_sensor = Port.S4
