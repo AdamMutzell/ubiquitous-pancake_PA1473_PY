@@ -24,7 +24,7 @@ Ultrasonic_sensor = Port.S4
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
 # May need to change wheel_diameter and axel_track
 TRUCK = DriveBase(left_motor=Left_drive, right_motor=Right_drive,
-                  wheel_diameter=56, axle_track=118)
+                  wheel_diameter=47, axle_track=128)
 
 
 def main():  # Main Class
