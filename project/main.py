@@ -5,13 +5,23 @@ import __init__
 
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor
-from pybricks.parameters import Port
+from pybricks.parameters import Port, Color
 from pybricks.robotics import DriveBase
 from pybricks.pupdevices import ColorSensor, UltrasonicSensor
 from pybricks.tools import wait
 # "ColorSensor": [one Color Sensor] for measuring line colors to follow the line .
 # "TouchSensor": [one Touch Sensor] for detecting a pallet on the forks" .
 # "UltrasonicSensor": [one Ultrasonic Sensor] for detection of obstacles.
+
+
+GREEN = Color(h=120, s=100, v=100)
+BLUE = Color(h=240, s=100, v=100)
+RED = Color(h=359, s=97, v=39)
+BROWN = Color(h=17, s=48, v=15)
+YELLOW = Color(h=60, s=100, v=100)
+
+colours = [GREEN, BLUE, RED, BROWN, YELLOW]
+
 
 
 EV3 = EV3Brick()
@@ -122,6 +132,7 @@ colours = [Color()]
 
 
 def set_area(colours,current_area):
+    threshold = 15
     current_colour = get_colour()
     for colour in colours:
         if get_colour() == colour:
