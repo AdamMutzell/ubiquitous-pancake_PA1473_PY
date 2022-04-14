@@ -1,11 +1,13 @@
 #!/usr/bin/env pybricks-micropython
+from pickle import TRUE
 import sys
 import __init__
 
 from pybricks.hubs import EV3Brick
-from pybricks.ev3devices import Motor, TouchSensor, UltrasonicSensor, ColorSensor
+from pybricks.ev3devices import Motor, TouchSensor
 from pybricks.parameters import Port
 from pybricks.robotics import DriveBase
+from pybricks.pupdevices import ColorSensor, UltrasonicSensor
 from pybricks.tools import wait
 # "ColorSensor": [one Color Sensor] for measuring line colors to follow the line .
 # "TouchSensor": [one Touch Sensor] for detecting a pallet on the forks" .
@@ -13,13 +15,13 @@ from pybricks.tools import wait
 
 
 EV3 = EV3Brick()
+Crane_motor = Motor(Port.A)
+Right_drive = Motor(Port.B)
+Left_drive = Motor(Port.C)
 
-Left_drive = Port.C
-Right_drive = Port.B
-Crane_motor = Port.A
-Front_button = Port.S1
-Light_port = Port.S3
-Ultrasonic_sensor = Port.S4
+Front_button = TouchSensor(Port.S1)
+Light_sensor = ColorSensor(Port.S3)
+Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
 # May need to change wheel_diameter and axel_track
@@ -45,7 +47,6 @@ def main():  # Main Class
 
 
 def drive():
-    Light_sensor = ColorSensor(Light_port)
     drive_check = True
     while drive_check is True:
         TRUCK.drive(-DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD)
@@ -53,28 +54,26 @@ def drive():
 
 
 def button_pressed(button_port):  # Function for detecting button press
-    Front_button = TouchSensor(button_port)
+    #Front_button = TouchSensor(button_port)
     if Front_button.pressed():
         return True
     else:
         return False
 
 
-# Function for detecting obstacles and stopping the robot.
-def obstacle(accepted_distance, current_mode, sensor_port):
-    sensor = UltrasonicSensor(sensor_port)
-    distance = sensor.distance()  # Value in mm
-    if distance < accepted_distance and current_mode == "Driving":
-        return False
-    return True  # Inert message
+def obstacle(accepted_distance, current_mode, sensor): # Function for detecting obstacles and stopping the robot.
+    distance = sensor.distance() #Value in mm
+    while distance < accepted_distance and current_mode == "Driving":
+        wait(100)
+        distance = sensor.value()
+    return None #Inert message
 
 
-# Function for detecting if a pickup of an item has failed
-def detect_item_fail(pickupstatus, button_port):
-    if pickupstatus == True:
-        return button_pressed(button_port)
+def detect_item_fail(pickupstatus, button): # Function for detecting if a pickup of an item has failed
+    if pickupstatus == TRUE:
+        return button_pressed(button)
     else:
-        return False
+        return TRUE
 
 
 def crane_movement(crane_port, direction, speed):  # Function for moving the crane up
@@ -96,13 +95,10 @@ def crane_hold(crane_port):  # Function for moving the crane up
     """
     speed_of_crane = 50
     Crane_motor = Motor(crane_port)
-    Crane_motor.run_target(speed_of_crane, 200)
-    Crane_motor.hold()
+    return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=90)
 
 # Function for moving the crane up
-
-
-def crane_pickup(crane_port, touch_port, DriveBase, angle_of_crane, max_angle, min_angle):
+def crane_pickup(crane_port, DriveBase, angle_of_crane, max_angle, min_angle):
     """
     Crane_port - Class contatning the port, containing the port of the crane
     DriveBase - Class that handles the drving of the robot
@@ -113,11 +109,10 @@ def crane_pickup(crane_port, touch_port, DriveBase, angle_of_crane, max_angle, m
     Returns null
     """
     # Initializing the variables
-    speed_of_crane = 100
-    raise_angle = 50
+    speed_of_crane = 50
+    raise_angle = 5
     Crane_motor = Motor(crane_port)
-    distance_traveled = 0
-    ROBOT = DriveBase
+    ROBOT = DriveBase 
 
     # Makes sure that the angle of the crane is valid
     if angle_of_crane < min_angle:
@@ -127,9 +122,9 @@ def crane_pickup(crane_port, touch_port, DriveBase, angle_of_crane, max_angle, m
     Crane_motor.run_target(speed_of_crane, angle_of_crane, )
 
     # Drive forward for 100mm
-    while button_pressed(touch_port) is False:
-        ROBOT.straight(-100)
-        distance_traveled += 100
+    while button_pressed() is False:
+        ROBOT.straight(100)
+        distance_traveled -= 100
 
     # Raise the crane slightly to hold the planet
     if (angle_of_crane + raise_angle) <= max_angle:
@@ -141,6 +136,24 @@ def crane_pickup(crane_port, touch_port, DriveBase, angle_of_crane, max_angle, m
     ROBOT.straight(distance_traveled)
 
     return angle_of_crane
+
+def get_colour():
+    return Light_sensor.color()
+    
+colours = [Color()]
+
+
+def set_area(colours,current_area):
+    current_colour = get_colour()
+    for colour in colours:
+        if get_colour() == colour:
+            if colour != current_area:
+                current_area = colour
+                #area has been switched
+
+
+
+
 
 if __name__ == '__main__':  # Keep this!
     sys.exit(main())
