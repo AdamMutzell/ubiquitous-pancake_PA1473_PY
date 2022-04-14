@@ -28,15 +28,9 @@ TRUCK = DriveBase(left_motor=Motor(Left_drive, gears=[12, 20]), right_motor=Moto
 
 
 # Measure of reflection:
-<<<<<<< HEAD
-WHITE = 40
-BLACK = 15
-THRESHOLD = (WHITE + BLACK) / 2
-=======
 WHAITE = 100
 BLACK = 15
 THRESHOLD = (WHAITE + BLACK) / 2
->>>>>>> f9bdf6462758e79b31f2c800d89c397db3f578ef
 
 # Speed:
 DRIVING_INITAL = 50
