@@ -25,12 +25,32 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
 # May need to change wheel_diameter and axel_track
-TRUCK = DriveBase(left_motor=Port.C, right_motor=Port.B,
-                  wheel_diameter=56, axle_track=118)
+TRUCK = DriveBase(left_motor=Motor(Left_drive, gears=[12, 20]), right_motor=Motor(Right_drive, gears=[12, 20]),
+                  wheel_diameter=47, axle_track=128)
+
+
+# Measure of reflection:
+WHAITE = 100
+BLACK = 15
+THRESHOLD = (WHAITE + BLACK) / 2
+
+# Speed:
+DRIVING_INITAL = 50
+
+# Drive on the line:
 
 
 def main():  # Main Class
-    return 0
+    crane_movement(Crane_motor, 1, 50)
+    crane_movement(Crane_motor, -1, 50)
+    return None
+
+
+def drive():
+    drive_check = True
+    while drive_check is True:
+        TRUCK.drive(-DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD)
+    return None
 
 
 def button_pressed(button_port):  # Function for detecting button press
@@ -56,24 +76,24 @@ def detect_item_fail(pickupstatus, button): # Function for detecting if a pickup
         return TRUE
 
 
-def crane_up(crane_port):  # Function for moving the crane up
+def crane_movement(crane_port, direction, speed):  # Function for moving the crane up
+    """
+    Crane_port - Class contatning the port, containing the port of the crane
+
+    Returns an angle of the crane at it's maximum angle
+    """
+    speed_of_crane = speed * direction
+    Crane_motor = Motor(crane_port)
+    return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=90)
+
+
+def crane_hold(crane_port):  # Function for moving the crane up
     """
     Crane_port - Class contatning the port, containing the port of the crane
 
     Returns an angle of the crane at it's maximum angle
     """
     speed_of_crane = 50
-    Crane_motor = Motor(crane_port)
-    return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=90)
-
-
-def crane_down(crane_port):  # Function for moving the crane down
-    """
-    Crane_port - Class contatning the port, containing the port of the crane
-
-    Returns an angle of the crane at it's minimum angle
-    """
-    speed_of_crane = -50
     Crane_motor = Motor(crane_port)
     return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=90)
 
@@ -115,9 +135,14 @@ def crane_pickup(crane_port, DriveBase, angle_of_crane, max_angle, min_angle):
     # Drive back
     ROBOT.straight(distance_traveled)
 
+    return angle_of_crane
+
 def get_colour():
     return Light_sensor.color()
     
+colours = [Color()]
+
+
 def set_area(colours,current_area):
     current_colour = get_colour()
     for colour in colours:
