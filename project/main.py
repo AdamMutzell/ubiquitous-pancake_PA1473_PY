@@ -1,4 +1,5 @@
 #!/usr/bin/env pybricks-micropython
+from pickle import TRUE
 import sys
 import __init__
 
@@ -7,6 +8,7 @@ from pybricks.ev3devices import Motor, TouchSensor
 from pybricks.parameters import Port
 from pybricks.robotics import DriveBase
 from pybricks.pupdevices import ColorSensor, UltrasonicSensor
+from pybricks.tools import wait
 # "ColorSensor": [one Color Sensor] for measuring line colors to follow the line .
 # "TouchSensor": [one Touch Sensor] for detecting a pallet on the forks" .
 # "UltrasonicSensor": [one Ultrasonic Sensor] for detection of obstacles.
@@ -14,11 +16,9 @@ from pybricks.pupdevices import ColorSensor, UltrasonicSensor
 
 EV3 = EV3Brick()
 
-Left_drive = Motor(
-    Port.C, positive_direction=Direction.COUNTERCLOCKWISE, gears=[12, 20])
-Right_drive = Motor(
-    Port.B, positive_direction=Direction.COUNTERCLOCKWISE, gears=[12, 20])
-Crane_motor = Motor(Port.A, gears=[12, 36])
+Left_drive = Port.C
+Right_drive = Port.B
+Crane_motor = Port.A
 Front_button = Port.S1
 Light_sensor = Port.S3
 Ultrasonic_sensor = Port.S4
@@ -26,7 +26,7 @@ Ultrasonic_sensor = Port.S4
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
 # May need to change wheel_diameter and axel_track
 TRUCK = DriveBase(left_motor=Left_drive, right_motor=Right_drive,
-                  wheel_diameter=47, axle_track=128)
+                  wheel_diameter=56, axle_track=118)
 
 
 def main():  # Main Class
@@ -39,6 +39,21 @@ def button_pressed(button_port):  # Function for detecting button press
         return True
     else:
         return False
+
+
+def obstacle(accepted_distance, current_mode, sensor): # Function for detecting obstacles and stopping the robot.
+    distance = sensor.distance() #Value in mm
+    while distance < accepted_distance and current_mode == "Driving":
+        wait(100)
+        distance = sensor.value()
+    return None #Inert message
+
+
+def detect_item_fail(pickupstatus, button): # Function for detecting if a pickup of an item has failed
+    if pickupstatus == TRUE:
+        return button_pressed(button)
+    else:
+        return TRUE
 
 
 def crane_up(crane_port):  # Function for moving the crane up
@@ -61,7 +76,6 @@ def crane_down(crane_port):  # Function for moving the crane down
     speed_of_crane = -50
     Crane_motor = Motor(crane_port)
     return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=90)
-
 
 # Function for moving the crane up
 def crane_pickup(crane_port, DriveBase, angle_of_crane, max_angle, min_angle):
