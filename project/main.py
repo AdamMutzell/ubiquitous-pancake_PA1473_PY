@@ -37,9 +37,9 @@ def main():  # Main Class
 ROBOT = DriveBase(Left_drive, Right_drive, wheel_diameter=56, axle_track=118)
 
 # Measure of reflection:
-WHAITE = 40
-BLACK = 10
-THRESHOLD = (WHAITE + BLACK) / 2
+WHITE = 40
+BLACK = 15
+THRESHOLD = (WHITE + BLACK) / 2
 
 # Speed:
 DRIVING_INITAL = 150
