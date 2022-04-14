@@ -3,23 +3,22 @@ import sys
 import __init__
 
 from pybricks.hubs import EV3Brick
-from pybricks.ev3devices import Motor, TouchSensor
-from pybricks.parameters import Port, Color,Direction
+from pybricks.ev3devices import Motor, TouchSensor, ColorSensor, UltrasonicSensor
+from pybricks.parameters import Port, Color, Direction
 from pybricks.robotics import DriveBase
-from pybricks.pupdevices import ColorSensor, UltrasonicSensor
 from pybricks.tools import wait
 # "ColorSensor": [one Color Sensor] for measuring line colors to follow the line .
 # "TouchSensor": [one Touch Sensor] for detecting a pallet on the forks" .
 # "UltrasonicSensor": [one Ultrasonic Sensor] for detection of obstacles.
 
 
-GREEN = Color(h=120, s=100, v=100)
-BLUE = Color(h=240, s=100, v=100)
-RED = Color(h=359, s=97, v=39)
-BROWN = Color(h=17, s=48, v=15)
-YELLOW = Color(h=60, s=100, v=100)
+# green = Color(h=120, s=100, v=100)
+# blue = Color(h=240, s=100, v=100)
+# red = Color(h=359, s=97, v=39)
+# brown = Color(h=17, s=48, v=15)
+# yellow = Color(h=60, s=100, v=100)
 
-colours = [GREEN, BLUE, RED, BROWN, YELLOW]
+colours = [Color.GREEN, Color.BLUE, Color.RED, Color.BROWN, Color.YELLOW]
 
 
 
@@ -34,7 +33,7 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
 # May need to change wheel_diameter and axel_track
-TRUCK = DriveBase(left_motor=Motor(Left_drive, gears=[12, 20]), right_motor=Motor(Right_drive, gears=[12, 20]),
+TRUCK = DriveBase(left_motor=Left_drive, right_motor=Right_drive,
                   wheel_diameter=47, axle_track=128)
 
 
@@ -50,14 +49,13 @@ DRIVING_INITAL = 50
 
 
 def main():  # Main Class
-    crane_movement(Crane_motor, 1, 50)
-    crane_movement(Crane_motor, -1, 50)
-    return None
+    drive()
 
 
 def drive():
     drive_check = True
     while drive_check is True:
+        obstacle(300, "Driving", Ultrasonic_sensor)
         TRUCK.drive(DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD)
     return None
 
@@ -73,9 +71,9 @@ def button_pressed(button_port):  # Function for detecting button press
 def obstacle(accepted_distance, current_mode, sensor): # Function for detecting obstacles and stopping the robot.
     distance = sensor.distance() #Value in mm
     while distance < accepted_distance and current_mode == "Driving":
-        wait(100)
-        distance = sensor.value()
-    return None #Inert message
+        print("JAG ÄR INNE")
+        distance = sensor.distance()
+    return None #Insert message
 
 
 def detect_item_fail(pickupstatus, button): # Function for detecting if a pickup of an item has failed
@@ -148,9 +146,6 @@ def crane_pickup(crane_port, DriveBase, angle_of_crane, max_angle, min_angle):
 
 def get_colour():
     return Light_sensor.color()
-    
-colours = [Color()]
-
 
 def set_area(colours,current_area):
     threshold = 15
