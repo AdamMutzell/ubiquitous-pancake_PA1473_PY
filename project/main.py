@@ -3,7 +3,7 @@ import sys
 import __init__
 
 from pybricks.hubs import EV3Brick
-from pybricks.ev3devices import Motor, TouchSensor
+from pybricks.ev3devices import Motor, TouchSensor, UltrasonicSensor, ColorSensor
 from pybricks.parameters import Port
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait
@@ -18,7 +18,7 @@ Left_drive = Port.C
 Right_drive = Port.B
 Crane_motor = Port.A
 Front_button = Port.S1
-Light_sensor = Port.S3
+Light_port = Port.S3
 Ultrasonic_sensor = Port.S4
 
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
@@ -27,28 +27,40 @@ TRUCK = DriveBase(left_motor=Motor(Left_drive, gears=[12, 20]), right_motor=Moto
                   wheel_diameter=47, axle_track=128)
 
 
-def main():  # Main Class
-    crane_pickup(Crane_motor, Front_button, TRUCK,
-                 50, max_angle=360, min_angle=0)
-
-    return 0
-
-# Robot diameter:
-ROBOT = DriveBase(Left_drive, Right_drive, wheel_diameter=56, axle_track=118)
-
 # Measure of reflection:
+<<<<<<< HEAD
 WHITE = 40
 BLACK = 15
 THRESHOLD = (WHITE + BLACK) / 2
+=======
+WHAITE = 100
+BLACK = 15
+THRESHOLD = (WHAITE + BLACK) / 2
+>>>>>>> f9bdf6462758e79b31f2c800d89c397db3f578ef
 
 # Speed:
-DRIVING_INITAL = 150
+DRIVING_INITAL = 50
 
 # Drive on the line:
+
+
+def main():  # Main Class
+    crane_up(Crane_motor)
+    drive()
+    crane_hold(Crane_motor)
+    drive()
+
+    # crane_pickup(Crane_motor, Front_button, TRUCK,
+    #             0, max_angle=180, min_angle=0)
+
+    return 0
+
+
 def drive():
+    Light_sensor = ColorSensor(Light_port)
     drive_check = True
     while drive_check is True:
-        ROBOT.drive(DRIVING_INITAL,Light_sensor.reflection()-THRESHOLD)
+        TRUCK.drive(-DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD)
     return
 
 
@@ -61,20 +73,20 @@ def button_pressed(button_port):  # Function for detecting button press
 
 
 # Function for detecting obstacles and stopping the robot.
-def obstacle(accepted_distance, current_mode, sensor):
+def obstacle(accepted_distance, current_mode, sensor_port):
+    sensor = UltrasonicSensor(sensor_port)
     distance = sensor.distance()  # Value in mm
-    while distance < accepted_distance and current_mode == "Driving":
-        wait(100)
-        distance = sensor.value()
-    return None  # Inert message
+    if distance < accepted_distance and current_mode == "Driving":
+        return False
+    return True  # Inert message
 
 
 # Function for detecting if a pickup of an item has failed
-def detect_item_fail(pickupstatus, button):
+def detect_item_fail(pickupstatus, button_port):
     if pickupstatus == True:
-        return button_pressed(button)
+        return button_pressed(button_port)
     else:
-        return True
+        return False
 
 
 def crane_up(crane_port):  # Function for moving the crane up
@@ -85,7 +97,19 @@ def crane_up(crane_port):  # Function for moving the crane up
     """
     speed_of_crane = 100
     Crane_motor = Motor(crane_port)
-    return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=65)
+    return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=90)
+
+
+def crane_hold(crane_port):  # Function for moving the crane up
+    """
+    Crane_port - Class contatning the port, containing the port of the crane
+
+    Returns an angle of the crane at it's maximum angle
+    """
+    speed_of_crane = 50
+    Crane_motor = Motor(crane_port)
+    Crane_motor.run_target(speed_of_crane, 200)
+    Crane_motor.hold()
 
 
 def crane_down(crane_port):  # Function for moving the crane down
@@ -96,7 +120,7 @@ def crane_down(crane_port):  # Function for moving the crane down
     """
     speed_of_crane = -100
     Crane_motor = Motor(crane_port)
-    return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=65)
+    return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=90)
 
 # Function for moving the crane up
 
@@ -112,8 +136,8 @@ def crane_pickup(crane_port, touch_port, DriveBase, angle_of_crane, max_angle, m
     Returns null
     """
     # Initializing the variables
-    speed_of_crane = 50
-    raise_angle = 5
+    speed_of_crane = 100
+    raise_angle = 50
     Crane_motor = Motor(crane_port)
     distance_traveled = 0
     ROBOT = DriveBase
