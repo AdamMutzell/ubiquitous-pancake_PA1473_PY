@@ -23,7 +23,7 @@ colours = [Color.GREEN, Color.BLUE, Color.RED, Color.BROWN, Color.YELLOW]
 
 
 EV3 = EV3Brick()
-Crane_motor = Motor(Port.A)
+Crane_motor = Motor(Port.A, gears=[12,36])
 Right_drive = Motor(Port.B,positive_direction=Direction.COUNTERCLOCKWISE,gears=[12,20])
 Left_drive = Motor(Port.C,positive_direction=Direction.COUNTERCLOCKWISE,gears=[12,20])
 
