@@ -28,15 +28,9 @@ TRUCK = DriveBase(left_motor=Motor(Left_drive, gears=[12, 20]), right_motor=Moto
 
 
 # Measure of reflection:
-<<<<<<< HEAD
-WHITE = 40
-BLACK = 15
-THRESHOLD = (WHITE + BLACK) / 2
-=======
 WHAITE = 100
 BLACK = 15
 THRESHOLD = (WHAITE + BLACK) / 2
->>>>>>> f9bdf6462758e79b31f2c800d89c397db3f578ef
 
 # Speed:
 DRIVING_INITAL = 50
@@ -45,15 +39,9 @@ DRIVING_INITAL = 50
 
 
 def main():  # Main Class
-    crane_up(Crane_motor)
-    drive()
-    crane_hold(Crane_motor)
-    drive()
-
-    # crane_pickup(Crane_motor, Front_button, TRUCK,
-    #             0, max_angle=180, min_angle=0)
-
-    return 0
+    crane_movement(Crane_motor, 1, 50)
+    crane_movement(Crane_motor, -1, 50)
+    return None
 
 
 def drive():
@@ -61,7 +49,7 @@ def drive():
     drive_check = True
     while drive_check is True:
         TRUCK.drive(-DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD)
-    return
+    return None
 
 
 def button_pressed(button_port):  # Function for detecting button press
@@ -89,13 +77,13 @@ def detect_item_fail(pickupstatus, button_port):
         return False
 
 
-def crane_up(crane_port):  # Function for moving the crane up
+def crane_movement(crane_port, direction, speed):  # Function for moving the crane up
     """
     Crane_port - Class contatning the port, containing the port of the crane
 
     Returns an angle of the crane at it's maximum angle
     """
-    speed_of_crane = 100
+    speed_of_crane = speed * direction
     Crane_motor = Motor(crane_port)
     return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=90)
 
@@ -110,17 +98,6 @@ def crane_hold(crane_port):  # Function for moving the crane up
     Crane_motor = Motor(crane_port)
     Crane_motor.run_target(speed_of_crane, 200)
     Crane_motor.hold()
-
-
-def crane_down(crane_port):  # Function for moving the crane down
-    """
-    Crane_port - Class contatning the port, containing the port of the crane
-
-    Returns an angle of the crane at it's minimum angle
-    """
-    speed_of_crane = -100
-    Crane_motor = Motor(crane_port)
-    return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=90)
 
 # Function for moving the crane up
 
@@ -163,6 +140,7 @@ def crane_pickup(crane_port, touch_port, DriveBase, angle_of_crane, max_angle, m
     # Drive back
     ROBOT.straight(distance_traveled)
 
+    return angle_of_crane
 
 if __name__ == '__main__':  # Keep this!
     sys.exit(main())
