@@ -21,11 +21,12 @@ from pybricks.tools import wait
 colours = [Color.GREEN, Color.BLUE, Color.RED, Color.BROWN, Color.YELLOW]
 
 
-
 EV3 = EV3Brick()
-Crane_motor = Motor(Port.A, gears=[12,36])
-Right_drive = Motor(Port.B,positive_direction=Direction.COUNTERCLOCKWISE,gears=[12,20])
-Left_drive = Motor(Port.C,positive_direction=Direction.COUNTERCLOCKWISE,gears=[12,20])
+Crane_motor = Motor(Port.A, gears=[12, 36])
+Right_drive = Motor(
+    Port.B, positive_direction=Direction.COUNTERCLOCKWISE, gears=[12, 20])
+Left_drive = Motor(
+    Port.C, positive_direction=Direction.COUNTERCLOCKWISE, gears=[12, 20])
 
 Front_button = TouchSensor(Port.S1)
 Light_sensor = ColorSensor(Port.S3)
@@ -33,7 +34,7 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
 # May need to change wheel_diameter and axel_track
-TRUCK = DriveBase(left_motor=Left_drive, right_motor=Right_drive,
+TRUCK = DriveBase(left_motor=Right_drive, right_motor=Left_drive,
                   wheel_diameter=47, axle_track=128)
 
 
@@ -49,18 +50,19 @@ DRIVING_INITAL = 50
 
 
 def main():  # Main Class
-    drive()
+    crane_pickup(Crane_motor, TRUCK, Front_button, 0, 90, 0)
 
 
 def drive():
     drive_check = True
     while drive_check is True:
-        obstacle(300, "Driving", Ultrasonic_sensor)
+        if obstacle(300, "Driving", Ultrasonic_sensor) is True:
+            TRUCK.stop()
         TRUCK.drive(DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD)
     return None
 
 
-def button_pressed(button_port):  # Function for detecting button press
+def button_pressed(Front_button):  # Function for detecting button press
     #Front_button = TouchSensor(button_port)
     if Front_button.pressed():
         return True
@@ -68,15 +70,16 @@ def button_pressed(button_port):  # Function for detecting button press
         return False
 
 
-def obstacle(accepted_distance, current_mode, sensor): # Function for detecting obstacles and stopping the robot.
-    distance = sensor.distance() #Value in mm
-    while distance < accepted_distance and current_mode == "Driving":
-        print("JAG ÄR INNE")
-        distance = sensor.distance()
-    return None #Insert message
+# Function for detecting obstacles and stopping the robot.
+def obstacle(accepted_distance, current_mode, sensor):
+    distance = sensor.distance()  # Value in mm
+    if distance < accepted_distance and current_mode == "Driving":
+        return True
+    return False
 
 
-def detect_item_fail(pickupstatus, button): # Function for detecting if a pickup of an item has failed
+# Function for detecting if a pickup of an item has failed
+def detect_item_fail(pickupstatus, button):
     if pickupstatus == True:
         return button_pressed(button)
     else:
@@ -105,7 +108,9 @@ def crane_hold(crane_port):  # Function for moving the crane up
     return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=90)
 
 # Function for moving the crane up
-def crane_pickup(crane_port, DriveBase, angle_of_crane, max_angle, min_angle):
+
+
+def crane_pickup(Crane_motor, DriveBase, Front_button, angle_of_crane, max_angle, min_angle):
     """
     Crane_port - Class contatning the port, containing the port of the crane
     DriveBase - Class that handles the drving of the robot
@@ -117,9 +122,9 @@ def crane_pickup(crane_port, DriveBase, angle_of_crane, max_angle, min_angle):
     """
     # Initializing the variables
     speed_of_crane = 50
-    raise_angle = 5
-    Crane_motor = Motor(crane_port)
-    ROBOT = DriveBase 
+    raise_angle = 50
+    distance_traveled = 0
+    ROBOT = DriveBase
 
     # Makes sure that the angle of the crane is valid
     if angle_of_crane < min_angle:
@@ -129,7 +134,7 @@ def crane_pickup(crane_port, DriveBase, angle_of_crane, max_angle, min_angle):
     Crane_motor.run_target(speed_of_crane, angle_of_crane, )
 
     # Drive forward for 100mm
-    while button_pressed() is False:
+    while button_pressed(Front_button) is False:
         ROBOT.straight(100)
         distance_traveled -= 100
 
@@ -144,20 +149,19 @@ def crane_pickup(crane_port, DriveBase, angle_of_crane, max_angle, min_angle):
 
     return angle_of_crane
 
+
 def get_colour():
     return Light_sensor.color()
 
-def set_area(colours,current_area):
+
+def set_area(colours, current_area):
     threshold = 15
     current_colour = get_colour()
     for colour in colours:
         if get_colour() == colour:
             if colour != current_area:
                 current_area = colour
-                #area has been switched
-
-
-
+                # area has been switched
 
 
 if __name__ == '__main__':  # Keep this!
