@@ -1,5 +1,4 @@
 #!/usr/bin/env pybricks-micropython
-from pickle import TRUE
 import sys
 import __init__
 
@@ -80,10 +79,10 @@ def obstacle(accepted_distance, current_mode, sensor): # Function for detecting 
 
 
 def detect_item_fail(pickupstatus, button): # Function for detecting if a pickup of an item has failed
-    if pickupstatus == TRUE:
+    if pickupstatus == True:
         return button_pressed(button)
     else:
-        return TRUE
+        return True
 
 
 def crane_movement(crane_port, direction, speed):  # Function for moving the crane up
