@@ -3,10 +3,9 @@ import sys
 import __init__
 
 from pybricks.hubs import EV3Brick
-from pybricks.ev3devices import Motor, TouchSensor
+from pybricks.ev3devices import Motor, TouchSensor, ColorSensor, UltrasonicSensor
 from pybricks.parameters import Port, Color,Direction
 from pybricks.robotics import DriveBase
-from pybricks.pupdevices import ColorSensor, UltrasonicSensor
 from pybricks.tools import wait
 # "ColorSensor": [one Color Sensor] for measuring line colors to follow the line .
 # "TouchSensor": [one Touch Sensor] for detecting a pallet on the forks" .
@@ -24,7 +23,7 @@ colours = [GREEN, BLUE, RED, BROWN, YELLOW]
 
 
 EV3 = EV3Brick()
-Crane_motor = Motor(Port.A)
+Crane_motor = Motor(Port.A, gears=[12,36])
 Right_drive = Motor(Port.B,positive_direction=Direction.COUNTERCLOCKWISE,gears=[12,20])
 Left_drive = Motor(Port.C,positive_direction=Direction.COUNTERCLOCKWISE,gears=[12,20])
 
