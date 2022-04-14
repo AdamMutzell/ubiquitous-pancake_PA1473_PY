@@ -1,6 +1,8 @@
 #!/usr/bin/env pybricks-micropython
 from pickle import TRUE
 import sys
+
+from matplotlib.pyplot import get
 import __init__
 
 from pybricks.hubs import EV3Brick
@@ -150,10 +152,7 @@ def crane_pickup(crane_port, DriveBase, angle_of_crane, max_angle, min_angle):
 def get_colour():
     return Light_sensor.color()
     
-colours = [Color()]
-
-
-def set_area(colours,current_area):
+def get_area(colours,current_area):
     threshold = 15
     current_colour = get_colour()
     for colour in colours:
@@ -161,10 +160,15 @@ def set_area(colours,current_area):
             if colour != current_area:
                 current_area = colour
                 #area has been switched
-
-
-
-
+    return current_area
+def exit_zone():
+    TRUCK.turn(180)
+    initial_zone = get_area()
+    if initial_zone != get_area:
+        #robot has left the zone
+        return True
+    else:
+        return False
 
 if __name__ == '__main__':  # Keep this!
     sys.exit(main())
