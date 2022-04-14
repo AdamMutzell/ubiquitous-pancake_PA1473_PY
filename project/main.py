@@ -33,8 +33,6 @@ def main():  # Main Class
 
     return 0
 
-# Robot diameter:
-ROBOT = DriveBase(Left_drive, Right_drive, wheel_diameter=56, axle_track=118)
 
 # Measure of reflection:
 WHAITE = 40
@@ -45,10 +43,12 @@ THRESHOLD = (WHAITE + BLACK) / 2
 DRIVING_INITAL = 150
 
 # Drive on the line:
+
+
 def drive():
     drive_check = True
     while drive_check is True:
-        ROBOT.drive(DRIVING_INITAL,Light_sensor.reflection()-THRESHOLD)
+        TRUCK.drive(DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD)
     return
 
 
