@@ -118,6 +118,9 @@ def crane_pickup(crane_port, DriveBase, angle_of_crane, max_angle, min_angle):
 def get_colour():
     return Light_sensor.color()
     
+colours = [Color()]
+
+
 def set_area(colours,current_area):
     current_colour = get_colour()
     for colour in colours:
