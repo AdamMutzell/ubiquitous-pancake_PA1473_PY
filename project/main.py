@@ -15,7 +15,7 @@ from pybricks.tools import wait
 
 
 EV3 = EV3Brick()
-Crane_motor = Motor(Port.A,gears=[12,36])
+Crane_motor = Motor(Port.A)
 Right_drive = Motor(Port.B,positive_direction=Direction.COUNTERCLOCKWISE,gears=[12,20])
 Left_drive = Motor(Port.C,positive_direction=Direction.COUNTERCLOCKWISE,gears=[12,20])
 
@@ -49,7 +49,7 @@ def main():  # Main Class
 def drive():
     drive_check = True
     while drive_check is True:
-        TRUCK.drive(-DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD)
+        TRUCK.drive(DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD)
     return None
 
 
