@@ -7,6 +7,7 @@ from pybricks.ev3devices import Motor, TouchSensor, ColorSensor, UltrasonicSenso
 from pybricks.parameters import Port, Color, Direction
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait
+from pybricks.media.ev3dev import SoundFile
 # "ColorSensor": [one Color Sensor] for measuring line colors to follow the line .
 # "TouchSensor": [one Touch Sensor] for detecting a pallet on the forks" .
 # "UltrasonicSensor": [one Ultrasonic Sensor] for detection of obstacles.
@@ -39,9 +40,35 @@ TRUCK = DriveBase(left_motor=Right_drive, right_motor=Left_drive,
 
 
 # Measure of reflection:
-WHAITE = 100
-BLACK = 15
-THRESHOLD = (WHAITE + BLACK) / 2
+def THRESHOLD():
+    WHITE = 100
+    if Color.GREEN:
+        THRESHOLD_color = (WHITE + Color.GREEN) / 2
+    if Color.BLUE:
+        THRESHOLD_color = (WHITE + Color.BLUE) / 2
+    if Color.RED:
+        THRESHOLD_color = (WHITE + Color.RED) / 2
+    if Color.BROWN:
+        THRESHOLD_color = (WHITE + Color.BROWN) / 2
+    if Color.YELLOW:
+        THRESHOLD_color = (WHITE + Color.YELLOW) / 2
+    #if Color.BLACK:
+        # Robot should be stop when it black, because the warehouses have black line. !!!!!!!!
+        #THRESHOLD_color = (WHITE + Color.BLACK) / 2
+    return THRESHOLD_color
+
+
+
+# sounds and notification:
+# I need to know how can I import sound file. ??????
+sound_start = EV3.speaker.beep()
+sound_GREEN = EV3.speaker.GREEN()
+sound_BLUE = EV3.speaker.BLUE()
+sound_RED = EV3.speaker.RED()
+sound_BROWN = EV3.speaker.BROWN()
+sound_YELLOW = EV3.speaker.YELLOW()
+sound_BLACK = EV3.speaker.BLACK()
+
 
 # Speed:
 DRIVING_INITAL = 50
@@ -58,7 +85,7 @@ def drive():
     while drive_check is True:
         if obstacle(300, "Driving", Ultrasonic_sensor) is True:
             TRUCK.stop()
-        TRUCK.drive(DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD)
+        TRUCK.drive(DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD())
     return None
 
 
