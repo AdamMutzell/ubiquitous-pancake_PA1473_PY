@@ -42,19 +42,20 @@ TRUCK = DriveBase(left_motor=Right_drive, right_motor=Left_drive,
 # Measure of reflection:
 def THRESHOLD():
     WHITE = 100
-    if Color.GREEN:
+    if Light_sensor == Color.GREEN:
         THRESHOLD_color = (WHITE + Color.GREEN) / 2
-    if Color.BLUE:
+    if Light_sensor == Color.BLUE:
         THRESHOLD_color = (WHITE + Color.BLUE) / 2
-    if Color.RED:
+    if Light_sensor == Color.RED:
         THRESHOLD_color = (WHITE + Color.RED) / 2
-    if Color.BROWN:
+    if Light_sensor == Color.BROWN:
         THRESHOLD_color = (WHITE + Color.BROWN) / 2
-    if Color.YELLOW:
+    if Light_sensor == Color.YELLOW:
         THRESHOLD_color = (WHITE + Color.YELLOW) / 2
-    # if Color.BLACK:
-        # Robot should be stop when it black, because the warehouses have black line. !!!!!!!!
-        #THRESHOLD_color = (WHITE + Color.BLACK) / 2
+# Robot should be stop when it black, because the warehouses have black line. !!!!!!!!
+    if Light_sensor == Color.BLACK:
+        THRESHOLD_color = TRUCK.stop()
+        print(sound_start)
     return THRESHOLD_color
 
 
@@ -84,6 +85,7 @@ def drive():
     while drive_check is True:
         if obstacle(300, "Driving", Ultrasonic_sensor) is True:
             TRUCK.stop()
+        print(sound_start)
         TRUCK.drive(DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD())
     return None
 
