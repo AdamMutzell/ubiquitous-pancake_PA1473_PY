@@ -157,7 +157,7 @@ def crane_hold(crane_port):  # Function for moving the crane up
 
 def crane_pickup(Crane_motor, DriveBase, Front_button, angle_of_crane, max_angle, min_angle):
     """
-    Crane_port - Class contatning the port, containing the port of the crane
+    Crane_port - Class containing the port, containing the port of the crane
     DriveBase - Class that handles the drving of the robot
     Front_button - Class that handles the button on the front of the robot
     angle_of_crane - Int, containing the angle the crane should be
