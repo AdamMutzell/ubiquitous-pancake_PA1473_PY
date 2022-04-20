@@ -3,6 +3,7 @@ import sys
 
 from matplotlib.pyplot import get
 import __init__
+import Colour_Calibrator
 
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor, ColorSensor, UltrasonicSensor
@@ -21,6 +22,7 @@ from pybricks.media.ev3dev import SoundFile
 # brown = Color(h=17, s=48, v=15)
 # yellow = Color(h=60, s=100, v=100)
 
+saved_colours = open("savedColours.txt", "r")
 colours = {"Zone_1":Color.GREEN,"Zone_2": Color.BLUE,"Zone_3": Color.RED,"Roundabout" : Color.BROWN,"Warehouse" : Color.YELLOW}
 current_colour = Color.WHITE
 
@@ -77,6 +79,7 @@ DRIVING_INITAL = 50
 
 # Drive on the line:
 
+Colour_Calibrator.Calibrate_Colours(colours,Light_sensor)
 
 def main():  # Main Class
     crane_pickup(Crane_motor, TRUCK, Front_button, 0, 90, 0)
