@@ -30,3 +30,6 @@
 - [ ] Be informed by what operation a truck is performing. 2 USP
 - [ ] Exit the specified area in a safe manner. 5 USP
 - [ ] Return to the specified area in a safe manner. 3 USP
+- [ ] Emergency mode, return to the start position when it drups a pallet (Pickup and delivery)
+- [ ] Have a truck pickup a item with a specified color (by zone)
+- [ ] Optimize the time it takes to collect a pickup-item.
