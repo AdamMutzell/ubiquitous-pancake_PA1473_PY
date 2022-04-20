@@ -11,6 +11,7 @@ from pybricks.parameters import Port, Color, Direction
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait
 from pybricks.media.ev3dev import SoundFile
+
 # "ColorSensor": [one Color Sensor] for measuring line colors to follow the line .
 # "TouchSensor": [one Touch Sensor] for detecting a pallet on the forks" .
 # "UltrasonicSensor": [one Ultrasonic Sensor] for detection of obstacles.
@@ -21,8 +22,8 @@ from pybricks.media.ev3dev import SoundFile
 # red = Color(h=359, s=97, v=39)
 # brown = Color(h=17, s=48, v=15)
 # yellow = Color(h=60, s=100, v=100)
-
 EV3 = EV3Brick()
+
 Crane_motor = Motor(Port.A, gears=[12, 36])
 Right_drive = Motor(
     Port.B, positive_direction=Direction.COUNTERCLOCKWISE, gears=[12, 20])

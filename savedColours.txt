@@ -1,5 +1,0 @@
-Color(h=120, s=100, v=100)
-Color(h=240, s=100, v=100)
-Color(h=0, s=100, v=100)
-Color(h=30, s=100, v=50)
-Color(h=60, s=100, v=100)

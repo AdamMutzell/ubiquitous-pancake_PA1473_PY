@@ -1,25 +1,25 @@
-saved_colours =  open("savedColours.txt", "w")
-
-from numpy import save
-from pybricks.hubs import MoveHub
-from pybricks.tools import wait
-
-from pybricks.ev3devices import ColorSensor
+from pybricks.hubs import EV3Brick as brick
 from pybricks.parameters import Button
+from numpy import save
+from pybricks.tools import wait
+from pybricks.ev3devices import ColorSensor
 
-hub = MoveHub()
+saved_colours =  open("savedColours.txt", "w")
 def Calibrate_Colours(colours,sensor):
     calibrated_colours = colours.copy()
-    
-    for i,colour in enumerate(colours.values()):
-        print("set colour for: ",colour)
-        #while hub.button.pressed() == False:
-        #    wait(1)
+
+    for label,colour in colours.items():
+        print("set colour for: "+label)
+        running = True
+        while running:
+            if brick.buttons.pressed(): #if any button is pressed
+                running = False
         selected_colour = colour#sensor.color()
+        #^Uncomment for testing^
         calibrated_colours[i] = selected_colour
         saved_colours.write(str(selected_colour)+"\n")
     saved_colours.close()
     print(calibrated_colours)
     return calibrated_colours
 
-    #^Uncomment for testing^
+    
