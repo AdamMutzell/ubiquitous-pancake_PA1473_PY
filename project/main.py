@@ -9,6 +9,7 @@ from pybricks.ev3devices import Motor, TouchSensor, ColorSensor, UltrasonicSenso
 from pybricks.parameters import Port, Color, Direction
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait
+from pybricks.media.ev3dev import SoundFile
 # "ColorSensor": [one Color Sensor] for measuring line colors to follow the line .
 # "TouchSensor": [one Touch Sensor] for detecting a pallet on the forks" .
 # "UltrasonicSensor": [one Ultrasonic Sensor] for detection of obstacles.
@@ -41,9 +42,35 @@ TRUCK = DriveBase(left_motor=Right_drive, right_motor=Left_drive,
 
 
 # Measure of reflection:
-WHAITE = 100
-BLACK = 15
-THRESHOLD = (WHAITE + BLACK) / 2
+def THRESHOLD():
+    WHITE = 100
+    if Light_sensor == Color.GREEN:
+        THRESHOLD_color = (WHITE + Color.GREEN) / 2
+    if Light_sensor == Color.BLUE:
+        THRESHOLD_color = (WHITE + Color.BLUE) / 2
+    if Light_sensor == Color.RED:
+        THRESHOLD_color = (WHITE + Color.RED) / 2
+    if Light_sensor == Color.BROWN:
+        THRESHOLD_color = (WHITE + Color.BROWN) / 2
+    if Light_sensor == Color.YELLOW:
+        THRESHOLD_color = (WHITE + Color.YELLOW) / 2
+# Robot should be stop when it black, because the warehouses have black line. !!!!!!!!
+    if Light_sensor == Color.BLACK:
+        THRESHOLD_color = TRUCK.stop()
+        print(sound_start)
+    return THRESHOLD_color
+
+
+# sounds and notification:
+# I need to know how can I import sound file. ??????
+sound_start = EV3.speaker.beep()
+sound_GREEN = EV3.speaker.GREEN()
+sound_BLUE = EV3.speaker.BLUE()
+sound_RED = EV3.speaker.RED()
+sound_BROWN = EV3.speaker.BROWN()
+sound_YELLOW = EV3.speaker.YELLOW()
+sound_BLACK = EV3.speaker.BLACK()
+
 
 # Speed:
 DRIVING_INITAL = 50
@@ -60,12 +87,18 @@ def drive():
     while drive_check is True:
         if obstacle(300, "Driving", Ultrasonic_sensor) is True:
             TRUCK.stop()
-        TRUCK.drive(DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD)
+        print(sound_start)
+        TRUCK.drive(DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD())
     return None
 
 
 def button_pressed(Front_button):  # Function for detecting button press
-    #Front_button = TouchSensor(button_port)
+    """
+    Front_button, class handling the front button of the robot
+
+    Returns true if the button is pressed, false otherwise
+    """
+
     if Front_button.pressed():
         return True
     else:
@@ -74,6 +107,13 @@ def button_pressed(Front_button):  # Function for detecting button press
 
 # Function for detecting obstacles and stopping the robot.
 def obstacle(accepted_distance, current_mode, sensor):
+    """
+    accepted_distance - int, the distance to not accept any obstacles
+    current_mode - str, the mode of the robot
+    sensor - Class, handling the ultra sonic sensor of the robot
+
+    returns true if an obstacle is detected, false otherwise
+    """
     distance = sensor.distance()  # Value in mm
     if distance < accepted_distance and current_mode == "Driving":
         return True
@@ -82,6 +122,12 @@ def obstacle(accepted_distance, current_mode, sensor):
 
 # Function for detecting if a pickup of an item has failed
 def detect_item_fail(pickupstatus, button):
+    """
+    pickupstatus - boolean, True if the truck is currently picking up an item
+    button, a class handling the front button of the robot
+
+    Returns True if the pickup has failed, False otherwise
+    """
     if pickupstatus == True:
         return button_pressed(button)
     else:
@@ -91,7 +137,8 @@ def detect_item_fail(pickupstatus, button):
 def crane_movement(crane_port, direction, speed):  # Function for moving the crane up
     """
     Crane_port - Class contatning the port, containing the port of the crane
-
+    direction, a value between -1 and 1, indicating the direction of the movement
+    speed, a value between 0 and 100, indicating the speed of the movement
     Returns an angle of the crane at it's maximum angle
     """
     speed_of_crane = speed * direction
@@ -114,13 +161,14 @@ def crane_hold(crane_port):  # Function for moving the crane up
 
 def crane_pickup(Crane_motor, DriveBase, Front_button, angle_of_crane, max_angle, min_angle):
     """
-    Crane_port - Class contatning the port, containing the port of the crane
+    Crane_port - Class containing the port, containing the port of the crane
     DriveBase - Class that handles the drving of the robot
+    Front_button - Class that handles the button on the front of the robot
     angle_of_crane - Int, containing the angle the crane should be
     max_angle - int, containing the maximum angle the crane can be
     min_angle - int, containing the minimum angle the crane can be
 
-    Returns null
+    Returns None
     """
     # Initializing the variables
     speed_of_crane = 50
@@ -153,6 +201,9 @@ def crane_pickup(Crane_motor, DriveBase, Front_button, angle_of_crane, max_angle
 
 
 def get_colour():
+    """
+    Returns the colour of the ground the robot is looking at
+    """
     return Light_sensor.color()
     
 def get_area(colours,current_area):
