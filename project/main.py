@@ -21,8 +21,8 @@ from pybricks.media.ev3dev import SoundFile
 # brown = Color(h=17, s=48, v=15)
 # yellow = Color(h=60, s=100, v=100)
 
-colours = [Color.GREEN, Color.BLUE, Color.RED, Color.BROWN, Color.YELLOW]
-
+colours = {"Zone_1":Color.GREEN,"Zone_2": Color.BLUE,"Zone_3": Color.RED,"Roundabout" : Color.BROWN,"Warehouse" : Color.YELLOW}
+current_colour = Color.WHITE
 
 EV3 = EV3Brick()
 Crane_motor = Motor(Port.A, gears=[12, 36])
@@ -215,10 +215,9 @@ def get_area(colours,current_area):
                 current_area = colour
                 #area has been switched
     return current_area
-def exit_zone():
+def exit_zone(initial_zone):
     TRUCK.turn(180)
-    initial_zone = get_area()
-    if initial_zone != get_area:
+    if initial_zone != get_area():
         #robot has left the zone
         return True
     else:
