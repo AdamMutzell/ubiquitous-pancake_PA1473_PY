@@ -9,13 +9,17 @@ from pybricks.parameters import Button
 
 hub = MoveHub()
 def Calibrate_Colours(colours,sensor):
-    for colour, i in enumerate(colours()):
+    calibrated_colours = colours.copy()
+    
+    for i,colour in enumerate(colours.values()):
         print("set colour for: ",colour)
-        while hub.button.pressed() == False:
-            wait(1)
+        #while hub.button.pressed() == False:
+        #    wait(1)
         selected_colour = colour#sensor.color()
-        colours[i] = selected_colour
-        saved_colours.write(selected_colour,"\n")
+        calibrated_colours[i] = selected_colour
+        saved_colours.write(str(selected_colour)+"\n")
     saved_colours.close()
-    print(colours)
-    return colours
+    print(calibrated_colours)
+    return calibrated_colours
+
+    #^Uncomment for testing^

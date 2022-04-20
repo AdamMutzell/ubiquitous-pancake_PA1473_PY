@@ -22,10 +22,6 @@ from pybricks.media.ev3dev import SoundFile
 # brown = Color(h=17, s=48, v=15)
 # yellow = Color(h=60, s=100, v=100)
 
-saved_colours = open("savedColours.txt", "r")
-colours = {"Zone_1":Color.GREEN,"Zone_2": Color.BLUE,"Zone_3": Color.RED,"Roundabout" : Color.BROWN,"Warehouse" : Color.YELLOW}
-current_colour = Color.WHITE
-
 EV3 = EV3Brick()
 Crane_motor = Motor(Port.A, gears=[12, 36])
 Right_drive = Motor(
@@ -36,6 +32,14 @@ Left_drive = Motor(
 Front_button = TouchSensor(Port.S1)
 Light_sensor = ColorSensor(Port.S3)
 Ultrasonic_sensor = UltrasonicSensor(Port.S4)
+
+
+saved_colours = open("savedColours.txt", "r")
+colours = {"Zone_1":Color.GREEN,"Zone_2": Color.BLUE,"Zone_3": Color.RED,"Roundabout" : Color.BROWN,"Warehouse" : Color.YELLOW}
+colours = Colour_Calibrator.Calibrate_Colours(colours,Light_sensor)
+current_colour = Color.WHITE
+
+
 
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
 # May need to change wheel_diameter and axel_track
@@ -79,7 +83,7 @@ DRIVING_INITAL = 50
 
 # Drive on the line:
 
-Colour_Calibrator.Calibrate_Colours(colours,Light_sensor)
+
 
 def main():  # Main Class
     crane_pickup(Crane_motor, TRUCK, Front_button, 0, 90, 0)
