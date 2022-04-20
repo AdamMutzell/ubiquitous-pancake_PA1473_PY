@@ -6,6 +6,11 @@ from pybricks.ev3devices import ColorSensor
 
 saved_colours =  open("savedColours.txt", "w")
 def Calibrate_Colours(colours,sensor):
+    """
+    Enter a calibraton mode where the user must press a button on the brick and set the colour value for each individual colour reading.
+
+    Returns a dictionary of colours and saves to txt file
+    """
     calibrated_colours = colours.copy()
 
     for label,colour in colours.items():
