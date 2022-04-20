@@ -1,7 +1,5 @@
 #!/usr/bin/env pybricks-micropython
 import sys
-
-from matplotlib.pyplot import get
 import __init__
 
 from pybricks.hubs import EV3Brick
@@ -10,10 +8,11 @@ from pybricks.parameters import Port, Color, Direction
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait
 from pybricks.media.ev3dev import SoundFile
-# "ColorSensor": [one Color Sensor] for measuring line colors to follow the line .
-# "TouchSensor": [one Touch Sensor] for detecting a pallet on the forks" .
-# "UltrasonicSensor": [one Ultrasonic Sensor] for detection of obstacles.
-
+# To do:
+# Fix the crane pickup function for elevated surfaces
+# Might be able to show that elevated surface by taking half of max_angle.
+# Colours value for paths
+# Emergency mode
 
 # green = Color(h=120, s=100, v=100)
 # blue = Color(h=240, s=100, v=100)
@@ -44,6 +43,10 @@ TRUCK = DriveBase(left_motor=Right_drive, right_motor=Left_drive,
 # Measure of reflection:
 def THRESHOLD():
     WHITE = 100
+    BLACK = 15
+
+    THRESHOLD_color = (WHITE+BLACK) / 2
+    """
     if Light_sensor == Color.GREEN:
         THRESHOLD_color = (WHITE + Color.GREEN) / 2
     if Light_sensor == Color.BLUE:
@@ -54,22 +57,23 @@ def THRESHOLD():
         THRESHOLD_color = (WHITE + Color.BROWN) / 2
     if Light_sensor == Color.YELLOW:
         THRESHOLD_color = (WHITE + Color.YELLOW) / 2
+    """
 # Robot should be stop when it black, because the warehouses have black line. !!!!!!!!
-    if Light_sensor == Color.BLACK:
-        THRESHOLD_color = TRUCK.stop()
-        print(sound_start)
+    # if Light_sensor == Color.BLACK:
+    #    THRESHOLD_color = TRUCK.stop()
+    #    print(sound_start)
     return THRESHOLD_color
 
 
 # sounds and notification:
 # I need to know how can I import sound file. ??????
 sound_start = EV3.speaker.beep()
-sound_GREEN = EV3.speaker.GREEN()
-sound_BLUE = EV3.speaker.BLUE()
-sound_RED = EV3.speaker.RED()
-sound_BROWN = EV3.speaker.BROWN()
-sound_YELLOW = EV3.speaker.YELLOW()
-sound_BLACK = EV3.speaker.BLACK()
+#sound_GREEN = EV3.speaker.GREEN()
+#sound_BLUE = EV3.speaker.BLUE()
+#sound_RED = EV3.speaker.RED()
+#sound_BROWN = EV3.speaker.BROWN()
+#sound_YELLOW = EV3.speaker.YELLOW()
+#sound_BLACK = EV3.speaker.BLACK()
 
 
 # Speed:
@@ -79,14 +83,26 @@ DRIVING_INITAL = 50
 
 
 def main():  # Main Class
-    crane_pickup(Crane_motor, TRUCK, Front_button, 0, 90, 0)
+    # Testing the crane
+    # drive()
+    pickupstatus = True
+
+    Crane_motor.reset_angle(0)
+    max_angle = crane_movement(Crane_motor, 1, 50)
+    min_angle = crane_movement(Crane_motor, -1, 50)
+
+    crane_pickup(Crane_motor, TRUCK, Front_button, -1000, max_angle, min_angle)
+
+    detect_item_fail(pickupstatus, Front_button)
 
 
 def drive():
     drive_check = True
+    pickupstatus = False
     while drive_check is True:
         if obstacle(300, "Driving", Ultrasonic_sensor) is True:
             TRUCK.stop()
+
         print(sound_start)
         TRUCK.drive(DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD())
     return None
@@ -129,12 +145,13 @@ def detect_item_fail(pickupstatus, button):
     Returns True if the pickup has failed, False otherwise
     """
     if pickupstatus == True:
+        EV3.speaker.beep()
         return button_pressed(button)
     else:
         return True
 
 
-def crane_movement(crane_port, direction, speed):  # Function for moving the crane up
+def crane_movement(Crane_motor, direction, speed):  # Function for moving the crane up
     """
     Crane_port - Class contatning the port, containing the port of the crane
     direction, a value between -1 and 1, indicating the direction of the movement
@@ -142,18 +159,16 @@ def crane_movement(crane_port, direction, speed):  # Function for moving the cra
     Returns an angle of the crane at it's maximum angle
     """
     speed_of_crane = speed * direction
-    Crane_motor = Motor(crane_port)
-    return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=90)
+    return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=75)
 
 
-def crane_hold(crane_port):  # Function for moving the crane up
+def crane_hold(Crane_motor):  # Function for moving the crane up
     """
     Crane_port - Class contatning the port, containing the port of the crane
 
     Returns an angle of the crane at it's maximum angle
     """
     speed_of_crane = 50
-    Crane_motor = Motor(crane_port)
     return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=90)
 
 # Function for moving the crane up
@@ -170,11 +185,16 @@ def crane_pickup(Crane_motor, DriveBase, Front_button, angle_of_crane, max_angle
 
     Returns None
     """
+    # To do, check out stop function on target and stall limits
+
     # Initializing the variables
     speed_of_crane = 50
     raise_angle = 50
     distance_traveled = 0
     ROBOT = DriveBase
+
+    # Seetings for the crane motor
+    Crane_motor.control.stall_tolerances(stall_limit=90, stall_time_limit=5000)
 
     # Makes sure that the angle of the crane is valid
     if angle_of_crane < min_angle:
@@ -185,6 +205,8 @@ def crane_pickup(Crane_motor, DriveBase, Front_button, angle_of_crane, max_angle
 
     # Drive forward for 100mm
     while button_pressed(Front_button) is False:
+        print(button_pressed(Front_button))
+
         ROBOT.straight(100)
         distance_traveled -= 100
 
@@ -205,24 +227,28 @@ def get_colour():
     Returns the colour of the ground the robot is looking at
     """
     return Light_sensor.color()
-    
-def get_area(colours,current_area):
+
+
+def get_area(colours, current_area):
     threshold = 15
     current_colour = get_colour()
     for colour in colours:
         if get_colour() == colour:
             if colour != current_area:
                 current_area = colour
-                #area has been switched
+                # area has been switched
     return current_area
+
+
 def exit_zone():
     TRUCK.turn(180)
     initial_zone = get_area()
     if initial_zone != get_area:
-        #robot has left the zone
+        # robot has left the zone
         return True
     else:
         return False
+
 
 if __name__ == '__main__':  # Keep this!
     sys.exit(main())
