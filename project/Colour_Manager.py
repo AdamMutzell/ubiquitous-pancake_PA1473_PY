@@ -27,8 +27,26 @@ def Calibrate_Colours(colours,sensor):
     saved_colours.close()
     print(calibrated_colours)
     return calibrated_colours
+    
 def Get_File():
     saved_colours = open("savedColours.txt", "r")
     colours = saved_colours.read().split("\n")
     print(colours)
     saved_colours.close()
+
+def get_colour(light_sensor):
+    """
+    Returns the colour of the ground the robot is looking at
+    """
+    return light_sensor.color()
+
+
+def get_area(colours, current_area):
+    threshold = 15
+    current_colour = get_colour()
+    for colour in colours:
+        if get_colour() == colour:
+            if colour != current_area:
+                current_area = colour
+                # area has been switched
+    return current_area

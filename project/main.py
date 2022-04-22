@@ -2,7 +2,7 @@
 import sys
 from turtle import color
 import __init__
-import Colour_Calibrator
+import Colour_Manager
 
 import math,time
 
@@ -46,7 +46,7 @@ use_calibrator = True
 #Change to false to skip calibration mode and use .txt file if avalible
 
 if use_calibrator:
-    colours = Colour_Calibrator.Calibrate_Colours(colours, Light_sensor)
+    colours = Colour_Manager.Calibrate_Colours(colours, Light_sensor)
 #else:
 #    Colour_Calibrator.Get_File()
     #^This does not work yet^
@@ -250,7 +250,7 @@ def Siren(beep_frequency,sine_frequency):
 
 def exit_zone(initial_zone):
     TRUCK.turn(180)
-    if initial_zone != get_area():
+    if initial_zone != Colour_Manager.get_area():
         # robot has left the zone
         return True
     else:
