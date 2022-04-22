@@ -1,5 +1,6 @@
 #!/usr/bin/env pybricks-micropython
 import sys
+from turtle import color
 import __init__
 import Colour_Calibrator
 
@@ -34,9 +35,18 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 
 saved_colours = open("savedColours.txt", "r")
+
 colours = {"Zone_1": Color.GREEN, "Zone_2": Color.BLUE,
            "Zone_3": Color.RED, "Roundabout": Color.BROWN, "Warehouse": Color.YELLOW}
-colours = Colour_Calibrator.Calibrate_Colours(colours, Light_sensor)
+
+use_calibrator = True
+#Change to false to skip calibration mode and use .txt file if avalible
+
+if use_calibrator:
+    colours = Colour_Calibrator.Calibrate_Colours(colours, Light_sensor)
+#else:
+#    Colour_Calibrator.Get_File()
+    #^This does not work yet^
 current_colour = Color.WHITE
 
 
@@ -253,6 +263,8 @@ def exit_zone(initial_zone):
         return True
     else:
         return False
+    #Very bad code! Please ignore
+
 
 
 if __name__ == '__main__':  # Keep this!
