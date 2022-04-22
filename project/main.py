@@ -4,12 +4,15 @@ from turtle import color
 import __init__
 import Colour_Calibrator
 
+import math,time
+
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor, ColorSensor, UltrasonicSensor
 from pybricks.parameters import Port, Color, Direction
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait
 from pybricks.media.ev3dev import SoundFile
+
 # To do:
 # Fix the crane pickup function for elevated surfaces
 # Might be able to show that elevated surface by taking half of max_angle.
@@ -238,23 +241,12 @@ def crane_pickup(Crane_motor, DriveBase, Front_button, angle_of_crane, max_angle
     return angle_of_crane
 
 
-def get_colour():
-    """
-    Returns the colour of the ground the robot is looking at
-    """
-    return Light_sensor.color()
-
-
-def get_area(colours, current_area):
-    threshold = 15
-    current_colour = get_colour()
-    for colour in colours:
-        if get_colour() == colour:
-            if colour != current_area:
-                current_area = colour
-                # area has been switched
-    return current_area
-
+def Siren(beep_frequency,sine_frequency):
+    """call this inside a while loop for desired effect"""
+    threshold = 0.8
+    sine_wave = abs(math.sin(time.time()*sine_frequency)) 
+    if sine_wave >= threshold:
+        EV3.speaker.beep(beep_frequency)
 
 def exit_zone(initial_zone):
     TRUCK.turn(180)
