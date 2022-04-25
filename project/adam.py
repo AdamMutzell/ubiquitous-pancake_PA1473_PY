@@ -16,13 +16,13 @@ btn = EV3Brick.Button()
 
 
 #START
-Button().wait_for_bump(['up', 'left', 'right'])
-if Button().up:
+btn.wait_for_bump(['up', 'left', 'right'], 2000)
+if btn.up:
     #kör igång calibrering
     EV3Brick.screen.print('Calibration start')
-elif Button().left:
+elif btn.left:
     #drive towards red warehouse
     EV3Brick.screen.print('Driving towards Red Warehouse')
-elif Button().right:
+elif btn.right:
     #drive towards blue warehouse
     EV3Brick.screen.print('Driving towards Blue Warehouse')
