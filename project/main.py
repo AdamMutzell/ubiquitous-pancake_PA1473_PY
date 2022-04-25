@@ -1,6 +1,5 @@
 #!/usr/bin/env pybricks-micropython
 import sys
-from turtle import color
 import __init__
 import Colour_Manager
 
@@ -33,7 +32,7 @@ Left_drive = Motor(
     Port.C, positive_direction=Direction.COUNTERCLOCKWISE, gears=[12, 20])
 
 Front_button = TouchSensor(Port.S1)
-Light_sensor = ColorSensor(Port.S3)
+light_sensor = ColorSensor(Port.S3)
 Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 
@@ -43,22 +42,24 @@ colours = {"Zone_1": Color.GREEN, "Zone_2": Color.BLUE,
            "Zone_3": Color.RED, "Roundabout": Color.BROWN, "Warehouse": Color.YELLOW}
 
 use_calibrator = True
+going_to_target = False
 #Change to false to skip calibration mode and use .txt file if avalible
 
 if use_calibrator:
-    colours = Colour_Manager.Calibrate_Colours(colours, Light_sensor)
+    colours = Colour_Manager.Calibrate_Colours(colours, light_sensor)
+    print("colours calibrated as :"+str(colours))
 #else:
-#    Colour_Calibrator.Get_File()
+#   colours = Colour_Manager.Get_File()
     #^This does not work yet^
-current_colour = Color.WHITE
 
+target_zone = Color.WHITE
+final_target_zone = colours["Zone_2"] #set this using user input?
 
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
 # May need to change wheel_diameter and axel_track
 TRUCK = DriveBase(left_motor=Right_drive, right_motor=Left_drive,
                   wheel_diameter=47, axle_track=128)
-
-
+        
 # Measure of reflection:
 def THRESHOLD():
     WHITE = 100
@@ -66,19 +67,19 @@ def THRESHOLD():
 
     THRESHOLD_color = (WHITE+BLACK) / 2
     """
-    if Light_sensor == Color.GREEN:
+    if light_sensor == Color.GREEN:
         THRESHOLD_color = (WHITE + Color.GREEN) / 2
-    if Light_sensor == Color.BLUE:
+    if light_sensor == Color.BLUE:
         THRESHOLD_color = (WHITE + Color.BLUE) / 2
-    if Light_sensor == Color.RED:
+    if light_sensor == Color.RED:
         THRESHOLD_color = (WHITE + Color.RED) / 2
-    if Light_sensor == Color.BROWN:
+    if light_sensor == Color.BROWN:
         THRESHOLD_color = (WHITE + Color.BROWN) / 2
-    if Light_sensor == Color.YELLOW:
+    if light_sensor == Color.YELLOW:
         THRESHOLD_color = (WHITE + Color.YELLOW) / 2
     """
 # Robot should be stop when it black, because the warehouses have black line. !!!!!!!!
-    # if Light_sensor == Color.BLACK:
+    # if light_sensor == Color.BLACK:
     #    THRESHOLD_color = TRUCK.stop()
     #    print(sound_start)
     return THRESHOLD_color
@@ -123,7 +124,7 @@ def drive():
             TRUCK.stop()
 
         print(sound_start)
-        TRUCK.drive(DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD())
+        TRUCK.drive(DRIVING_INITAL, light_sensor.reflection()-THRESHOLD())
     return None
 
 
@@ -257,7 +258,6 @@ def exit_zone(initial_zone):
         return False
     #Very bad code! Please ignore
 
-
-
 if __name__ == '__main__':  # Keep this!
     sys.exit(main())
+
