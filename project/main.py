@@ -100,7 +100,21 @@ DRIVING_INITAL = 50
 
 # Drive on the line:
 
+btn = EV3Brick.Button()
 
+
+#START
+btn.wait_for_bump(['up', 'left', 'right'], 2000)
+if btn.up:
+    #kör igång calibrering
+    EV3Brick.screen.print('Calibration start')
+elif btn.left:
+    #drive towards red warehouse
+    EV3Brick.screen.print('Driving towards Red Warehouse')
+elif btn.right:
+    #drive towards blue warehouse
+    EV3Brick.screen.print('Driving towards Blue Warehouse')
+    
 def main():  # Main Class
     # Testing the crane
     # drive()
