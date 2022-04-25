@@ -12,10 +12,6 @@ import math
 
 def rgb_to_hsv(r, g, b):
 
-    # R, G, B values are divided by 100
-    # to change the range from 0..100 to 0..1:
-    r, g, b = r, g, b
-
     # h, s, v = hue, saturation, value
     cmax = max(r, g, b)    # maximum of r, g, b
     cmin = min(r, g, b)    # minimum of r, g, b
@@ -58,9 +54,9 @@ def colour_target(color_1, color_2):
 
 def angle_to_colour(line_to_follow, color_on_ground):
     angle = 0
-    hue_diffrence = line_to_follow.h - color_on_ground.h
-    saturation_diffrence = line_to_follow.s - color_on_ground.s
-    value_diffrence = line_to_follow.v - color_on_ground.v
+    hue_diffrence = color_on_ground.h - line_to_follow.h
+    saturation_diffrence = color_on_ground.s - line_to_follow.s
+    value_diffrence = color_on_ground.v - line_to_follow.v
     # Get a value that is between -1 and 1
     sum_of_diffrence = (
         hue_diffrence + saturation_diffrence + value_diffrence) / 455
@@ -73,4 +69,4 @@ def angle_to_colour(line_to_follow, color_on_ground):
 
 
 print(angle_to_colour(Color(60, 50, 100), Color(65, 50, 100)))
-print(rgb_to_hsv(100/100, 0/100, 0/100))
+print(rgb_to_hsv(0/100, 0/100, 0/100))

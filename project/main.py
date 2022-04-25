@@ -76,15 +76,15 @@ btn = EV3Brick.Button()
 def startup():
     btn.wait_for_bump(['up', 'left', 'right'], 2000)
     if btn.up:
-    # kör igång calibrering
+        # kör igång calibrering
         EV3Brick.screen.print('Calibration start')
         return 0
     elif btn.left:
-    # drive towards red warehouse
+        # drive towards red warehouse
         EV3Brick.screen.print('Driving towards Red Warehouse')
         return [Color.GREEN, Color.BROWN, Color.RED, Color.YELLOW]
     elif btn.right:
-    # drive towards blue warehouse
+        # drive towards blue warehouse
         EV3Brick.screen.print('Driving towards Blue Warehouse')
         return [Color.GREEN, Color.BROWN, Color.BLUE, Color.YELLOW]
 
@@ -111,8 +111,25 @@ def drive():
     line_to_follow = colour_target(colour_one, colour_two)
     color_rgb = Light_sensor.rgb()
     color_hsv = rgb_to_hsv(color_rgb.r, color_rgb.g, color_rgb.b)
+    list_of_colours = []
+    index_of_colours = 0
+
+    list_of_colours = startup()
 
     while drive_check is True:
+        # Check the line it's following
+        colour_two = list_of_colours[index_of_colours]
+
+        # Check the line to follow
+        line_to_follow = colour_target(colour_one, colour_two)
+        color_rgb = Light_sensor.rgb()
+        color_hsv = rgb_to_hsv(color_rgb.r, color_rgb.g, color_rgb.b)
+
+        # Check if the next colour is present
+        if Light_sensor.color == list_of_colours[index_of_colours + 1]:
+            index_of_colours += 1
+            colour_two = list_of_colours[index_of_colours]
+
         if obstacle(300, "Driving", Ultrasonic_sensor) is True:
             TRUCK.stop()
 

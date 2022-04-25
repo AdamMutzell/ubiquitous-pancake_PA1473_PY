@@ -3,7 +3,8 @@ from turtle import color, left, right
 import __init__
 import Colour_Manager
 
-import math,time
+import math
+import time
 
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor, ColorSensor, UltrasonicSensor
@@ -15,14 +16,14 @@ from pybricks.media.ev3dev import SoundFile
 btn = EV3Brick.Button()
 
 
-#START
+# START
 btn.wait_for_bump(['up', 'left', 'right'], 2000)
 if btn.up:
-    #kör igång calibrering
+    # kör igång calibrering
     EV3Brick.screen.print('Calibration start')
 elif btn.left:
-    #drive towards red warehouse
+    # drive towards red warehouse
     EV3Brick.screen.print('Driving towards Red Warehouse')
 elif btn.right:
-    #drive towards blue warehouse
+    # drive towards blue warehouse
     EV3Brick.screen.print('Driving towards Blue Warehouse')
