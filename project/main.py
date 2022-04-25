@@ -69,6 +69,21 @@ DRIVING_INITAL = 50
 
 # Drive on the line:
 
+btn = EV3Brick.Button()
+
+
+# START
+btn.wait_for_bump(['up', 'left', 'right'], 2000)
+if btn.up:
+    # kör igång calibrering
+    EV3Brick.screen.print('Calibration start')
+elif btn.left:
+    # drive towards red warehouse
+    EV3Brick.screen.print('Driving towards Red Warehouse')
+elif btn.right:
+    # drive towards blue warehouse
+    EV3Brick.screen.print('Driving towards Blue Warehouse')
+
 
 def main():  # Main Class
     # Testing the crane
@@ -233,6 +248,12 @@ def exit_zone(initial_zone):
     else:
         return False
     # Very bad code! Please ignore
+
+
+def emergency_mode(raised_duty, crane_motor, button):
+    if crane_motor.duty_cycle() < raised_duty and button_pressed(button):
+        for i in range(5):
+            Siren(10000, 10)
 
 
 if __name__ == '__main__':  # Keep this!
