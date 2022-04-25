@@ -104,17 +104,21 @@ btn = EV3Brick.Button()
 
 
 #START
-btn.wait_for_bump(['up', 'left', 'right'], 2000)
-if btn.up:
-    #kör igång calibrering
-    EV3Brick.screen.print('Calibration start')
-elif btn.left:
+def startup():
+    btn.wait_for_bump(['up', 'left', 'right'], 2000)
+    if btn.up:
+        #kör igång calibrering
+        EV3Brick.screen.print('Calibration start')
+        return 0
+    elif btn.left:
     #drive towards red warehouse
-    EV3Brick.screen.print('Driving towards Red Warehouse')
-elif btn.right:
+        EV3Brick.screen.print('Driving towards Red Warehouse')
+        return [Color.GREEN, Color.BROWN, Color.RED, Color.YELLOW]
+    elif btn.right:
     #drive towards blue warehouse
-    EV3Brick.screen.print('Driving towards Blue Warehouse')
-    
+        EV3Brick.screen.print('Driving towards Blue Warehouse')
+        return [Color.GREEN, Color.BROWN, Color.Blue, Color.YELLOW]
+
 def main():  # Main Class
     # Testing the crane
     # drive()
