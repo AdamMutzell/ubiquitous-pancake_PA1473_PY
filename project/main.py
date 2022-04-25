@@ -241,6 +241,15 @@ def crane_pickup(Crane_motor, DriveBase, Front_button, angle_of_crane, max_angle
 
     return angle_of_crane
 
+def Set_Target():
+    current_zone = Colour_Manager.get_area()
+    if current_zone == final_target_zone:
+        #go towards warehouse
+        pass
+    elif current_zone == colours["Roundabout"]:
+        target_zone = final_target_zone
+    else:
+        target_zone = colours["Roundabout"]
 
 def Siren(beep_frequency,sine_frequency):
     """call this inside a while loop for desired effect"""

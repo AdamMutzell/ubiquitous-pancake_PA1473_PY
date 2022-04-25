@@ -1,8 +1,12 @@
+from sqlite3 import Row
 from pybricks.hubs import EV3Brick as brick
 from pybricks.parameters import Button
 from numpy import save
 from pybricks.tools import wait
 from pybricks.ev3devices import ColorSensor
+from pybricks.parameters import Color 
+
+import ast
 
 def Calibrate_Colours(colours,sensor):
     """
@@ -22,15 +26,19 @@ def Calibrate_Colours(colours,sensor):
         #        brick.speaker.beep()
         selected_colour = colour#sensor.hsv()
         #^Uncomment for testing robot^
-        calibrated_colours[label] = selected_colour
-        saved_colours.write(str(selected_colour)+"\n")
+        saved_colours.write(label+":"+str(colour)+"\n")
     saved_colours.close()
-    print(calibrated_colours)
+    calibrated_colours
     return calibrated_colours
     
 def Get_File():
+    colours = {}
     saved_colours = open("savedColours.txt", "r")
-    colours = saved_colours.read().split("\n")
+    for colour_item in saved_colours.readlines():
+        row = colour_item[:-1].split(":")
+        print(row)
+        colour = ast.literal_eval(row[1])
+        colours[row[0]:colour]
     print(colours)
     saved_colours.close()
 
@@ -40,13 +48,12 @@ def get_colour(light_sensor):
     """
     return light_sensor.color()
 
-
-def get_area(colours, current_area):
+def get_area(colours,light_sensor):
     threshold = 15
-    current_colour = get_colour()
-    for colour in colours:
-        if get_colour() == colour:
-            if colour != current_area:
-                current_area = colour
+    current_colour = get_colour(light_sensor)
+    for zone in colours:
+        if current_colour == colours[zone]:
+            #change: check if get_colour is within threshold of colours[zone], read colour will never be the same as saved colour 
+            current_zone = zone
                 # area has been switched
-    return current_area
+    return current_zone

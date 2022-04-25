@@ -1,0 +1,5 @@
+Zone_1:Color.GREEN
+Zone_2:Color.BLUE
+Zone_3:Color.RED
+Roundabout:Color.BROWN
+Warehouse:Color.YELLOW
