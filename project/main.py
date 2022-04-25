@@ -3,8 +3,9 @@ import sys
 from turtle import color
 import __init__
 import Colour_Manager
-
-import math,time
+from Colour_follower import angle_to_colour, colour_target, rgb_to_hsv
+import math
+import time
 
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor, ColorSensor, UltrasonicSensor
@@ -12,6 +13,7 @@ from pybricks.parameters import Port, Color, Direction
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait
 from pybricks.media.ev3dev import SoundFile
+import colorsys
 
 # To do:
 # Fix the crane pickup function for elevated surfaces
@@ -43,13 +45,14 @@ colours = {"Zone_1": Color.GREEN, "Zone_2": Color.BLUE,
            "Zone_3": Color.RED, "Roundabout": Color.BROWN, "Warehouse": Color.YELLOW}
 
 use_calibrator = True
-#Change to false to skip calibration mode and use .txt file if avalible
+# Change to false to skip calibration mode and use .txt file if avalible
 
 if use_calibrator:
     colours = Colour_Manager.Calibrate_Colours(colours, Light_sensor)
-#else:
+# else:
 #    Colour_Calibrator.Get_File()
-    #^This does not work yet^
+    # ^This does not work yet^
+
 current_colour = Color.WHITE
 
 
@@ -58,41 +61,7 @@ current_colour = Color.WHITE
 TRUCK = DriveBase(left_motor=Right_drive, right_motor=Left_drive,
                   wheel_diameter=47, axle_track=128)
 
-
-# Measure of reflection:
-def THRESHOLD():
-    WHITE = 100
-    BLACK = 15
-
-    THRESHOLD_color = (WHITE+BLACK) / 2
-    """
-    if Light_sensor == Color.GREEN:
-        THRESHOLD_color = (WHITE + Color.GREEN) / 2
-    if Light_sensor == Color.BLUE:
-        THRESHOLD_color = (WHITE + Color.BLUE) / 2
-    if Light_sensor == Color.RED:
-        THRESHOLD_color = (WHITE + Color.RED) / 2
-    if Light_sensor == Color.BROWN:
-        THRESHOLD_color = (WHITE + Color.BROWN) / 2
-    if Light_sensor == Color.YELLOW:
-        THRESHOLD_color = (WHITE + Color.YELLOW) / 2
-    """
-# Robot should be stop when it black, because the warehouses have black line. !!!!!!!!
-    # if Light_sensor == Color.BLACK:
-    #    THRESHOLD_color = TRUCK.stop()
-    #    print(sound_start)
-    return THRESHOLD_color
-
-
-# sounds and notification:
-# I need to know how can I import sound file. ??????
 sound_start = EV3.speaker.beep()
-#sound_GREEN = EV3.speaker.GREEN()
-#sound_BLUE = EV3.speaker.BLUE()
-#sound_RED = EV3.speaker.RED()
-#sound_BROWN = EV3.speaker.BROWN()
-#sound_YELLOW = EV3.speaker.YELLOW()
-#sound_BLACK = EV3.speaker.BLACK()
 
 
 # Speed:
@@ -118,12 +87,18 @@ def main():  # Main Class
 def drive():
     drive_check = True
     pickupstatus = False
+    colour_one = Color.WHITE
+    colour_two = Color.RED
+    line_to_follow = colour_target(colour_one, colour_two)
+    color_rgb = Light_sensor.rgb()
+    color_hsv = rgb_to_hsv(color_rgb.r, color_rgb.g, color_rgb.b)
+
     while drive_check is True:
         if obstacle(300, "Driving", Ultrasonic_sensor) is True:
             TRUCK.stop()
 
         print(sound_start)
-        TRUCK.drive(DRIVING_INITAL, Light_sensor.reflection()-THRESHOLD())
+        TRUCK.drive(DRIVING_INITAL, angle_to_colour(line_to_follow, color_hsv))
     return None
 
 
@@ -156,6 +131,7 @@ def obstacle(accepted_distance, current_mode, sensor):
 
 
 # Function for detecting if a pickup of an item has failed
+# Might be worth adding a check for the duty limit of a crane
 def detect_item_fail(pickupstatus, button):
     """
     pickupstatus - boolean, True if the truck is currently picking up an item
@@ -241,12 +217,13 @@ def crane_pickup(Crane_motor, DriveBase, Front_button, angle_of_crane, max_angle
     return angle_of_crane
 
 
-def Siren(beep_frequency,sine_frequency):
+def Siren(beep_frequency, sine_frequency):
     """call this inside a while loop for desired effect"""
     threshold = 0.8
-    sine_wave = abs(math.sin(time.time()*sine_frequency)) 
+    sine_wave = abs(math.sin(time.time()*sine_frequency))
     if sine_wave >= threshold:
         EV3.speaker.beep(beep_frequency)
+
 
 def exit_zone(initial_zone):
     TRUCK.turn(180)
@@ -255,8 +232,7 @@ def exit_zone(initial_zone):
         return True
     else:
         return False
-    #Very bad code! Please ignore
-
+    # Very bad code! Please ignore
 
 
 if __name__ == '__main__':  # Keep this!
