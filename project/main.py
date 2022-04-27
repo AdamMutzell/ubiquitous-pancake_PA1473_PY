@@ -67,25 +67,25 @@ DRIVING_INITAL = 50
 
 # Drive on the line:
 
-btn = Button
 
 # START
 
 
 def startup():
-    btn.wait_for_bump(['up', 'left', 'right'], 2000)
-    if btn.up:
-        # kör igång calibrering
-        EV3Brick.screen.print('Calibration start')
-        return 0
-    elif btn.left:
-        # drive towards red warehouse
-        EV3Brick.screen.print('Driving towards Red Warehouse')
-        return [Color.GREEN, Color.BROWN, Color.RED, Color.YELLOW]
-    elif btn.right:
-        # drive towards blue warehouse
-        EV3Brick.screen.print('Driving towards Blue Warehouse')
-        return [Color.GREEN, Color.BROWN, Color.BLUE, Color.YELLOW]
+    running = True
+    while running:
+        if Button.UP in EV3.buttons.pressed() :
+            # kör igång calibrering
+            EV3Brick.screen.print('Calibration start')
+            Present_colours = Colour_Manager.Calibrate_Colours(colours, light_sensor)
+        elif Button.LEFT in EV3.buttons.pressed():
+            # drive towards red warehouse
+            EV3Brick.screen.print('Driving towards Red Warehouse')
+            return [Present_colours['Zone_1'], Present_colours['Roundabout'], Present_colours['Zone_2']]
+        elif Button.RIGHT in EV3.buttons.pressed():
+            # drive towards blue warehouse
+            EV3Brick.screen.print('Driving towards Blue Warehouse')
+            return [Present_colours['Zone_1'], Present_colours['Roundabout'], Present_colours['Zone_3']]
 
 
 def main():  # Main Class
