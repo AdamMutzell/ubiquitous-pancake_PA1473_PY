@@ -58,6 +58,7 @@ def Get_File():
         colours[label] = colour
     print(colours)
     saved_colours.close()
+    return colours
 
 
 def get_colour(light_sensor):
