@@ -1,5 +1,5 @@
-Zone_1:Color.GREEN
-Zone_2:Color.BLUE
-Zone_3:Color.RED
-Roundabout:Color.BROWN
-Warehouse:Color.YELLOW
+Zone_1:(1, 2, 3)
+Zone_2:(2, 3, 4)
+Zone_3:(5, 6, 7)
+Roundabout:(8, 9, 10)
+Warehouse:(11, 12, 13)

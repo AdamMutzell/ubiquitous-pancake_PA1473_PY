@@ -4,8 +4,9 @@ from pybricks.parameters import Button
 from numpy import save
 from pybricks.tools import wait
 from pybricks.ev3devices import ColorSensor
-from pybricks.parameters import Color 
+from pybricks.parameters import Port 
 
+light_sensor = ColorSensor(Port.S3)
 import ast
 
 def Calibrate_Colours(colours,sensor):
@@ -18,13 +19,12 @@ def Calibrate_Colours(colours,sensor):
     saved_colours =  open("savedColours.txt", "w")
 
     for label,colour in colours.items():
-        #print("set colour for: "+label)
-        #running = True
-        #while running:
-        #    if brick.buttons.pressed(): #if any button is pressed
-        #        running = False
-        #        brick.speaker.beep()
-        selected_colour = colour#sensor.hsv()
+        print("set colour for: "+label)
+        running = True
+        while running:
+            if brick.buttons.pressed(): #if any button is pressed
+                brick.speaker.beep()
+                selected_colour = get_colour(light_sensor.rgb())
         #^Uncomment for testing robot^
         saved_colours.write(label+":"+str(colour)+"\n")
     saved_colours.close()
@@ -36,9 +36,16 @@ def Get_File():
     saved_colours = open("savedColours.txt", "r")
     for colour_item in saved_colours.readlines():
         row = colour_item[:-1].split(":")
+        label = row[0]
+        colour_string = row[1][1:-1].split(",")
         print(row)
-        colour = ast.literal_eval(row[1])
-        colours[row[0]:colour]
+        colour = []
+        for value in colour_string:
+            print(value)
+            colour.append(int(value))
+        colour = tuple(colour)
+        print(colour)
+        colours[label] = colour
     print(colours)
     saved_colours.close()
 
@@ -57,3 +64,8 @@ def get_area(colours,light_sensor):
             current_zone = zone
                 # area has been switched
     return current_zone
+
+colours = {"Zone_1": (1,2,3), "Zone_2": (2,3,4),
+           "Zone_3": (5,6,7), "Roundabout": (8,9,10), "Warehouse": (11,12,13)}
+Calibrate_Colours(colours,3)
+Get_File()
