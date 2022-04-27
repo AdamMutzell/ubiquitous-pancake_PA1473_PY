@@ -11,7 +11,7 @@ import math
 # Model to HSV Color Model
 
 def rgb_to_hsv(r, g, b):
-
+    r, g, b = r / 100, g / 100, b / 100
     # h, s, v = hue, saturation, value
     cmax = max(r, g, b)    # maximum of r, g, b
     cmin = min(r, g, b)    # minimum of r, g, b
@@ -66,7 +66,3 @@ def angle_to_colour(line_to_follow, color_on_ground):
     angle = 90 * sum_of_diffrence
 
     return angle
-
-
-print(angle_to_colour(Color(60, 50, 100), Color(65, 50, 100)))
-print(rgb_to_hsv(0/100, 0/100, 0/100))

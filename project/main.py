@@ -1,18 +1,16 @@
 #!/usr/bin/env pybricks-micropython
 import sys
 import __init__
-import Colour_Manager
 from Colour_follower import angle_to_colour, colour_target, rgb_to_hsv
 import math
 import time
-
+import Colour_Manager
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor, ColorSensor, UltrasonicSensor
-from pybricks.parameters import Port, Color, Direction
+from pybricks.parameters import Port, Color, Direction, Button
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait
 from pybricks.media.ev3dev import SoundFile
-import colorsys
 
 # To do:
 # Fix the crane pickup function for elevated surfaces
@@ -38,24 +36,24 @@ light_sensor = ColorSensor(Port.S3)
 Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 
-saved_colours = open("savedColours.txt", "r")
+#saved_colours = open("savedColours.txt", "r")
 
 colours = {"Zone_1": Color.GREEN, "Zone_2": Color.BLUE,
            "Zone_3": Color.RED, "Roundabout": Color.BROWN, "Warehouse": Color.YELLOW}
 
 use_calibrator = True
 going_to_target = False
-#Change to false to skip calibration mode and use .txt file if avalible
+# Change to false to skip calibration mode and use .txt file if avalible
 
 if use_calibrator:
     colours = Colour_Manager.Calibrate_Colours(colours, light_sensor)
     print("colours calibrated as :"+str(colours))
-#else:
+# else:
 #   colours = Colour_Manager.Get_File()
-    #^This does not work yet^
+    # ^This does not work yet^
 
 target_zone = Color.WHITE
-final_target_zone = colours["Zone_2"] #set this using user input?
+final_target_zone = colours["Zone_2"]  # set this using user input?
 
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
 # May need to change wheel_diameter and axel_track
@@ -69,10 +67,11 @@ DRIVING_INITAL = 50
 
 # Drive on the line:
 
-btn = EV3Brick.Button()
-
+btn = Button
 
 # START
+
+
 def startup():
     btn.wait_for_bump(['up', 'left', 'right'], 2000)
     if btn.up:
@@ -90,17 +89,27 @@ def startup():
 
 
 def main():  # Main Class
-    # Testing the crane
-    # drive()
-    pickupstatus = True
+    on_crane = True
+    crane_movement(Crane_motor, 1, 50)
+    limit = Crane_motor.duty_cycle()
+    wait(5000)
+    while on_crane == True:
+        on_crane = emergency_mode(limit, Crane_motor, Front_button)
+    print("Dropped")
 
+
+def test_drive():
+    drive()
+
+
+def test_crane():
     Crane_motor.reset_angle(0)
     max_angle = crane_movement(Crane_motor, 1, 50)
     min_angle = crane_movement(Crane_motor, -1, 50)
 
     crane_pickup(Crane_motor, TRUCK, Front_button, -1000, max_angle, min_angle)
-
-    detect_item_fail(pickupstatus, Front_button)
+    crane_pickup(Crane_motor, TRUCK, Front_button,
+                 max_angle/2, max_angle, min_angle)
 
 
 def drive():
@@ -252,15 +261,17 @@ def crane_pickup(Crane_motor, DriveBase, Front_button, angle_of_crane, max_angle
 
     return angle_of_crane
 
+
 def Set_Target():
     current_zone = Colour_Manager.get_area()
     if current_zone == final_target_zone:
-        #go towards warehouse
+        # go towards warehouse
         pass
     elif current_zone == colours["Roundabout"]:
         target_zone = final_target_zone
     else:
         target_zone = colours["Roundabout"]
+
 
 def Siren(beep_frequency, sine_frequency):
     """call this inside a while loop for desired effect"""
@@ -281,11 +292,11 @@ def exit_zone(initial_zone):
 
 
 def emergency_mode(raised_duty, crane_motor, button):
-    if crane_motor.duty_cycle() < raised_duty and button_pressed(button):
-        for i in range(5):
-            Siren(10000, 10)
+    if crane_motor.duty_cycle() < raised_duty + 10:
+        return False
+    else:
+        return True
 
 
 if __name__ == '__main__':  # Keep this!
     sys.exit(main())
-
