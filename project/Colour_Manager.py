@@ -2,10 +2,9 @@ from pybricks.hubs import EV3Brick as brick
 from pybricks.parameters import Button
 from pybricks.tools import wait
 from pybricks.ev3devices import ColorSensor
-from pybricks.parameters import Port 
+from pybricks.parameters import Port
 
 light_sensor = ColorSensor(Port.S3)
-import ast
 
 
 def Calibrate_Colours(colours, sensor):
@@ -16,18 +15,28 @@ def Calibrate_Colours(colours, sensor):
     """
     calibrated_colours = colours.copy()
     saved_colours = open("savedColours.txt", "w")
+    print(colours.items())
+    list_colour = []
+    for label, colour in colours.items():
 
-    for label,colour in colours.items():
         print("set colour for: "+label)
         running = True
         while running:
-            if brick.buttons.pressed(): #if any button is pressed
-                brick.speaker.beep()
-                selected_colour = get_colour(light_sensor.rgb())
-        #^Uncomment for testing robot^
-        saved_colours.write(label+":"+str(colour)+"\n")
+            if brick.buttons.pressed():  # if any button is pressed
+                print(label)
+                selected_colour = get_colour(light_sensor)
+                running = False
+                wait(2000)
+        # ^Uncomment for testing robot^
+        list_colour.append(label+":"+str(selected_colour))
+    print(list_colour)
+    saved_colours.write(str(list_colour))
     saved_colours.close()
-    calibrated_colours
+    saved_colours = open("savedColours.txt", "r")
+    print(saved_colours.read())
+    saved_colours.close()
+
+    print("The loop has ended")
     return calibrated_colours
 
 
@@ -54,7 +63,7 @@ def get_colour(light_sensor):
     """
     Returns the colour of the ground the robot is looking at
     """
-    return light_sensor.color.hsv()
+    return light_sensor.rgb()
 
 
 def get_area(colours, light_sensor):
@@ -64,10 +73,5 @@ def get_area(colours, light_sensor):
         if current_colour == colours[zone]:
             # change: check if get_colour is within threshold of colours[zone], read colour will never be the same as saved colour
             current_zone = zone
-                # area has been switched
+            # area has been switched
     return current_zone
-
-colours = {"Zone_1": (1,2,3), "Zone_2": (2,3,4),
-           "Zone_3": (5,6,7), "Roundabout": (8,9,10), "Warehouse": (11,12,13)}
-Calibrate_Colours(colours,3)
-Get_File()

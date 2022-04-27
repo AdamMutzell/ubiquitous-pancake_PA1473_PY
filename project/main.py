@@ -89,7 +89,8 @@ def startup():
 
 
 def main():  # Main Class
-    drive()
+
+    # drive()
     """colour = light_sensor.rgb()
     colour_hsv = rgb_to_hsv(colour[0], colour[1], colour[2])
     print(colour)
