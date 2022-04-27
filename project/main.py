@@ -89,18 +89,14 @@ def startup():
 
 
 def main():  # Main Class
-    drive()
-    """colour = light_sensor.rgb()
-    colour_hsv = rgb_to_hsv(colour[0], colour[1], colour[2])
-    print(colour)
-    print(colour_hsv)
-    on_crane = True
+    pickup_on = True
     crane_movement(Crane_motor, 1, 50)
-    limit = 50
     wait(5000)
-    while on_crane == True:
-        on_crane = emergency_mode(limit, Crane_motor, Front_button)
-    print("Dropped")"""
+    start_angle = Crane_motor.angle()
+
+    while pickup_on == True:
+        pickup_on = emergency_mode(start_angle, Crane_motor)
+    print("tappade :(")
 
 
 def test_drive():
@@ -295,7 +291,7 @@ def exit_zone(initial_zone):
 
 
 def emergency_mode(raised_duty, crane_motor, button):
-    if crane_motor.duty_cycle() < raised_duty + 10:
+    if angle + 5 < crane_motor.angle():
         return False
     else:
         return True
