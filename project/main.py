@@ -90,18 +90,13 @@ def startup():
 
 
 def main():  # Main Class
-    # Testing the crane
-    # drive()
-    pickupstatus = True
-
-    Crane_motor.reset_angle(0)
-    max_angle = crane_movement(Crane_motor, 1, 50)
-    min_angle = crane_movement(Crane_motor, -1, 50)
-
-    crane_pickup(Crane_motor, TRUCK, Front_button, -1000, max_angle, min_angle)
-
-    detect_item_fail(pickupstatus, Front_button)
-
+    on_crane = True
+    crane_movement(Crane_motor,1,50)
+    limit = Crane_motor.duty_cycle()
+    wait(5000)
+    while on_crane == True:
+        on_crane = emergency_mode(limit, Crane_motor, Front_button)
+    print("Dropped")
 
 def drive():
     drive_check = True
@@ -281,9 +276,11 @@ def exit_zone(initial_zone):
 
 
 def emergency_mode(raised_duty, crane_motor, button):
-    if crane_motor.duty_cycle() < raised_duty and button_pressed(button):
-        for i in range(5):
-            Siren(10000, 10)
+    if crane_motor.duty_cycle() < raised_duty + 10:
+        return False
+    else:
+        return True
+
 
 
 if __name__ == '__main__':  # Keep this!
