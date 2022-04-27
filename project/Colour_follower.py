@@ -46,17 +46,17 @@ def rgb_to_hsv(r, g, b):
 
 def colour_target(color_1, color_2):
 
-    line_to_follow = Color((color_1.h + color_2.h) / 2,
-                           (color_1.s + color_2.s) / 2, (color_1.v + color_2.v) / 2)
+    line_to_follow = [((color_1[0] + color_2[0]) / 2),
+                      ((color_1[1] + color_2[1]) / 2), ((color_1[2] + color_2[2]) / 2)]
 
     return line_to_follow
 
 
 def angle_to_colour(line_to_follow, color_on_ground):
     angle = 0
-    hue_diffrence = color_on_ground.h - line_to_follow.h
-    saturation_diffrence = color_on_ground.s - line_to_follow.s
-    value_diffrence = color_on_ground.v - line_to_follow.v
+    hue_diffrence = color_on_ground[0] - line_to_follow[0]
+    saturation_diffrence = color_on_ground[1] - line_to_follow[1]
+    value_diffrence = color_on_ground[2] - line_to_follow[2]
     # Get a value that is between -1 and 1
     sum_of_diffrence = (
         hue_diffrence + saturation_diffrence + value_diffrence) / 455
