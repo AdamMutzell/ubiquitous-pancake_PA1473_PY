@@ -43,14 +43,9 @@ colours = {"Zone_1": Color.GREEN, "Zone_2": Color.BLUE,
 
 use_calibrator = False
 going_to_target = False
+Present_colours = None
 # Change to false to skip calibration mode and use .txt file if avalible
 
-if use_calibrator:
-    colours = Colour_Manager.Calibrate_Colours(colours, light_sensor)
-    print("colours calibrated as :"+str(colours))
-# else:
-#   colours = Colour_Manager.Get_File()
-    # ^This does not work yet^
 
 target_zone = Color.WHITE
 final_target_zone = colours["Zone_2"]  # set this using user input?
@@ -63,7 +58,7 @@ sound_start = EV3.speaker.beep()
 
 
 # Speed:
-DRIVING_INITAL = 50
+DRIVING_INITAL = 20
 
 # Drive on the line:
 
@@ -74,34 +69,32 @@ DRIVING_INITAL = 50
 def startup():
     running = True
     while running:
-        if Button.UP in EV3.buttons.pressed() :
+        if Button.UP in EV3.buttons.pressed():
             # kör igång calibrering
-            EV3Brick.screen.print('Calibration start')
-            Present_colours = Colour_Manager.Calibrate_Colours(colours, light_sensor)
+            #EV3Brick.screen.print('Calibration start')
+            print("Calibration start")
+            wait(500)
+            Present_colours = Colour_Manager.Calibrate_Colours(
+                colours, light_sensor)
         elif Button.LEFT in EV3.buttons.pressed():
             # drive towards red warehouse
-            EV3Brick.screen.print('Driving towards Red Warehouse')
+            #EV3Brick.screen.print('Driving towards Red Warehouse')
+            print("Driving towards Red Warehouse")
             return [Present_colours['Zone_1'], Present_colours['Roundabout'], Present_colours['Zone_2']]
         elif Button.RIGHT in EV3.buttons.pressed():
             # drive towards blue warehouse
-            EV3Brick.screen.print('Driving towards Blue Warehouse')
+            #EV3Brick.screen.print('Driving towards Blue Warehouse')
+            print("Driving towards Blue Warehouse")
             return [Present_colours['Zone_1'], Present_colours['Roundabout'], Present_colours['Zone_3']]
 
 
 def main():  # Main Class
-    pickup_on = True
-    start_angle = crane_movement(Crane_motor, 1, 50)
-    wait(5000)
-
-    while pickup_on == True:
-        wait(2000)
-        print(Crane_motor.angle())
-        pickup_on = emergency_mode(start_angle, Crane_motor)
-    print("tappade :(")
+    test_drive()
 
 
 def test_drive():
-    drive()
+
+    drive(startup())
 
 
 def test_crane():
@@ -114,20 +107,38 @@ def test_crane():
                  max_angle/2, max_angle, min_angle)
 
 
-def drive():
+def test_emergency_mode():
+    pickup_on = True
+    start_angle = crane_movement(Crane_motor, 1, 50)
+    wait(5000)
+
+    while pickup_on == True:
+        wait(2000)
+        print(Crane_motor.angle())
+        pickup_on = emergency_mode(start_angle, Crane_motor)
+    print("tappade :(")
+
+
+def drive(list_rgb_colurs):
     drive_check = True
     pickupstatus = False
-    colour_one = [438, 47, 21]
-    colour_two = [137, 80, 26]
+
+    list_of_colours = list_rgb_colurs
+    index_of_colours = 0
+
+    colour_one = [43, 60, 86]
+    colour_two = list_of_colours[0]
+
+    colour_one = rgb_to_hsv(colour_one[0], colour_one[1], colour_one[2])
+    colour_two = rgb_to_hsv(colour_two[0], colour_two[1], colour_two[2])
+
     line_to_follow = colour_target(colour_one, colour_two)
     color_rgb = light_sensor.rgb()
     color_hsv = rgb_to_hsv(color_rgb[0], color_rgb[1], color_rgb[2])
-    list_of_colours = []
-    index_of_colours = 0
 
     while drive_check is True:
         # Check the line it's following
-        #colour_two = list_of_colours[index_of_colours]
+        colour_two = list_of_colours[index_of_colours]
 
         # Check the line to follow
         line_to_follow = colour_target(colour_one, colour_two)
@@ -135,9 +146,10 @@ def drive():
         color_hsv = rgb_to_hsv(color_rgb[0], color_rgb[1], color_rgb[2])
 
         # Check if the next colour is present
-        # if light_sensor.color == list_of_colours[index_of_colours + 1]:
-        #    index_of_colours += 1
-        #    colour_two = list_of_colours[index_of_colours]
+        # Add a threshold function that can accept slight deivance from the target
+        if light_sensor.rgb() == list_of_colours[index_of_colours + 1]:
+            index_of_colours += 1
+            colour_two = list_of_colours[index_of_colours]
 
         if obstacle(300, "Driving", Ultrasonic_sensor) is True:
             TRUCK.stop()

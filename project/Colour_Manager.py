@@ -16,7 +16,7 @@ def Calibrate_Colours(colours, sensor):
     calibrated_colours = colours.copy()
     saved_colours = open("savedColours.txt", "w")
     print(colours.items())
-    list_colour = []
+    colour_dict = {}
     for label, colour in colours.items():
 
         print("set colour for: "+label)
@@ -28,16 +28,17 @@ def Calibrate_Colours(colours, sensor):
                 running = False
                 wait(2000)
         # ^Uncomment for testing robot^
-        list_colour.append(label+":"+str(selected_colour))
-    print(list_colour)
-    saved_colours.write(str(list_colour))
+        colour_dict[label] = selected_colour
+    print(colour_dict)
+    # Make into a for loop that wrings a good string
+    saved_colours.write(str(colour_dict))
     saved_colours.close()
     saved_colours = open("savedColours.txt", "r")
     print(saved_colours.read())
     saved_colours.close()
 
     print("The loop has ended")
-    return calibrated_colours
+    return colour_dict
 
 
 def Get_File():
