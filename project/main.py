@@ -89,13 +89,18 @@ def startup():
 
 
 def main():  # Main Class
+    drive()
+    """colour = light_sensor.rgb()
+    colour_hsv = rgb_to_hsv(colour[0], colour[1], colour[2])
+    print(colour)
+    print(colour_hsv)
     on_crane = True
     crane_movement(Crane_motor, 1, 50)
-    limit = Crane_motor.duty_cycle()
+    limit = 50
     wait(5000)
     while on_crane == True:
         on_crane = emergency_mode(limit, Crane_motor, Front_button)
-    print("Dropped")
+    print("Dropped")"""
 
 
 def test_drive():
@@ -115,34 +120,32 @@ def test_crane():
 def drive():
     drive_check = True
     pickupstatus = False
-    colour_one = Color.WHITE
-    colour_two = Color.RED
+    colour_one = [438, 47, 21]
+    colour_two = [137, 80, 26]
     line_to_follow = colour_target(colour_one, colour_two)
     color_rgb = light_sensor.rgb()
-    color_hsv = rgb_to_hsv(color_rgb.r, color_rgb.g, color_rgb.b)
+    color_hsv = rgb_to_hsv(color_rgb[0], color_rgb[1], color_rgb[2])
     list_of_colours = []
     index_of_colours = 0
 
-    list_of_colours = startup()
-
     while drive_check is True:
         # Check the line it's following
-        colour_two = list_of_colours[index_of_colours]
+        #colour_two = list_of_colours[index_of_colours]
 
         # Check the line to follow
         line_to_follow = colour_target(colour_one, colour_two)
         color_rgb = light_sensor.rgb()
-        color_hsv = rgb_to_hsv(color_rgb.r, color_rgb.g, color_rgb.b)
+        color_hsv = rgb_to_hsv(color_rgb[0], color_rgb[1], color_rgb[2])
 
         # Check if the next colour is present
-        if light_sensor.color == list_of_colours[index_of_colours + 1]:
-            index_of_colours += 1
-            colour_two = list_of_colours[index_of_colours]
+        # if light_sensor.color == list_of_colours[index_of_colours + 1]:
+        #    index_of_colours += 1
+        #    colour_two = list_of_colours[index_of_colours]
 
         if obstacle(300, "Driving", Ultrasonic_sensor) is True:
             TRUCK.stop()
 
-        print(sound_start)
+        # print(sound_start)
         TRUCK.drive(DRIVING_INITAL, angle_to_colour(line_to_follow, color_hsv))
     return None
 
