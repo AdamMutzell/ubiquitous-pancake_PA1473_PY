@@ -7,7 +7,7 @@ import time
 import Colour_Manager
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor, ColorSensor, UltrasonicSensor
-from pybricks.parameters import Port, Color, Direction, Button
+from pybricks.parameters import Port, Color, Direction, Button, Stop
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait
 from pybricks.media.ev3dev import SoundFile
@@ -41,7 +41,7 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 colours = {"Zone_1": Color.GREEN, "Zone_2": Color.BLUE,
            "Zone_3": Color.RED, "Roundabout": Color.BROWN, "Warehouse": Color.YELLOW}
 
-use_calibrator = True
+use_calibrator = False
 going_to_target = False
 # Change to false to skip calibration mode and use .txt file if avalible
 
@@ -67,40 +67,37 @@ DRIVING_INITAL = 50
 
 # Drive on the line:
 
-btn = Button
 
 # START
 
 
 def startup():
-    btn.wait_for_bump(['up', 'left', 'right'], 2000)
-    if btn.up:
-        # kör igång calibrering
-        EV3Brick.screen.print('Calibration start')
-        return 0
-    elif btn.left:
-        # drive towards red warehouse
-        EV3Brick.screen.print('Driving towards Red Warehouse')
-        return [Color.GREEN, Color.BROWN, Color.RED, Color.YELLOW]
-    elif btn.right:
-        # drive towards blue warehouse
-        EV3Brick.screen.print('Driving towards Blue Warehouse')
-        return [Color.GREEN, Color.BROWN, Color.BLUE, Color.YELLOW]
+    running = True
+    while running:
+        if Button.UP in EV3.buttons.pressed() :
+            # kör igång calibrering
+            EV3Brick.screen.print('Calibration start')
+            Present_colours = Colour_Manager.Calibrate_Colours(colours, light_sensor)
+        elif Button.LEFT in EV3.buttons.pressed():
+            # drive towards red warehouse
+            EV3Brick.screen.print('Driving towards Red Warehouse')
+            return [Present_colours['Zone_1'], Present_colours['Roundabout'], Present_colours['Zone_2']]
+        elif Button.RIGHT in EV3.buttons.pressed():
+            # drive towards blue warehouse
+            EV3Brick.screen.print('Driving towards Blue Warehouse')
+            return [Present_colours['Zone_1'], Present_colours['Roundabout'], Present_colours['Zone_3']]
 
 
 def main():  # Main Class
-    drive()
-    """colour = light_sensor.rgb()
-    colour_hsv = rgb_to_hsv(colour[0], colour[1], colour[2])
-    print(colour)
-    print(colour_hsv)
-    on_crane = True
-    crane_movement(Crane_motor, 1, 50)
-    limit = 50
+    pickup_on = True
+    start_angle = crane_movement(Crane_motor, 1, 50)
     wait(5000)
-    while on_crane == True:
-        on_crane = emergency_mode(limit, Crane_motor, Front_button)
-    print("Dropped")"""
+
+    while pickup_on == True:
+        wait(2000)
+        print(Crane_motor.angle())
+        pickup_on = emergency_mode(start_angle, Crane_motor)
+    print("tappade :(")
 
 
 def test_drive():
@@ -201,8 +198,10 @@ def crane_movement(Crane_motor, direction, speed):  # Function for moving the cr
     speed, a value between 0 and 100, indicating the speed of the movement
     Returns an angle of the crane at it's maximum angle
     """
+    Crane_motor.stop()
+
     speed_of_crane = speed * direction
-    return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=75)
+    return Crane_motor.run_until_stalled(speed_of_crane, then=Stop.BRAKE, duty_limit=50)
 
 
 def crane_hold(Crane_motor):  # Function for moving the crane up
@@ -211,8 +210,11 @@ def crane_hold(Crane_motor):  # Function for moving the crane up
 
     Returns an angle of the crane at it's maximum angle
     """
+    # To prevent problems with the crane holding
+    Crane_motor.stop()
+
     speed_of_crane = 50
-    return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=90)
+    return Crane_motor.run_until_stalled(speed_of_crane, Stop.HOLD, duty_limit=90)
 
 # Function for moving the crane up
 
@@ -294,8 +296,8 @@ def exit_zone(initial_zone):
     # Very bad code! Please ignore
 
 
-def emergency_mode(raised_duty, crane_motor, button):
-    if crane_motor.duty_cycle() < raised_duty + 10:
+def emergency_mode(angle, crane_motor):
+    if angle + 5 < crane_motor.angle():
         return False
     else:
         return True
