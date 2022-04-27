@@ -7,7 +7,7 @@ import time
 import Colour_Manager
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor, ColorSensor, UltrasonicSensor
-from pybricks.parameters import Port, Color, Direction, Button
+from pybricks.parameters import Port, Color, Direction, Button, Stop
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait
 from pybricks.media.ev3dev import SoundFile
@@ -41,7 +41,7 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 colours = {"Zone_1": Color.GREEN, "Zone_2": Color.BLUE,
            "Zone_3": Color.RED, "Roundabout": Color.BROWN, "Warehouse": Color.YELLOW}
 
-use_calibrator = True
+use_calibrator = False
 going_to_target = False
 # Change to false to skip calibration mode and use .txt file if avalible
 
@@ -90,11 +90,12 @@ def startup():
 
 def main():  # Main Class
     pickup_on = True
-    crane_movement(Crane_motor, 1, 50)
+    start_angle = crane_movement(Crane_motor, 1, 50)
     wait(5000)
-    start_angle = Crane_motor.angle()
 
     while pickup_on == True:
+        wait(2000)
+        print(Crane_motor.angle())
         pickup_on = emergency_mode(start_angle, Crane_motor)
     print("tappade :(")
 
@@ -197,8 +198,10 @@ def crane_movement(Crane_motor, direction, speed):  # Function for moving the cr
     speed, a value between 0 and 100, indicating the speed of the movement
     Returns an angle of the crane at it's maximum angle
     """
+    Crane_motor.stop()
+
     speed_of_crane = speed * direction
-    return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=75)
+    return Crane_motor.run_until_stalled(speed_of_crane, then=Stop.BRAKE, duty_limit=50)
 
 
 def crane_hold(Crane_motor):  # Function for moving the crane up
@@ -207,8 +210,11 @@ def crane_hold(Crane_motor):  # Function for moving the crane up
 
     Returns an angle of the crane at it's maximum angle
     """
+    # To prevent problems with the crane holding
+    Crane_motor.stop()
+
     speed_of_crane = 50
-    return Crane_motor.run_until_stalled(speed_of_crane, duty_limit=90)
+    return Crane_motor.run_until_stalled(speed_of_crane, Stop.HOLD, duty_limit=90)
 
 # Function for moving the crane up
 
@@ -290,7 +296,7 @@ def exit_zone(initial_zone):
     # Very bad code! Please ignore
 
 
-def emergency_mode(raised_duty, crane_motor, button):
+def emergency_mode(angle, crane_motor):
     if angle + 5 < crane_motor.angle():
         return False
     else:
