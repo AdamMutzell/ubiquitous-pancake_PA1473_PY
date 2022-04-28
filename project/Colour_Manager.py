@@ -13,52 +13,43 @@ def Calibrate_Colours(colours, sensor):
 
     Returns a dictionary of colours and saves to txt file
     """
-    calibrated_colours = colours.copy()
+    selected_colour = ()
     saved_colours = open("savedColours.txt", "w")
-    print(colours.items())
     colour_dict = {}
     for label, colour in colours.items():
 
         print("set colour for: "+label)
-        running = True
-        while running:
-            if brick.buttons.pressed():  # if any button is pressed
-                print(label)
+        #add robot voice command here?
+        while brick.buttons.pressed() == False:  # loop until button is pressed
                 selected_colour = get_colour(light_sensor)
-                running = False
-                wait(2000)
-        # ^Uncomment for testing robot^
+                wait(500)
+        print(selected_colour)
+        saved_colours.write((label+":"+str(selected_colour)+"\n"))
         colour_dict[label] = selected_colour
-    print(colour_dict)
-    # Make into a for loop that wrings a good string
-    saved_colours.write(str(colour_dict))
     saved_colours.close()
-    saved_colours = open("savedColours.txt", "r")
-    print(saved_colours.read())
-    saved_colours.close()
-
-    print("The loop has ended")
     return colour_dict
 
 
 def Get_File():
+    """Get savedColours.txt and return content as a dictionary"""
     colours = {}
-    saved_colours = open("savedColours.txt", "r")
-    for colour_item in saved_colours.readlines():
-        row = colour_item[:-1].split(":")
-        label = row[0]
-        colour_string = row[1][1:-1].split(",")
-        print(row)
-        colour = []
-        for value in colour_string:
-            print(value)
-            colour.append(int(value))
-        colour = tuple(colour)
-        print(colour)
-        colours[label] = colour
-    print(colours)
-    saved_colours.close()
-    return colours
+    try:
+        saved_colours = open("savedColours.txt", "r")
+
+        for colour_item in saved_colours.readlines():
+            row = colour_item[:-1].split(":")
+            label = row[0]
+            colour_string = row[1][1:-1].split(",")
+            colour = []
+            for value in colour_string:
+                colour.append(int(value))
+            colour = tuple(colour)
+            colours[label] = colour
+        saved_colours.close()
+        return colours
+    except FileNotFoundError:
+        print("no .txt file found! returning None")
+        return None
 
 
 def get_colour(light_sensor):
@@ -66,14 +57,3 @@ def get_colour(light_sensor):
     Returns the colour of the ground the robot is looking at
     """
     return light_sensor.rgb()
-
-
-def get_area(colours, light_sensor):
-    threshold = 15
-    current_colour = get_colour(light_sensor)
-    for zone in colours:
-        if current_colour == colours[zone]:
-            # change: check if get_colour is within threshold of colours[zone], read colour will never be the same as saved colour
-            current_zone = zone
-            # area has been switched
-    return current_zone

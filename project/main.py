@@ -38,17 +38,13 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 #saved_colours = open("savedColours.txt", "r")
 
-colours = {"Zone_1": Color.GREEN, "Zone_2": Color.BLUE,
+preset_colours = {"Zone_1": Color.GREEN, "Zone_2": Color.BLUE,
            "Zone_3": Color.RED, "Roundabout": Color.BROWN, "Warehouse": Color.YELLOW}
 
 use_calibrator = False
 going_to_target = False
-Present_colours = None
+set_colours = None
 # Change to false to skip calibration mode and use .txt file if avalible
-
-
-target_zone = Color.WHITE
-final_target_zone = colours["Zone_2"]  # set this using user input?
 
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
 # May need to change wheel_diameter and axel_track
@@ -70,22 +66,27 @@ def startup():
     running = True
     while running:
         if Button.UP in EV3.buttons.pressed():
-            # kör igång calibrering
-            #EV3Brick.screen.print('Calibration start')
-            print("Calibration start")
-            wait(500)
-            Present_colours = Colour_Manager.Calibrate_Colours(
-                colours, light_sensor)
+            if use_calibrator:
+                # kör igång kalibrering
+                #EV3Brick.screen.print('Calibration start')
+                print("Calibration started")
+                wait(500)
+                set_colours = Colour_Manager.Calibrate_Colours(
+                    preset_colours, light_sensor)
+        if Button.DOWN in EV3.buttons.pressed():
+            set_colours = Colour_Manager.Get_File()
+            print("colours read from file as : "+str(set_colours))
+            use_calibrator = False
         elif Button.LEFT in EV3.buttons.pressed():
             # drive towards red warehouse
             #EV3Brick.screen.print('Driving towards Red Warehouse')
             print("Driving towards Red Warehouse")
-            return [Present_colours['Zone_1'], Present_colours['Roundabout'], Present_colours['Zone_2']]
+            return [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2']]
         elif Button.RIGHT in EV3.buttons.pressed():
             # drive towards blue warehouse
             #EV3Brick.screen.print('Driving towards Blue Warehouse')
             print("Driving towards Blue Warehouse")
-            return [Present_colours['Zone_1'], Present_colours['Roundabout'], Present_colours['Zone_3']]
+            return [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_3']]
 
 
 def main():  # Main Class
