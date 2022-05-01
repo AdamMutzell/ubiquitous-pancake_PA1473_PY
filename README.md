@@ -1,4 +1,4 @@
-# -- Replace with the name of your project --
+# Group 8:s 2nd project in the coruse PA1473, on forktrucks.
 
 ## Members of the group
 
