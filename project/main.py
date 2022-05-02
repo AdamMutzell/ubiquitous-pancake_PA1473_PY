@@ -65,6 +65,7 @@ def startup():
             if use_calibrator:
                 # kör igång kalibrering
                 EV3.speaker.say('Calibration start')
+                EV3.speaker.play_file(SoundFile.READY)
                 EV3.screen.print('Calibration start')
                 print("Calibration started")
                 wait(500)
@@ -77,12 +78,14 @@ def startup():
         elif Button.LEFT in EV3.buttons.pressed():
             # drive towards red warehouse
             EV3.speaker.say('Driving towards Red Warehouse')
+            EV3.speaker.play_file(SoundFile.READY)
             EV3.screen.print('Driving towards Red Warehouse')
             print("Driving towards Red Warehouse")
             return [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2'], set_colours['Background']]
         elif Button.RIGHT in EV3.buttons.pressed():
             # drive towards blue warehouse
             EV3.speaker.say('Driving towards Blue Warehouse')
+            EV3.speaker.play_file(SoundFile.READY)
             EV3.screen.print('Driving towards Blue Warehouse')
             print("Driving towards Blue Warehouse")
             return [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_3'], set_colours['Background']]
@@ -158,7 +161,7 @@ def drive(list_rgb_colurs, background_color):
 
         if obstacle(300, "Driving", Ultrasonic_sensor) is True:
             EV3.speaker.say("There is an obstacle")
-            EV3.speaker.beep()
+            EV3.speaker.play_file(SoundFile.OVERPOWER)
             TRUCK.stop()
 
         # Check if we are at the end of the list
@@ -269,7 +272,7 @@ def Siren(beep_frequency, sine_frequency):
     threshold = 0.8
     sine_wave = abs(math.sin(time.time()*sine_frequency))
     if sine_wave >= threshold:
-        EV3.speaker.beep(beep_frequency)
+        EV3.speaker.play_file(SoundFile.OVERPOWER)
 
 
 def exit_zone(initial_zone):
@@ -291,3 +294,5 @@ def emergency_mode(angle, crane_motor):
 
 if __name__ == '__main__':  # Keep this!
     sys.exit(main())
+
+EV3.speaker.play_file(SoundFile.OVERPOWER)
