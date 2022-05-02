@@ -61,6 +61,7 @@ def startup():
         if Button.UP in EV3.buttons.pressed():
             if use_calibrator:
                 # kör igång kalibrering
+                EV3.speaker.say('Calibration start')
                 EV3.screen.print('Calibration start')
                 print("Calibration started")
                 wait(500)
@@ -72,11 +73,13 @@ def startup():
             use_calibrator = False
         elif Button.LEFT in EV3.buttons.pressed():
             # drive towards red warehouse
+            EV3.speaker.say('Driving towards Red Warehouse')
             EV3.screen.print('Driving towards Red Warehouse')
             print("Driving towards Red Warehouse")
             return [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2']]
         elif Button.RIGHT in EV3.buttons.pressed():
             # drive towards blue warehouse
+            EV3.speaker.say('Driving towards Blue Warehouse')
             EV3.screen.print('Driving towards Blue Warehouse')
             print("Driving towards Blue Warehouse")
             return [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_3']]
@@ -158,6 +161,27 @@ def drive(list_rgb_colurs):
         # print(sound_start)
         TRUCK.drive(DRIVING_INITAL, angle_to_colour(line_to_follow, color_hsv))
     return None
+
+
+def warehouse_drive(colours, max_angle, min_angle):
+    """_summary_
+
+    Args:
+        colours (_type_): _description_
+    """
+    colour_one = rgb_to_hsv(colour_one[0], colour_one[1], colour_one[2])
+    colour_two = rgb_to_hsv(colour_two[0], colour_two[1], colour_two[2])
+
+    if red_warehouse == True:
+        pass
+    elif blue_warehouse == True:
+        pass
+
+    if obstacle(2500, "pallet_detection", Ultrasonic_sensor) is True:
+        crane_pickup(Crane_motor, TRUCK, Front_button, -
+                     1000, max_angle, min_angle)
+
+    pass
 
 
 def colour_deviation(colour_one, colour_two, deviation):
