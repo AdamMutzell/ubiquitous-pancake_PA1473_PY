@@ -101,15 +101,7 @@ def test_crane():
 
 
 def test_emergency_mode():
-    pickup_on = True
-    start_angle = crane_movement(Crane_motor, 1, 50)
-    wait(5000)
-
-    while pickup_on == True:
-        wait(2000)
-        print(Crane_motor.angle())
-        pickup_on = emergency_mode(start_angle, Crane_motor)
-    print("tappade :(")
+    pass
 
 
 def drive(list_rgb_colurs):
@@ -151,13 +143,25 @@ def drive(list_rgb_colurs):
             index_of_colours += 1
             colour_two = list_of_colours[index_of_colours]
 
+        emergency_mode(Front_button, pickupstatus)
+
         if obstacle(300, "Driving", Ultrasonic_sensor) is True:
             TRUCK.stop()
 
-        # print(sound_start)
-        TRUCK.drive(DRIVING_INITAL, angle_to_colour(line_to_follow, color_hsv))
-    return None
+        else:
+            # print(sound_start)
+            TRUCK.drive(DRIVING_INITAL, angle_to_colour(line_to_follow, color_hsv))
 
+def turn_around():
+    while obstacle(300, "Driving", Ultrasonic_sensor) is True:
+        wait(1000)
+    TRUCK.straight(140, then=Stop.hold)
+    TRUCK.turn(-90, then=Stop.HOLD, wait=True)
+
+    while obstacle(300, "Driving", Ultrasonic_sensor) is True:
+        wait(1000)
+    TRUCK.straight(140, then=Stop.hold)
+    TRUCK.turn(-90, then=Stop.HOLD, wait=True)
 
 def Set_Target():
     current_zone = Colour_Manager.get_area()
@@ -188,12 +192,10 @@ def exit_zone(initial_zone):
     # Very bad code! Please ignore
 
 
-def emergency_mode(angle, crane_motor):
-    if angle + 5 < crane_motor.angle():
-        return False
-    else:
-        return True
-
+def emergency_mode(status, button):
+    if detect_item_fail(status, button) is False:
+        Siren(10000, 1)
+        #Abort all else and return to roundabout
 
 if __name__ == '__main__':  # Keep this!
     sys.exit(main())
