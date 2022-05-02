@@ -35,7 +35,8 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 #saved_colours = open("savedColours.txt", "r")
 preset_colours = {"Zone_1": Color.GREEN, "Zone_2": Color.BLUE,
-                  "Zone_3": Color.RED, "Roundabout": Color.BROWN, "Warehouse": Color.YELLOW}
+                  "Zone_3": Color.RED, "Roundabout": Color.BROWN, "Warehouse_line": Color.YELLOW, 
+                  "Warehouse_background": Color.BLACK,"Background": Color.WHITE}
 
 use_calibrator = False
 going_to_target = False
@@ -74,12 +75,12 @@ def startup():
             # drive towards red warehouse
             #EV3Brick.screen.print('Driving towards Red Warehouse')
             print("Driving towards Red Warehouse")
-            return [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2']]
+            return [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2'], set_colours['Background']]
         elif Button.RIGHT in EV3.buttons.pressed():
             # drive towards blue warehouse
             #EV3Brick.screen.print('Driving towards Blue Warehouse')
             print("Driving towards Blue Warehouse")
-            return [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_3']]
+            return [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_3'], set_colours['Background']]
 
 
 def main():  # Main Class
@@ -112,7 +113,7 @@ def test_emergency_mode():
     print("tappade :(")
 
 
-def drive(list_rgb_colurs):
+def drive(list_rgb_colurs, background_color):
     """
     list_rgb_colurs - list, containing the colours to be on the lockout for
 
@@ -126,7 +127,7 @@ def drive(list_rgb_colurs):
     list_of_colours = list_rgb_colurs
     index_of_colours = 0
     # Update to be a variable that is set by the startup function
-    colour_one = [43, 60, 86]
+    colour_one = background_color
     colour_two = list_of_colours[0]
 
     colour_one = rgb_to_hsv(colour_one[0], colour_one[1], colour_one[2])
