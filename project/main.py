@@ -61,7 +61,7 @@ def startup():
         if Button.UP in EV3.buttons.pressed():
             if use_calibrator:
                 # kör igång kalibrering
-                #EV3Brick.screen.print('Calibration start')
+                EV3.screen.print('Calibration start')
                 print("Calibration started")
                 wait(500)
                 set_colours = Colour_Manager.Calibrate_Colours(
@@ -72,12 +72,12 @@ def startup():
             use_calibrator = False
         elif Button.LEFT in EV3.buttons.pressed():
             # drive towards red warehouse
-            #EV3Brick.screen.print('Driving towards Red Warehouse')
+            EV3.screen.print('Driving towards Red Warehouse')
             print("Driving towards Red Warehouse")
             return [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2']]
         elif Button.RIGHT in EV3.buttons.pressed():
             # drive towards blue warehouse
-            #EV3Brick.screen.print('Driving towards Blue Warehouse')
+            EV3.screen.print('Driving towards Blue Warehouse')
             print("Driving towards Blue Warehouse")
             return [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_3']]
 
@@ -147,7 +147,8 @@ def drive(list_rgb_colurs):
 
         # Check if the next colour is present
         # Add a threshold function that can accept slight deivance from the target
-        if light_sensor.rgb() == list_of_colours[index_of_colours + 1]:
+
+        if colour_deviation(light_sensor.rgb(), list_of_colours[index_of_colours + 1], 5) == True:
             index_of_colours += 1
             colour_two = list_of_colours[index_of_colours]
 
@@ -157,6 +158,38 @@ def drive(list_rgb_colurs):
         # print(sound_start)
         TRUCK.drive(DRIVING_INITAL, angle_to_colour(line_to_follow, color_hsv))
     return None
+
+
+def colour_deviation(colour_one, colour_two, deviation):
+    """
+    colour_one - list, containing the first colour in the RGB colour space
+    colour_two - list, containing the second colour in the RGB colour space
+    deviation - int, the amount of deviation allowed
+
+    Returns if two colours are simillar enough, given a devitation
+    """
+    acceptable_deviation = True
+
+    r_colour_one = colour_one[0]
+    g_colour_one = colour_one[1]
+    b_colour_one = colour_one[2]
+
+    r_colour_two = colour_two[0]
+    g_colour_two = colour_two[1]
+    b_colour_two = colour_two[2]
+
+    r_deviation = abs(r_colour_one - r_colour_two)
+    g_deviation = abs(g_colour_one - g_colour_two)
+    b_deviation = abs(b_colour_one - b_colour_two)
+
+    if r_deviation < deviation:
+        acceptable_deviation = False
+    if g_deviation < deviation:
+        acceptable_deviation = False
+    if b_deviation < deviation:
+        acceptable_deviation = False
+
+    return acceptable_deviation
 
 
 def Set_Target():
