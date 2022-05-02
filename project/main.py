@@ -1,5 +1,7 @@
 #!/usr/bin/env pybricks-micropython
 import sys
+from tkinter import E
+from turtle import distance
 import __init__
 from Colour_follower import angle_to_colour, colour_target, rgb_to_hsv
 from Crane_Manager import crane_movement, crane_pickup
@@ -35,8 +37,8 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 #saved_colours = open("savedColours.txt", "r")
 preset_colours = {"Zone_1": Color.GREEN, "Zone_2": Color.BLUE,
-                  "Zone_3": Color.RED, "Roundabout": Color.BROWN, "Warehouse_line": Color.YELLOW, 
-                  "Warehouse_background": Color.BLACK,"Background": Color.WHITE}
+                  "Zone_3": Color.RED, "Roundabout": Color.BROWN, "Warehouse_line": Color.YELLOW,
+                  "Warehouse_background": Color.BLACK, "Background": Color.WHITE}
 
 use_calibrator = False
 going_to_target = False
@@ -157,6 +159,8 @@ def drive(list_rgb_colurs, background_color):
             colour_two = list_of_colours[index_of_colours]
 
         if obstacle(300, "Driving", Ultrasonic_sensor) is True:
+            EV3.speaker.say("There is an obstacle")
+            EV3.speaker.beep()
             TRUCK.stop()
 
         # print(sound_start)
@@ -164,24 +168,44 @@ def drive(list_rgb_colurs, background_color):
     return None
 
 
-def warehouse_drive(colours, max_angle, min_angle):
+def warehouse_drive(colour_warehouse, drivebase, warehouse, max_angle, min_angle):
     """_summary_
 
     Args:
         colours (_type_): _description_
     """
-    colour_one = rgb_to_hsv(colour_one[0], colour_one[1], colour_one[2])
-    colour_two = rgb_to_hsv(colour_two[0], colour_two[1], colour_two[2])
+    # Initialize variables
+    ROBOT = drivebase
+    distance_travled = 0
+    continue_driving = True
+    pickup_pallet = False
 
-    if red_warehouse == True:
-        pass
-    elif blue_warehouse == True:
-        pass
+    # Check which way it's supposed to trun, depening on the warehouse
+    if warehouse == "Red":
+        turn_direction = 1
+    elif warehouse == "Blue":
+        turn_direction = -1
 
-    if obstacle(2500, "pallet_detection", Ultrasonic_sensor) is True:
-        crane_pickup(Crane_motor, TRUCK, Front_button, -
-                     1000, max_angle, min_angle)
-
+    # Check until you find a pallet
+    while pickup_pallet is False:
+        # Check if there is a pallet in front
+        if obstacle(2500, "pallet_detection", Ultrasonic_sensor) is True:
+            crane_pickup(Crane_motor, TRUCK, Front_button, -
+                         1000, max_angle, min_angle)
+        else:
+            ROBOT.turn(90*turn_direction)
+            # Drives until it finds the yellow line in the warehouse
+            while continue_driving == True:
+                # Might be a conflict if colour_warehouse is not RGB
+                if colour_deviation(light_sensor.rgb(), colour_warehouse, 5) == True:
+                    # Drive the same length it took to find the yellow line and turn
+                    ROBOT.straight(distance_travled)
+                    ROBOT.turn(-90*turn_direction)
+                    continue_driving = False
+                else:
+                    # Drive small steps to find the yellow line
+                    distance_travled += 10
+                    ROBOT.straight(10)
     pass
 
 

@@ -1,6 +1,9 @@
 #!/usr/bin/env pybricks-micropython
 from pybricks.parameters import Stop
+from pybricks.hubs import EV3Brick
 from Sensor_Manager import button_pressed
+
+EV3 = EV3Brick()
 
 
 def crane_movement(Crane_motor, direction, speed):  # Function for moving the crane up
@@ -69,6 +72,8 @@ def crane_pickup(Crane_motor, DriveBase, Front_button, angle_of_crane, max_angle
 
     # Raise the crane slightly to hold the planet
     if (angle_of_crane + raise_angle) <= max_angle:
+        EV3.speaker.say('Raise the crane')
+        EV3.speaker.beep()
         Crane_motor.run_target(speed_of_crane, angle_of_crane + raise_angle)
     else:
         Crane_motor.run_target(speed_of_crane, max_angle)
