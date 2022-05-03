@@ -69,3 +69,20 @@ def angle_to_colour(line_to_follow, color_on_ground):
     angle = 90 * sum_of_diffrence
 
     return angle
+
+
+def angle_to_speed(speed, angle, factor):
+    """
+    speed - int, the speed to be used
+    angle - int, the angle to be used
+    Returns the speed to be used
+    """
+
+    angle = abs(angle)
+
+    try:
+        speed = factor*speed * 1/angle
+    except:
+        speed = speed
+
+    return speed
