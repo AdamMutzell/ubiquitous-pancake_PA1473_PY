@@ -36,7 +36,7 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 #saved_colours = open("savedColours.txt", "r")
 preset_colours = {"Zone_1": Color.GREEN, "Zone_2": Color.BLUE,
                   "Zone_3": Color.RED, "Roundabout": Color.BROWN, "Warehouse_line": Color.YELLOW,
-                  "Warehouse_background": Color.BLACK, "Background": Color.WHITE}
+                  "Warehouse_start": Color.BLACK, "Warehouse_blue": Color.BLUE, "Warehouse_red": Color.RED, "Background": Color.WHITE}
 
 use_calibrator = False
 going_to_target = False
@@ -83,14 +83,14 @@ def startup():
             EV3.speaker.play_file(SoundFile.READY)
             EV3.screen.print('Driving towards Red Warehouse')
             print("Driving towards Red Warehouse")
-            return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2'], set_colours['Warehouse_background']], set_colours['Background'])
+            return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2'], set_colours['Warehouse_start']], set_colours['Background'], "Warehouse_red")
         elif Button.RIGHT in EV3.buttons.pressed():
             # drive towards blue warehouse
             EV3.speaker.say('Driving towards Blue Warehouse')
             EV3.speaker.play_file(SoundFile.READY)
             EV3.screen.print('Driving towards Blue Warehouse')
             print("Driving towards Blue Warehouse")
-            return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_3'], set_colours['Warehouse_background']], set_colours['Background'])
+            return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_3'], set_colours['Warehouse_start']], set_colours['Background'], "Warehouse_blue")
 
 
 def main():  # Main Class
@@ -117,7 +117,7 @@ def test_emergency_mode():
     pass
 
 
-def drive(list_rgb_colurs, background_color, EV3):
+def drive(list_rgb_colurs, background_color, warehouse_colour, EV3):
     """
     list_rgb_colurs - list, containing the colours to be on the lockout for
     background_color - list, the colour to be used as background
@@ -127,6 +127,7 @@ def drive(list_rgb_colurs, background_color, EV3):
 
     drive_check = True
     pickupstatus = False
+    warehouse_colour =
 
     list_of_colours = list_rgb_colurs
     print(len(list_of_colours))
@@ -183,7 +184,8 @@ def drive(list_rgb_colurs, background_color, EV3):
         TRUCK.drive(speed, angle)
 
     if pickupstatus is False:
-        warehouse_drive()
+        warehouse_drive(
+            light_sensor, TRUCK, set_colours[warehouse_colour], set_colours["Warehouse_line"])
     else:
         # We are done with the pickup
         pass
@@ -219,7 +221,7 @@ def angle_to_speed(speed, angle, factor):
     return speed
 
 
-def warehouse_drive(colour_warehouse, drivebase, warehouse, max_angle, min_angle):
+def warehouse_drive(light_sensor, drivebase, warehouse, line_warehouse):
     """_summary_
 
     Args:
@@ -232,9 +234,12 @@ def warehouse_drive(colour_warehouse, drivebase, warehouse, max_angle, min_angle
     pickup_pallet = False
 
     # Check which way it's supposed to turn, depening on the warehouse
-    if warehouse == "Red":
+    # Check if blue value or red value is higher, RGB.
+    if warehouse[0] > warehouse[2]:
+        turn_amount = 90
         turn_direction = -1
-    elif warehouse == "Blue":
+    elif warehouse[2] > warehouse[0]:
+        turn_amount = 40
         turn_direction = 1
 
     # Check until you find a pallet
@@ -243,16 +248,16 @@ def warehouse_drive(colour_warehouse, drivebase, warehouse, max_angle, min_angle
         if obstacle(1000, "pallet_detection", Ultrasonic_sensor) is True:
             enter_pickup = True
             # Go to the next area
-        ROBOT.turn(90*turn_direction)
+        ROBOT.turn(turn_amount*turn_direction)
         # Drives until it finds the yellow line in the warehouse
         while continue_driving == True:
             # Might be a conflict if colour_warehouse is not RGB
-            if colour_deviation(light_sensor.rgb(), colour_warehouse, 5) == True:
+            if colour_deviation(light_sensor.rgb(), line_warehouse, 5) == True:
                 # Drive the same length it took to find the yellow line and turn
                 ROBOT.turn(-90*turn_direction)
                 if enter_pickup is True:
-                    crane_pickup(Crane_motor, TRUCK, Front_button, -
-                                 1000, max_angle, min_angle)
+                    pickup_pallet = crane_pickup(Crane_motor, light_sensor, TRUCK, Front_button, -
+                                                 1000, warehouse, line_warehouse)
                 else:
                     ROBOT.straight(distance_travled)
                     continue_driving = False
@@ -261,7 +266,7 @@ def warehouse_drive(colour_warehouse, drivebase, warehouse, max_angle, min_angle
                 distance_travled += 10
                 ROBOT.straight(10)
 
-    pass
+    return pickup_pallet
 
 
 def colour_deviation(colour_one, colour_two, deviation):

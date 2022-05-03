@@ -1,8 +1,10 @@
 #!/usr/bin/env pybricks-micropython
 from pybricks.parameters import Stop
 from pybricks.hubs import EV3Brick
+from pybricks.tools import wait
+from main import colour_deviation, angle_to_speed
 from Sensor_Manager import button_pressed
-from Colour_follower import angle_to_colour, rgb_to_hsv
+from Colour_follower import angle_to_colour, colour_target
 
 EV3 = EV3Brick()
 
@@ -35,7 +37,7 @@ def crane_hold(Crane_motor):  # Function for moving the crane up
 # Function for moving the crane up
 
 
-def crane_pickup(Crane_motor, DriveBase, Front_button, angle_of_crane, max_angle, min_angle):
+def crane_pickup(Crane_motor, light_sensor, DriveBase, Front_button, angle_of_crane, background, line_colour):
     """
     Crane_port - Class containing the port, containing the port of the crane
     DriveBase - Class that handles the drving of the robot
@@ -55,38 +57,30 @@ def crane_pickup(Crane_motor, DriveBase, Front_button, angle_of_crane, max_angle
     distance_traveled = 0
     ROBOT = DriveBase
     DRIVING_INITAL = 20
-
-    colour_of_background = None
-    colour_of_line = None
+    pickupstatus = False
 
     # Seetings for the crane motor
     Crane_motor.control.stall_tolerances(stall_limit=90, stall_time_limit=5000)
-
-    if angle_of_crane < min_angle:
-        angle_of_crane = min_angle
-
     # Raise the crane to the angle of the pallet
     Crane_motor.run_target(speed_of_crane, angle_of_crane)
 
-    # Drive forward for 100mm
+    # Drive forward untill the button is pressed
     while button_pressed(Front_button) is False:
-
         # Get the RGB of the background
-        colour = colour_sensor.rgb()
-        colour_hsv = rgb_to_hsv(colour)
+        colour_rgb = light_sensor.rgb()
+        # Get the line to follow
+        line_to_follow = colour_target(line_colour, background)
 
-        ROBOT.drive(DRIVING_INITAL, angle_to_colour(
-            line_to_follow, colour_hsv))
+        # get the new angle
+        angle = angle_to_colour(line_to_follow, colour_rgb)
+        # get the speed
+        speed = angle_to_speed(DRIVING_INITAL, angle, 3)
 
-    # Raise the crane slightly to hold the planet
-    if (angle_of_crane + raise_angle) <= max_angle:
-        EV3.speaker.say('Raise the crane')
-        EV3.speaker.beep()
-        Crane_motor.run_target(speed_of_crane, angle_of_crane + raise_angle)
-    else:
-        Crane_motor.run_target(speed_of_crane, max_angle)
+        # Drive
+        ROBOT.drive(speed, angle)
+    pickupstatus = True
+    EV3.speaker.say('Raise the crane')
+    EV3.speaker.beep()
+    Crane_motor.run_target(speed_of_crane, angle_of_crane + raise_angle)
 
-    # Drive back
-    ROBOT.straight(distance_traveled)
-
-    return angle_of_crane
+    return pickupstatus
