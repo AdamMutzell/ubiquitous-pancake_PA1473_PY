@@ -42,16 +42,17 @@ use_calibrator = False
 going_to_target = False
 set_colours = None
 # Change to false to skip calibration mode and use .txt file if avalible
-
+DRIVING_INITAL = 100
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
 TRUCK = DriveBase(left_motor=Right_drive, right_motor=Left_drive,
                   wheel_diameter=47, axle_track=128)
-
+TRUCK.settings(straight_speed=DRIVING_INITAL,
+               straight_acceleration=DRIVING_INITAL/2)
 # Makes a start up sound
 sound_start = EV3.speaker.beep()
 
 # Speed:
-DRIVING_INITAL = 30
+
 
 # START
 
@@ -82,14 +83,14 @@ def startup():
             EV3.speaker.play_file(SoundFile.READY)
             EV3.screen.print('Driving towards Red Warehouse')
             print("Driving towards Red Warehouse")
-            return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2']], set_colours['Background'])
+            return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2'], set_colours['Warehouse_background']], set_colours['Background'])
         elif Button.RIGHT in EV3.buttons.pressed():
             # drive towards blue warehouse
             EV3.speaker.say('Driving towards Blue Warehouse')
             EV3.speaker.play_file(SoundFile.READY)
             EV3.screen.print('Driving towards Blue Warehouse')
             print("Driving towards Blue Warehouse")
-            return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_3']], set_colours['Background'])
+            return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_3'], set_colours['Warehouse_background']], set_colours['Background'])
 
 
 def main():  # Main Class
@@ -157,13 +158,15 @@ def drive(list_rgb_colurs, background_color, EV3):
         color_rgb = light_sensor.rgb()
 
         # Check if the next colour is present
-        if colour_deviation(color_rgb, list_of_colours[index_of_colours + 1], 6) == True:
+        if colour_deviation(color_rgb, list_of_colours[index_of_colours + 1], 3) == True:
             index_of_colours += 1
             colour_two = list_of_colours[index_of_colours]
             # Say that it has changed colours
             EV3.screen.print('New colour found')
+            TRUCK.drive(0, 30)
+            wait(800)
 
-        if obstacle(300, "Driving", Ultrasonic_sensor) is True:
+        if obstacle(200, "Driving", Ultrasonic_sensor) is True:
             TRUCK.stop()
             EV3.speaker.say("There is an obstacle")
             EV3.speaker.play_file(SoundFile.OVERPOWER)
@@ -177,6 +180,12 @@ def drive(list_rgb_colurs, background_color, EV3):
         # get the speed
         speed = angle_to_speed(DRIVING_INITAL, angle, 3)
         # drive the robot
+        if colour_deviation(color_rgb, colour_two, 3) is True:
+            TRUCK.drive(-speed*2, angle)
+            wait(500)
+            TRUCK.drive(0, angle)
+            wait(800)
+
         TRUCK.drive(speed, angle)
 
     if pickupstatus is False:
