@@ -41,6 +41,11 @@ def rgb_to_hsv(r, g, b):
 
     # compute v
     v = cmax * 100
+
+    # Round of to 2 decimal places
+    h = round(h, 2)
+    s = round(s, 2)
+    v = round(v, 2)
     return h, s, v
 
 
@@ -59,10 +64,8 @@ def angle_to_colour(line_to_follow, color_on_ground):
     value_diffrence = color_on_ground[2] - line_to_follow[2]
     # Get a value that is between -1 and 1
     sum_of_diffrence = (
-        hue_diffrence + saturation_diffrence + value_diffrence) / 455
+        hue_diffrence + saturation_diffrence + value_diffrence) / 300
 
-    print(sum_of_diffrence)
-
-    angle = 90 * sum_of_diffrence
+    angle = 180 * sum_of_diffrence
 
     return angle

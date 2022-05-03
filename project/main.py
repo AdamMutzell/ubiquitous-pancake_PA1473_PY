@@ -1,7 +1,5 @@
 #!/usr/bin/env pybricks-micropython
 import sys
-from tkinter import E
-from turtle import distance
 import __init__
 from Colour_follower import angle_to_colour, colour_target, rgb_to_hsv
 from Crane_Manager import crane_movement, crane_pickup
@@ -53,13 +51,14 @@ TRUCK = DriveBase(left_motor=Right_drive, right_motor=Left_drive,
 sound_start = EV3.speaker.beep()
 
 # Speed:
-DRIVING_INITAL = 20
+DRIVING_INITAL = 30
 
 # START
 
 
 def startup():
     running = True
+    use_calibrator = True
     while running:
         if Button.UP in EV3.buttons.pressed():
             if use_calibrator:
@@ -70,25 +69,27 @@ def startup():
                 print("Calibration started")
                 wait(500)
                 set_colours = Colour_Manager.Calibrate_Colours(
-                    preset_colours, light_sensor)
+                    preset_colours, EV3, light_sensor)
         if Button.DOWN in EV3.buttons.pressed():
+            EV3.speaker.say('Using last calibration')
             set_colours = Colour_Manager.Get_File()
             print("colours read from file as : "+str(set_colours))
             use_calibrator = False
+            wait(500)
         elif Button.LEFT in EV3.buttons.pressed():
             # drive towards red warehouse
             EV3.speaker.say('Driving towards Red Warehouse')
             EV3.speaker.play_file(SoundFile.READY)
             EV3.screen.print('Driving towards Red Warehouse')
             print("Driving towards Red Warehouse")
-            return [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2'], set_colours['Background']]
+            return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2']], set_colours['Background'])
         elif Button.RIGHT in EV3.buttons.pressed():
             # drive towards blue warehouse
             EV3.speaker.say('Driving towards Blue Warehouse')
             EV3.speaker.play_file(SoundFile.READY)
             EV3.screen.print('Driving towards Blue Warehouse')
             print("Driving towards Blue Warehouse")
-            return [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_3'], set_colours['Background']]
+            return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_3']], set_colours['Background'])
 
 
 def main():  # Main Class
@@ -96,7 +97,9 @@ def main():  # Main Class
 
 
 def test_drive():
-    drive(startup())
+    list_of_colours, colour_background = startup()
+    print(list_of_colours, colour_background)
+    drive(list_of_colours, colour_background, EV3=EV3)
 
 
 def test_crane():
@@ -121,7 +124,7 @@ def test_emergency_mode():
     print("tappade :(")
 
 
-def drive(list_rgb_colurs, background_color):
+def drive(list_rgb_colurs, background_color, EV3):
     """
     list_rgb_colurs - list, containing the colours to be on the lockout for
     background_color - list, the colour to be used as background
@@ -133,17 +136,17 @@ def drive(list_rgb_colurs, background_color):
     pickupstatus = False
 
     list_of_colours = list_rgb_colurs
+    print(len(list_of_colours))
     index_of_colours = 0
     # Update to be a variable that is set by the startup function
     colour_one = background_color
     colour_two = list_of_colours[0]
 
-    colour_one = rgb_to_hsv(colour_one[0], colour_one[1], colour_one[2])
-    colour_two = rgb_to_hsv(colour_two[0], colour_two[1], colour_two[2])
-
     line_to_follow = colour_target(colour_one, colour_two)
     color_rgb = light_sensor.rgb()
-    color_hsv = rgb_to_hsv(color_rgb[0], color_rgb[1], color_rgb[2])
+
+    # Print the hsv it's on
+    EV3.screen.print(str(line_to_follow))
 
     while drive_check is True:
         # Check the line it's following
@@ -152,14 +155,16 @@ def drive(list_rgb_colurs, background_color):
         # Check the line to follow
         line_to_follow = colour_target(colour_one, colour_two)
         color_rgb = light_sensor.rgb()
-        color_hsv = rgb_to_hsv(color_rgb[0], color_rgb[1], color_rgb[2])
 
         # Check if the next colour is present
-        if colour_deviation(light_sensor.rgb(), list_of_colours[index_of_colours + 1], 5) == True:
+        if colour_deviation(color_rgb, list_of_colours[index_of_colours + 1], 6) == True:
             index_of_colours += 1
             colour_two = list_of_colours[index_of_colours]
+            # Say that it has changed colours
+            EV3.screen.print('New colour found')
 
         if obstacle(300, "Driving", Ultrasonic_sensor) is True:
+            TRUCK.stop()
             EV3.speaker.say("There is an obstacle")
             EV3.speaker.play_file(SoundFile.OVERPOWER)
             TRUCK.stop()
@@ -167,9 +172,12 @@ def drive(list_rgb_colurs, background_color):
         # Check if we are at the end of the list
         if index_of_colours == len(list_of_colours) - 1:
             drive_check = False
-
-        # print(sound_start)
-        TRUCK.drive(DRIVING_INITAL, angle_to_colour(line_to_follow, color_hsv))
+        # get the new angle
+        angle = angle_to_colour(line_to_follow, color_rgb)
+        # get the speed
+        speed = angle_to_speed(DRIVING_INITAL, angle, 3)
+        # drive the robot
+        TRUCK.drive(speed, angle)
 
     if pickupstatus is False:
         warehouse_drive()
@@ -177,6 +185,23 @@ def drive(list_rgb_colurs, background_color):
         # We are done with the pickup
         pass
     return None
+
+
+def angle_to_speed(speed, angle, factor):
+    """
+    speed - int, the speed to be used
+    angle - int, the angle to be used
+    Returns the speed to be used
+    """
+
+    angle = abs(angle)
+
+    try:
+        speed = factor*speed * 1/angle
+    except:
+        speed = speed
+
+    return speed
 
 
 def warehouse_drive(colour_warehouse, drivebase, warehouse, max_angle, min_angle):
@@ -232,7 +257,8 @@ def colour_deviation(colour_one, colour_two, deviation):
 
     Returns if two colours are simillar enough, given a devitation
     """
-    acceptable_deviation = True
+    # Check if the colours are simillar enough
+    acceptable_deviation = False
 
     r_colour_one = colour_one[0]
     g_colour_one = colour_one[1]
@@ -246,12 +272,14 @@ def colour_deviation(colour_one, colour_two, deviation):
     g_deviation = abs(g_colour_one - g_colour_two)
     b_deviation = abs(b_colour_one - b_colour_two)
 
-    if r_deviation < deviation:
+    if r_deviation > deviation:
         acceptable_deviation = False
-    if g_deviation < deviation:
+    elif g_deviation > deviation:
         acceptable_deviation = False
-    if b_deviation < deviation:
+    elif b_deviation > deviation:
         acceptable_deviation = False
+    else:
+        acceptable_deviation = True
 
     return acceptable_deviation
 

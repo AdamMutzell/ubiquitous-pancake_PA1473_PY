@@ -1,0 +1,7 @@
+Zone_1:(7, 26, 6)
+Zone_2:(39, 16, 17)
+Zone_3:(9, 21, 24)
+Roundabout:(13, 14, 6)
+Warehouse_line:(2, 2, 0)
+Warehouse_background:(26, 15, 19)
+Background:(53, 63, 70)
