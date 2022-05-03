@@ -1,9 +1,13 @@
 #!/usr/bin/env pybricks-micropython
 from pybricks.hubs import EV3Brick
 from pybricks.media.ev3dev import SoundFile
+import time
+
+from project.main import emergency_mode
 
 EV3 = EV3Brick()
 
+start_time = 10
 
 def button_pressed(Front_button):  # Function for detecting button press
     """
@@ -13,7 +17,6 @@ def button_pressed(Front_button):  # Function for detecting button press
     """
 
     if Front_button.pressed():
-        EV3.speaker.beep()
         return True
     else:
         return False
@@ -45,8 +48,11 @@ def detect_item_fail(pickupstatus, button):
     Returns True if the pickup has failed, False otherwise
     """
     if pickupstatus == True:
-        EV3.speaker.play_file(SoundFile.OVERPOWER)
-        EV3.speaker.beep()
-        return button_pressed(button)
-    else:
-        return True
+        if button_pressed is False:
+            if start_time - time.time() > 5:
+                emergency_mode()
+                return False
+        elif button_pressed is True:
+            start_time = time.time()
+            return True
+    return False

@@ -18,7 +18,6 @@ from pybricks.media.ev3dev import SoundFile
 # Fix the crane pickup function for elevated surfaces
 # Might be able to show that elevated surface by taking half of max_angle.
 
-
 EV3 = EV3Brick()
 
 # Initialzie the components of the robot
@@ -94,7 +93,9 @@ def startup():
 
 
 def main():  # Main Class
-    test_drive()
+    wait(2000)
+    while True:
+        emergency_mode(True,Front_button)
 
 
 def test_drive():
@@ -124,9 +125,8 @@ def drive(list_rgb_colurs, background_color, EV3):
     Drives the robot towards the target zone, using a list of colours to determine it's path.
     Returns nothing.
     """
-
-    drive_check = True
     pickupstatus = False
+    drive_check = True
 
     list_of_colours = list_rgb_colurs
     print(len(list_of_colours))
@@ -158,7 +158,7 @@ def drive(list_rgb_colurs, background_color, EV3):
             TRUCK.drive(0, 30)
             wait(800)
 
-        emergency_mode(Front_button, pickupstatus)
+        pickupstatus = detect_item_fail(Front_button, pickupstatus)
 
         if obstacle(300, "Driving", Ultrasonic_sensor) is True:
             TRUCK.stop()
@@ -328,11 +328,8 @@ def exit_zone(initial_zone):
     # Very bad code! Please ignore
 
 
-def emergency_mode(status, button):
-    if detect_item_fail(status, button) is False:
-        Siren(10000, 1)
-        # Abort all else and return to roundabout
-
+def emergency_mode():
+    Siren(10000, 1)
 
 if __name__ == '__main__':  # Keep this!
     sys.exit(main())
