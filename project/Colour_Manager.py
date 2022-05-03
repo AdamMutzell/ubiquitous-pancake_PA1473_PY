@@ -7,7 +7,7 @@ from pybricks.parameters import Port
 light_sensor = ColorSensor(Port.S3)
 
 
-def Calibrate_Colours(colours, sensor):
+def Calibrate_Colours(colours, EV3, sensor):
     """
     Enter a calibraton mode where the user must press a button on the brick and set the colour value for each individual colour reading.
 
@@ -19,14 +19,21 @@ def Calibrate_Colours(colours, sensor):
     for label, colour in colours.items():
 
         print("set colour for: "+label)
-        #add robot voice command here?
-        while brick.buttons.pressed() == False:  # loop until button is pressed
+        EV3.screen.print(label)
+        # add robot voice command here?
+        wait(500)
+        running = True
+        while running:
+            if brick.buttons.pressed():  # if any button is pressed
+
                 selected_colour = get_colour(light_sensor)
                 wait(500)
+                running = False
         print(selected_colour)
         saved_colours.write((label+":"+str(selected_colour)+"\n"))
         colour_dict[label] = selected_colour
     saved_colours.close()
+    EV3.speaker.say('Calibration done')
     return colour_dict
 
 
@@ -47,7 +54,7 @@ def Get_File():
             colours[label] = colour
         saved_colours.close()
         return colours
-    except FileNotFoundError:
+    except:
         print("no .txt file found! returning None")
         return None
 

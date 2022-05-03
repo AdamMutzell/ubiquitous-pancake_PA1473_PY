@@ -2,8 +2,7 @@
 from pybricks.parameters import Stop
 from pybricks.hubs import EV3Brick
 from Sensor_Manager import button_pressed
-from Colour_follower import angle_to_colour
-from project.Colour_follower import rgb_to_hsv
+from Colour_follower import angle_to_colour, rgb_to_hsv
 
 EV3 = EV3Brick()
 
