@@ -1,6 +1,11 @@
 #!/usr/bin/env pybricks-micropython
 from pybricks.parameters import Stop
+from pybricks.hubs import EV3Brick
 from Sensor_Manager import button_pressed
+from Colour_follower import angle_to_colour
+from project.Colour_follower import rgb_to_hsv
+
+EV3 = EV3Brick()
 
 
 def crane_movement(Crane_motor, direction, speed):  # Function for moving the crane up
@@ -43,32 +48,41 @@ def crane_pickup(Crane_motor, DriveBase, Front_button, angle_of_crane, max_angle
     Returns None
     """
     # To do, check out stop function on target and stall limits
+    # Very incomplete code, sorry 'bout that.
 
     # Initializing the variables
     speed_of_crane = 50
     raise_angle = 50
     distance_traveled = 0
     ROBOT = DriveBase
+    DRIVING_INITAL = 20
+
+    colour_of_background = None
+    colour_of_line = None
 
     # Seetings for the crane motor
     Crane_motor.control.stall_tolerances(stall_limit=90, stall_time_limit=5000)
 
-    # Makes sure that the angle of the crane is valid
     if angle_of_crane < min_angle:
         angle_of_crane = min_angle
 
     # Raise the crane to the angle of the pallet
-    Crane_motor.run_target(speed_of_crane, angle_of_crane, )
+    Crane_motor.run_target(speed_of_crane, angle_of_crane)
 
     # Drive forward for 100mm
     while button_pressed(Front_button) is False:
-        print(button_pressed(Front_button))
 
-        ROBOT.straight(100)
-        distance_traveled -= 100
+        # Get the RGB of the background
+        colour = colour_sensor.rgb()
+        colour_hsv = rgb_to_hsv(colour)
+
+        ROBOT.drive(DRIVING_INITAL, angle_to_colour(
+            line_to_follow, colour_hsv))
 
     # Raise the crane slightly to hold the planet
     if (angle_of_crane + raise_angle) <= max_angle:
+        EV3.speaker.say('Raise the crane')
+        EV3.speaker.beep()
         Crane_motor.run_target(speed_of_crane, angle_of_crane + raise_angle)
     else:
         Crane_motor.run_target(speed_of_crane, max_angle)
