@@ -3,7 +3,7 @@ import sys
 import __init__
 from Colour_follower import angle_to_colour, colour_target, rgb_to_hsv, angle_to_speed
 from Crane_Manager import crane_movement, crane_pickup
-from Sensor_Manager import button_pressed, obstacle, detect_item_fail
+from Sensor_Manager import button_pressed, obstacle
 import math
 import time
 import Colour_Manager
@@ -39,7 +39,7 @@ preset_colours = {"Zone_1": Color.GREEN, "Zone_2": Color.RED,
                   "Warehouse_start": Color.BLACK, "Warehouse_blue": Color.BLUE, "Warehouse_red": Color.RED, "Background": Color.WHITE}
 
 use_calibrator = False
-set_colours = None
+start_time = None
 # Change to false to skip calibration mode and use .txt file if avalible
 DRIVING_INITAL = 50
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
@@ -231,13 +231,13 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, E
 def turn_around():
     while obstacle(300, "Driving", Ultrasonic_sensor) is True:
         wait(1000)
-    TRUCK.straight(140, then=Stop.hold)
-    TRUCK.turn(-90, then=Stop.HOLD, wait=True)
+    TRUCK.straight(140)
+    TRUCK.turn(-90)
 
     while obstacle(300, "Driving", Ultrasonic_sensor) is True:
         wait(1000)
-    TRUCK.straight(140, then=Stop.hold)
-    TRUCK.turn(-90, then=Stop.HOLD, wait=True)
+    TRUCK.straight(140)
+    TRUCK.turn(-90)
 
 
 def warehouse_drive(light_sensor, drivebase, warehouse, line_warehouse):
@@ -345,9 +345,30 @@ def exit_zone(initial_zone):
         return False
     # Very bad code! Please ignore
 
+def detect_item_fail(stat):
+    """
+    pickupstatus - boolean, True if the truck is currently picking up an item
+    button, a class handling the front button of the robot
 
-def emergency_mode():
-    Siren(10000, 1)
+    Returns True if the pickup has failed, False otherwise
+    """
+    global start_time
+    if stat == True:
+        if button_pressed(Front_button) == False:  
+            #For the first iteration, start the timer.
+            if start_time == None:
+                start_time = time.time()
+            #If an object haven't been on the crane for 5 seconds, make a sound
+            if time.time() - start_time > 5:
+                Super_Beep()
+                start_time = None
+            else:
+                return True
+        # If object is on the crane, reset the timer 
+        elif button_pressed(Front_button) == True:
+            start_time = time.time()
+            return True
+    return False
 
 
 if __name__ == '__main__':  # Keep this!
