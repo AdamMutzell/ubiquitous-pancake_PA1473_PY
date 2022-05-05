@@ -1,5 +1,4 @@
 #!/usr/bin/env pybricks-micropython
-from sqlite3 import Time
 import sys
 import __init__
 from Colour_follower import angle_to_colour, colour_target, rgb_to_hsv, angle_to_speed
@@ -96,13 +95,14 @@ def startup():
 
 
 def main():  # Main Class
-    test_warehouse()
+    test_drive()
 
 
 def test_drive():
-    list_of_colours, colour_background, warehouse_colour = startup()
-    print(list_of_colours, colour_background, warehouse_colour)
-    drive(list_of_colours, colour_background, warehouse_colour, EV3=EV3)
+    list_of_colours, colour_background, warehouse_colour, warehouse_line = startup()
+    print(list_of_colours, colour_background, warehouse_colour, warehouse_line)
+    drive(list_of_colours, colour_background,
+          warehouse_colour, warehouse_line, EV3=EV3)
 
 
 def test_crane():
@@ -127,7 +127,13 @@ def test_crane_pickup():
 
 
 def test_emergency_mode():
-    pass
+    list_of_colours, colour_background, warehouse_colour, warehouse_line = startup()
+    reversed_list = list_of_colours[::-1]
+    pickupstatus = True
+    while pickupstatus is True:
+        pickupstatus = detect_item_fail(pickupstatus, Front_button)
+    drive(reversed_list, colour_background,
+          warehouse_colour, warehouse_line, EV3)
 
 
 def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, EV3):
@@ -138,6 +144,8 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, E
     Returns nothing.
     """
     pickupstatus = False
+    angle = 0
+    speed = 0
 
     list_of_colours = list_rgb_colurs
     print(len(list_of_colours))
@@ -151,7 +159,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, E
     color_rgb = light_sensor.rgb()
 
     # Print the hsv it's on
-    EV3.screen.print(str(line_to_follow))
+    EV3.screen.print("Following a line")
 
     while drive_check is True:
         # Check the line it's following
@@ -170,7 +178,17 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, E
             TRUCK.drive(0, -30)
             wait(800)
 
-        pickupstatus = detect_item_fail(Front_button, pickupstatus)
+        # Emergency mode
+
+        # if pickupstatus is True and detect_item_fail(Front_button, pickupstatus) is False:
+        #    pickupstatus = False
+        #    EV3.screen.print('Driving back')
+        #    TRUCK.turn(180)
+        #    reversed_list = list_rgb_colurs[0:index_of_colours]
+        #    reversed_list = reversed_list[::-1]
+        #    drive(reversed_list, background_color,
+        #          warehouse_colour, warehouse_line, EV3)
+        #           """"
 
         if obstacle(200, "Driving", Ultrasonic_sensor) is True:
             TRUCK.stop()
@@ -201,8 +219,9 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, E
 
     if pickupstatus is False:
         # set_colours does not update with setup
-        warehouse_drive(
-            light_sensor, TRUCK, warehouse_colour, warehouse_line)
+        # warehouse_drive(
+        #    light_sensor, TRUCK, warehouse_colour, warehouse_line)
+        pass
     else:
         # We are done with the pickup
         pass

@@ -81,6 +81,9 @@ def crane_pickup(Crane_motor, light_sensor, DriveBase, Front_button, angle_of_cr
     EV3.speaker.beep()
     return pickupstatus
 
+# Function for moving the crane up
+# Might need to use run untill target as it goes full power
+
 
 def raise_incremental(Crane_motor, angle_at_start):
     duty_limit = 20

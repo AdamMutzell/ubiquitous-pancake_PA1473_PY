@@ -3,11 +3,10 @@ from pybricks.hubs import EV3Brick
 from pybricks.media.ev3dev import SoundFile
 import time
 
-from project.main import emergency_mode
-
 EV3 = EV3Brick()
 
 start_time = 10
+
 
 def button_pressed(Front_button):  # Function for detecting button press
     """
