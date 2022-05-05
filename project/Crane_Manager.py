@@ -2,9 +2,8 @@
 from pybricks.parameters import Stop
 from pybricks.hubs import EV3Brick
 from pybricks.tools import wait
-from main import colour_deviation, angle_to_speed
 from Sensor_Manager import button_pressed
-from Colour_follower import angle_to_colour, colour_target
+from Colour_follower import angle_to_colour, colour_target, angle_to_speed
 
 EV3 = EV3Brick()
 
@@ -60,7 +59,7 @@ def crane_pickup(Crane_motor, light_sensor, DriveBase, Front_button, angle_of_cr
     pickupstatus = False
 
     # Seetings for the crane motor
-    Crane_motor.control.stall_tolerances(stall_limit=90, stall_time_limit=5000)
+    #Crane_motor.control.stall_tolerances(stall_limit=90, stall_time_limit=5000)
     # Raise the crane to the angle of the pallet
     Crane_motor.run_target(speed_of_crane, angle_of_crane)
 
@@ -70,7 +69,6 @@ def crane_pickup(Crane_motor, light_sensor, DriveBase, Front_button, angle_of_cr
         colour_rgb = light_sensor.rgb()
         # Get the line to follow
         line_to_follow = colour_target(line_colour, background)
-
         # get the new angle
         angle = angle_to_colour(line_to_follow, colour_rgb)
         # get the speed
@@ -78,9 +76,21 @@ def crane_pickup(Crane_motor, light_sensor, DriveBase, Front_button, angle_of_cr
 
         # Drive
         ROBOT.drive(speed, angle)
+    raise_incremental(Crane_motor, angle_of_crane)
     pickupstatus = True
-    EV3.speaker.say('Raise the crane')
     EV3.speaker.beep()
-    Crane_motor.run_target(speed_of_crane, angle_of_crane + raise_angle)
-
     return pickupstatus
+
+
+def raise_incremental(Crane_motor, angle_at_start):
+    duty_limit = 20
+    angle = angle_at_start
+    speed_of_crane = 50
+
+    while angle == angle_at_start:
+        angle = Crane_motor.run_until_stalled(
+            speed_of_crane, Stop.HOLD, duty_limit)
+        duty_limit += 5
+        if duty_limit == 100:
+            break
+    return None
