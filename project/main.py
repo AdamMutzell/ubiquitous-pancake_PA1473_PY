@@ -1,10 +1,9 @@
 #!/usr/bin/env pybricks-micropython
-from sqlite3 import Time
 import sys
 import __init__
-from Colour_follower import angle_to_colour, colour_target, rgb_to_hsv
+from Colour_follower import angle_to_colour, colour_target
 from Crane_Manager import crane_movement, crane_pickup
-from Sensor_Manager import button_pressed, obstacle, detect_item_fail
+from Sensor_Manager import button_pressed, obstacle
 import math
 import time
 import Colour_Manager
@@ -33,14 +32,13 @@ light_sensor = ColorSensor(Port.S3)
 Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 direction = {"Warehouse","Roundabout"}
-
 #saved_colours = open("savedColours.txt", "r")
 preset_colours = {"Zone_1": Color.GREEN, "Zone_2": Color.BLUE,
                   "Zone_3": Color.RED, "Roundabout": Color.BROWN, "Warehouse_line": Color.YELLOW,
                   "Warehouse_background": Color.BLACK, "Background": Color.WHITE}
 
 use_calibrator = False
-set_colours = None
+start_time = None
 # Change to false to skip calibration mode and use .txt file if avalible
 
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
@@ -93,10 +91,7 @@ def startup():
 
 
 def main():  # Main Class
-    wait(2000)
-    while True:
-        emergency_mode(True,Front_button)
-
+    turn_around()
 
 def test_drive():
     list_of_colours, colour_background = startup()
@@ -183,13 +178,13 @@ def drive(list_rgb_colurs, background_color, EV3):
 def turn_around():
     while obstacle(300, "Driving", Ultrasonic_sensor) is True:
         wait(1000)
-    TRUCK.straight(140, then=Stop.hold)
-    TRUCK.turn(-90, then=Stop.HOLD, wait=True)
+    TRUCK.straight(140)
+    TRUCK.turn(-90)
 
     while obstacle(300, "Driving", Ultrasonic_sensor) is True:
         wait(1000)
-    TRUCK.straight(140, then=Stop.hold)
-    TRUCK.turn(-90, then=Stop.HOLD, wait=True)
+    TRUCK.straight(140)
+    TRUCK.turn(-90)
 
 def angle_to_speed(speed, angle, factor):
     """
@@ -310,9 +305,30 @@ def exit_zone(initial_zone):
         return False
     # Very bad code! Please ignore
 
+def detect_item_fail(stat):
+    """
+    pickupstatus - boolean, True if the truck is currently picking up an item
+    button, a class handling the front button of the robot
 
-def emergency_mode():
-    Siren(10000, 1)
+    Returns True if the pickup has failed, False otherwise
+    """
+    global start_time
+    if stat == True:
+        if button_pressed(Front_button) == False:  
+            #For the first iteration, start the timer.
+            if start_time == None:
+                start_time = time.time()
+            #If an object haven't been on the crane for 5 seconds, make a sound
+            if time.time() - start_time > 5:
+                Super_Beep()
+                start_time = None
+            else:
+                return True
+        # If object is on the crane, reset the timer 
+        elif button_pressed(Front_button) == True:
+            start_time = time.time()
+            return True
+    return False
 
 if __name__ == '__main__':  # Keep this!
     sys.exit(main())

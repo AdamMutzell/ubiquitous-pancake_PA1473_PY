@@ -3,11 +3,7 @@ from pybricks.hubs import EV3Brick
 from pybricks.media.ev3dev import SoundFile
 import time
 
-from project.main import emergency_mode
-
 EV3 = EV3Brick()
-
-start_time = 10
 
 def button_pressed(Front_button):  # Function for detecting button press
     """
@@ -40,19 +36,3 @@ def obstacle(accepted_distance, current_mode, sensor):
 
 # Function for detecting if a pickup of an item has failed
 # Might be worth adding a check for the duty limit of a crane
-def detect_item_fail(pickupstatus, button):
-    """
-    pickupstatus - boolean, True if the truck is currently picking up an item
-    button, a class handling the front button of the robot
-
-    Returns True if the pickup has failed, False otherwise
-    """
-    if pickupstatus == True:
-        if button_pressed is False:
-            if start_time - time.time() > 5:
-                emergency_mode()
-                return False
-        elif button_pressed is True:
-            start_time = time.time()
-            return True
-    return False
