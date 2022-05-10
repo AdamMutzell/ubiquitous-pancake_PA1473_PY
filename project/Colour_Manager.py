@@ -1,5 +1,4 @@
 from pybricks.hubs import EV3Brick as brick
-from pybricks.parameters import Button
 from pybricks.tools import wait
 from pybricks.ev3devices import ColorSensor
 from pybricks.parameters import Port
@@ -7,7 +6,7 @@ from pybricks.parameters import Port
 light_sensor = ColorSensor(Port.S3)
 
 
-def Calibrate_Colours(colours, EV3, sensor):
+def Calibrate_Colours(colours, EV3):
     """
     Enter a calibraton mode where the user must press a button on the brick and set the colour value for each individual colour reading.
 

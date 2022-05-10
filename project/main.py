@@ -1,12 +1,12 @@
 #!/usr/bin/env pybricks-micropython
 import sys
 import __init__
-from Colour_follower import angle_to_colour, colour_target, rgb_to_hsv, angle_to_speed
-from Crane_Manager import crane_movement, crane_pickup
-from Sensor_Manager import button_pressed, obstacle
+from Drive_functions import angle_to_colour, colour_target, angle_to_speed, colour_deviation
+from Crane_functions import crane_movement, crane_pickup
+from Sensor_functions import button_pressed, obstacle
+from Colour_Manager import Calibrate_Colours, Get_File
 import math
 import time
-import Colour_Manager
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor, ColorSensor, UltrasonicSensor
 from pybricks.parameters import Port, Color, Direction, Button, Stop
@@ -14,10 +14,7 @@ from pybricks.robotics import DriveBase
 from pybricks.tools import wait
 from pybricks.media.ev3dev import SoundFile
 
-# To do:
-# Fix the crane pickup function for elevated surfaces
-# Might be able to show that elevated surface by taking half of max_angle.
-
+# Initialise the EV3
 EV3 = EV3Brick()
 
 # Initialzie the components of the robot
@@ -31,48 +28,49 @@ Front_button = TouchSensor(Port.S1)
 light_sensor = ColorSensor(Port.S3)
 Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
-direction = {"Warehouse", "Roundabout"}
 
-#saved_colours = open("savedColours.txt", "r")
+# Initizles colours and directions for the robot
+direction = {"Warehouse", "Roundabout"}
 preset_colours = {"Zone_1": Color.GREEN, "Zone_2": Color.RED,
                   "Zone_3": Color.BLUE, "Roundabout": Color.BROWN, "Warehouse_line": Color.YELLOW,
                   "Warehouse_start": Color.BLACK, "Warehouse_blue": Color.BLUE, "Warehouse_red": Color.RED, "Background": Color.WHITE}
-
-use_calibrator = False
-start_time = None
+# Initizles start up statments
 # Change to false to skip calibration mode and use .txt file if avalible
+pickupstatus = False
+start_time = None
 DRIVING_INITAL = 50
+
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
 TRUCK = DriveBase(left_motor=Right_drive, right_motor=Left_drive,
                   wheel_diameter=47, axle_track=128)
-TRUCK.settings(straight_speed=DRIVING_INITAL,
-               straight_acceleration=DRIVING_INITAL)
-# Makes a start up sound
+
+# Makes a start up sound, to signify everything went well
 sound_start = EV3.speaker.beep()
 
-# Speed:
-DRIVING_INITAL = 30
 
 # START
-
-
 def startup():
+    """
+    A function that handles the startup procedures of the robot, allowing a user to...
+    ...choose to calibrate, or use a previously saved file.
+    ...drive twoards a specfic place in the warehouse.
+
+    Returns a list of colours, the background colour, the warehouse colour, and the warehouse line colour
+    """
     running = True
-    use_calibrator = True
     while running:
         if Button.UP in EV3.buttons.pressed():
-            if use_calibrator:
-                # kör igång kalibrering
-                EV3.speaker.say('Calibration start')
-                EV3.speaker.play_file(SoundFile.READY)
-                EV3.screen.print('Calibration start')
-                print("Calibration started")
-                wait(500)
-                set_colours = Colour_Manager.Calibrate_Colours(
-                    preset_colours, EV3, light_sensor)
+            # kör igång kalibrering
+            EV3.speaker.say('Calibration start')
+            EV3.speaker.play_file(SoundFile.READY)
+            EV3.screen.print('Calibration start')
+            print("Calibration started")
+            wait(500)
+            set_colours = Calibrate_Colours(
+                preset_colours, EV3, light_sensor)
         if Button.DOWN in EV3.buttons.pressed():
             EV3.speaker.say('Using last calibration')
-            set_colours = Colour_Manager.Get_File()
+            set_colours = Get_File()
             print("colours read from file as : "+str(set_colours))
             wait(500)
         elif Button.LEFT in EV3.buttons.pressed():
@@ -81,8 +79,9 @@ def startup():
             EV3.speaker.play_file(SoundFile.READY)
             EV3.screen.print('Driving towards Red Warehouse')
             print("Driving towards Red Warehouse")
-            return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2'], set_colours['Warehouse_start']], set_colours['Background'], set_colours["Warehouse_red"], set_colours["Warehouse_line"])
-
+            return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2'],
+                    set_colours['Warehouse_start']], set_colours['Background'],
+                    set_colours["Warehouse_red"], set_colours["Warehouse_line"])
         elif Button.RIGHT in EV3.buttons.pressed():
             # drive towards blue warehouse
             EV3.speaker.say('Driving towards Blue Warehouse')
@@ -131,7 +130,7 @@ def test_emergency_mode():
     reversed_list = list_of_colours[::-1]
     pickupstatus = True
     while pickupstatus is True:
-        pickupstatus = detect_item_fail(pickupstatus, Front_button)
+        pickupstatus = detect_item_fail(pickupstatus)
     drive(reversed_list, colour_background,
           warehouse_colour, warehouse_line, EV3)
 
@@ -143,7 +142,6 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, E
     Drives the robot towards the target zone, using a list of colours to determine it's path.
     Returns nothing.
     """
-    pickupstatus = False
     angle = 0
     speed = 0
 
@@ -151,6 +149,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, E
     print(len(list_of_colours))
     index_of_colours = 0
     on_line = False
+    drive_check = True
     # Update to be a variable that is set by the startup function
     colour_one = background_color
     colour_two = list_of_colours[0]
@@ -170,7 +169,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, E
         color_rgb = light_sensor.rgb()
 
         # Check if the next colour is present
-        if colour_deviation(color_rgb, list_of_colours[index_of_colours + 1], 6) == True:
+        if colour_deviation(color_rgb, list_of_colours[index_of_colours + 1], 4) == True:
             index_of_colours += 1
             colour_two = list_of_colours[index_of_colours]
             # Say that it has changed colours
@@ -204,7 +203,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, E
         # get the speed
         speed = angle_to_speed(DRIVING_INITAL, angle, 3)
         # drive the robot
-        if colour_deviation(color_rgb, colour_two, 10) is True:
+        if colour_deviation(color_rgb, colour_two, 4) is True:
             on_line = True
             TRUCK.drive(0, 7)
             wait(400)
@@ -213,31 +212,10 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, E
             TRUCK.drive(-speed*4, angle*3)
 
             color_rgb = light_sensor.rgb()
-            on_line = colour_deviation(color_rgb, colour_two, 10)
+            on_line = colour_deviation(color_rgb, colour_two, 4)
 
         TRUCK.drive(speed, angle)
-
-    if pickupstatus is False:
-        # set_colours does not update with setup
-        # warehouse_drive(
-        #    light_sensor, TRUCK, warehouse_colour, warehouse_line)
-        pass
-    else:
-        # We are done with the pickup
-        pass
     return None
-
-
-def turn_around():
-    while obstacle(300, "Driving", Ultrasonic_sensor) is True:
-        wait(1000)
-    TRUCK.straight(140)
-    TRUCK.turn(-90)
-
-    while obstacle(300, "Driving", Ultrasonic_sensor) is True:
-        wait(1000)
-    TRUCK.straight(140)
-    TRUCK.turn(-90)
 
 
 def warehouse_drive(light_sensor, drivebase, warehouse, line_warehouse):
@@ -287,41 +265,6 @@ def warehouse_drive(light_sensor, drivebase, warehouse, line_warehouse):
     pass
 
 
-def colour_deviation(colour_one, colour_two, deviation):
-    """
-    colour_one - list, containing the first colour in the RGB colour space
-    colour_two - list, containing the second colour in the RGB colour space
-    deviation - int, the amount of deviation allowed
-
-    Returns if two colours are simillar enough, given a devitation
-    """
-    # Check if the colours are simillar enough
-    acceptable_deviation = False
-
-    r_colour_one = colour_one[0]
-    g_colour_one = colour_one[1]
-    b_colour_one = colour_one[2]
-
-    r_colour_two = colour_two[0]
-    g_colour_two = colour_two[1]
-    b_colour_two = colour_two[2]
-
-    r_deviation = abs(r_colour_one - r_colour_two)
-    g_deviation = abs(g_colour_one - g_colour_two)
-    b_deviation = abs(b_colour_one - b_colour_two)
-
-    if r_deviation > deviation:
-        acceptable_deviation = False
-    elif g_deviation > deviation:
-        acceptable_deviation = False
-    elif b_deviation > deviation:
-        acceptable_deviation = False
-    else:
-        acceptable_deviation = True
-
-    return acceptable_deviation
-
-
 def Siren(beep_frequency, sine_frequency):
     """call this inside a while loop for desired effect"""
     threshold = 0.8
@@ -338,12 +281,13 @@ def Super_Beep():
 
 def exit_zone(initial_zone):
     TRUCK.turn(180)
-    if initial_zone != Colour_Manager.get_area():
+    if initial_zone != get_area():
         # robot has left the zone
         return True
     else:
         return False
     # Very bad code! Please ignore
+
 
 def detect_item_fail(stat):
     """
@@ -354,17 +298,17 @@ def detect_item_fail(stat):
     """
     global start_time
     if stat == True:
-        if button_pressed(Front_button) == False:  
-            #For the first iteration, start the timer.
+        if button_pressed(Front_button) == False:
+            # For the first iteration, start the timer.
             if start_time == None:
                 start_time = time.time()
-            #If an object haven't been on the crane for 5 seconds, make a sound
+            # If an object haven't been on the crane for 5 seconds, make a sound
             if time.time() - start_time > 5:
                 Super_Beep()
                 start_time = None
             else:
                 return True
-        # If object is on the crane, reset the timer 
+        # If object is on the crane, reset the timer
         elif button_pressed(Front_button) == True:
             start_time = time.time()
             return True

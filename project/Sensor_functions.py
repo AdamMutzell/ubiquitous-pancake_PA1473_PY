@@ -1,6 +1,5 @@
 #!/usr/bin/env pybricks-micropython
 from pybricks.hubs import EV3Brick
-from pybricks.media.ev3dev import SoundFile
 import time
 
 EV3 = EV3Brick()

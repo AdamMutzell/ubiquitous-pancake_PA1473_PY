@@ -2,8 +2,8 @@
 from pybricks.parameters import Stop
 from pybricks.hubs import EV3Brick
 from pybricks.tools import wait
-from Sensor_Manager import button_pressed
-from Colour_follower import angle_to_colour, colour_target, angle_to_speed
+from Sensor_functions import button_pressed
+from Drive_functions import angle_to_colour, colour_target, angle_to_speed
 
 EV3 = EV3Brick()
 

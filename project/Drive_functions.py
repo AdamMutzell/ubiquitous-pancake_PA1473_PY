@@ -4,49 +4,8 @@ from pybricks.parameters import Port, Color, Direction
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait
 from pybricks.media.ev3dev import SoundFile
+from Sensor_functions import obstacle
 import math
-
-
-# Python3 program change RGB Color
-# Model to HSV Color Model
-
-def rgb_to_hsv(r, g, b):
-    r, g, b = r / 100, g / 100, b / 100
-    # h, s, v = hue, saturation, value
-    cmax = max(r, g, b)    # maximum of r, g, b
-    cmin = min(r, g, b)    # minimum of r, g, b
-    diff = cmax-cmin       # diff of cmax and cmin.
-
-    # if cmax and cmax are equal then h = 0
-    if cmax == cmin:
-        h = 0
-
-    # if cmax equal r then compute h
-    elif cmax == r:
-        h = (60 * ((g - b) / diff) + 360) % 360
-
-    # if cmax equal g then compute h
-    elif cmax == g:
-        h = (60 * ((b - r) / diff) + 120) % 360
-
-    # if cmax equal b then compute h
-    elif cmax == b:
-        h = (60 * ((r - g) / diff) + 240) % 360
-
-    # if cmax equal zero
-    if cmax == 0:
-        s = 0
-    else:
-        s = (diff / cmax) * 100
-
-    # compute v
-    v = cmax * 100
-
-    # Round of to 2 decimal places
-    h = round(h, 2)
-    s = round(s, 2)
-    v = round(v, 2)
-    return h, s, v
 
 
 def colour_target(color_1, color_2):
@@ -86,3 +45,16 @@ def angle_to_speed(speed, angle, factor):
         speed = speed
 
     return speed
+
+
+def turn_around(Drivebase, Ultrasonic_sensor):
+    TRUCK = Drivebase
+    while obstacle(300, "Driving", Ultrasonic_sensor) is True:
+        wait(1000)
+    TRUCK.straight(140)
+    TRUCK.turn(-90)
+
+    while obstacle(300, "Driving", Ultrasonic_sensor) is True:
+        wait(1000)
+    TRUCK.straight(140)
+    TRUCK.turn(-90)
