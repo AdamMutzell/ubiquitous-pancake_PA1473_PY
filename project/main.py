@@ -187,7 +187,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
     return None
 
 
-def warehouse_drive(light_sensor, drivebase, warehouse, line_warehouse):
+def warehouse_drive(light_sensor, drivebase, warehouse, outside_area, line_warehouse):
     """_summary_
 
     Args:
@@ -196,7 +196,10 @@ def warehouse_drive(light_sensor, drivebase, warehouse, line_warehouse):
     # Initialize variables
     ROBOT = drivebase
     distance_travled = 0
+    drive_speed = 0
+    turn_factor = 10
     continue_driving = True
+    straight_on_line = False
     pickup_pallet = False
     enter_pickup = False
 
@@ -205,6 +208,50 @@ def warehouse_drive(light_sensor, drivebase, warehouse, line_warehouse):
         turn_direction = -1
     elif warehouse == "Blue":
         turn_direction = 1
+
+    # Drive untill you find the yellow line
+    while continue_driving is True:
+        # Drive slightly towards the right untill it find white or the line
+        # Check if the robot is on the line
+        if colour_deviation(light_sensor.rgb(), line_warehouse, 4) is True:
+            # If it is, stop the robot
+            ROBOT.stop()
+            # Say that it has found the line
+            EV3.screen.print('Line found')
+            # Wait for the robot to stop
+            continue_driving = False
+        # Check if the robot is on a white backgorund
+        elif colour_deviation(light_sensor.rgb(), outside_area, 4) is True:
+            # If it is, stop the robot
+            ROBOT.stop()
+            # Make it so it can't turn anymore
+            turn_factor = 0
+            drive_speed = 5
+
+        ROBOT.drive(drive_speed, turn_direction*turn_factor)
+    # Make sure it's straight on the yellow line
+    while straight_on_line is False:
+        # Check if the robot is on white_background
+        if colour_deviation(light_sensor.rgb(), outside_area, 4) is True:
+            # If it is, stop the robot
+            ROBOT.stop()
+            # Turn the robot 180 degrees
+            ROBOT.turn(180)
+            # Wait for the robot to stop
+            wait(500)
+            straight_on_line = True
+        # Check if the robot ses an object infront of it
+        elif obstacle(50, "Driving", Ultrasonic_sensor) is True:
+            # enter crane pickup
+            straight_on_line = True
+        # If not, continue driving on the line until you reach white
+        line_to_follow = colour_target(warehouse, line_warehouse)
+        angle = angle_to_colour(line_to_follow, light_sensor.rgb())
+        drive_speed = angle_to_speed(DRIVING_INITAL, angle, 3)
+        ROBOT.drive(drive_speed, angle)
+
+    crane_pickup(ROBOT, 0, warehouse, line_warehouse)
+    pass
 
     # Check until you find a pallet
     while pickup_pallet is False:
@@ -231,6 +278,14 @@ def warehouse_drive(light_sensor, drivebase, warehouse, line_warehouse):
         continue_driving = True
 
     pass
+
+
+def zig_zag_angle(drivebase, colour_on_ground, turn_angle):
+    ROBOT = drivebase
+    # Turn the robot
+    ROBOT.turn(turn_angle)
+    # Wait
+    ROBOT.turn(-2*turn_angle)
 
 
 def Siren(beep_frequency, sine_frequency):
