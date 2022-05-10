@@ -42,7 +42,7 @@ def angle_to_colour(line_to_follow, color_on_ground):
 
     angle = 90 * sum_of_diffrence
 
-    return angle
+    return -angle
 
 
 def angle_to_speed(speed, angle, factor):
@@ -89,7 +89,7 @@ def colour_deviation(colour_one, colour_two, deviation):
     """
     # Check if the colours are simillar enough
     acceptable_deviation = False
-
+    
     r_colour_one = colour_one[0]
     g_colour_one = colour_one[1]
     b_colour_one = colour_one[2]
@@ -97,6 +97,7 @@ def colour_deviation(colour_one, colour_two, deviation):
     r_colour_two = colour_two[0]
     g_colour_two = colour_two[1]
     b_colour_two = colour_two[2]
+
 
     r_deviation = abs(r_colour_one - r_colour_two)
     g_deviation = abs(g_colour_one - g_colour_two)

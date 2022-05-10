@@ -14,6 +14,8 @@ from pybricks.robotics import DriveBase
 from pybricks.tools import wait
 from pybricks.media.ev3dev import SoundFile
 
+from Drive_functions import turn_around
+
 # Initialise the EV3
 EV3 = EV3Brick()
 
@@ -30,10 +32,13 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 
 # Initizles colours and directions for the robot
-direction = {"Warehouse", "Roundabout"}
-preset_colours = {"Zone_1": Color.GREEN, "Zone_2": Color.RED,
-                  "Zone_3": Color.BLUE, "Roundabout": Color.BROWN, "Warehouse_line": Color.YELLOW,
-                  "Warehouse_start": Color.BLACK, "Warehouse_blue": Color.BLUE, "Warehouse_red": Color.RED, "Background": Color.WHITE}
+# direction = ""
+# colour_history = [(0,0,0),(0,0,0),(0,0,0)]
+# preset_colours = {"Zone_1": Color.GREEN.rgb(), "Zone_2": Color.RED.rgb(),
+#                   "Zone_3": Color.BLUE.rgb(), "Roundabout": Color.BROWN.rgb(), "Warehouse_line": Color.YELLOW.rgb(),
+#                   "Warehouse_start": Color.BLACK.rgb(), "Warehouse_blue": Color.BLUE.rgb(), "Warehouse_red": Color.RED.rgb(), "Background": Color.WHITE.rgb()}
+
+# set_colours = preset_colours
 # Initizles start up statments
 # Change to false to skip calibration mode and use .txt file if avalible
 pickupstatus = False
@@ -67,7 +72,7 @@ def startup():
             print("Calibration started")
             wait(500)
             set_colours = Calibrate_Colours(
-                preset_colours, EV3, light_sensor)
+                preset_colours, EV3)
         if Button.DOWN in EV3.buttons.pressed():
             EV3.speaker.say('Using last calibration')
             set_colours = Get_File()
@@ -101,7 +106,7 @@ def test_drive():
     list_of_colours, colour_background, warehouse_colour, warehouse_line = startup()
     print(list_of_colours, colour_background, warehouse_colour, warehouse_line)
     drive(list_of_colours, colour_background,
-          warehouse_colour, warehouse_line, EV3=EV3)
+          warehouse_colour, warehouse_line)
 
 
 def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
@@ -115,7 +120,6 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
     speed = 0
 
     list_of_colours = list_rgb_colurs
-    print(len(list_of_colours))
     index_of_colours = 0
     on_line = False
     drive_check = True
@@ -178,7 +182,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
             wait(400)
         while on_line is True:
 
-            TRUCK.drive(-speed*4, angle*3)
+            TRUCK.drive(-50, 20)
 
             color_rgb = light_sensor.rgb()
             on_line = colour_deviation(color_rgb, colour_two, 4)
@@ -298,19 +302,31 @@ def Siren(beep_frequency, sine_frequency):
 
 def Super_Beep():
     for i in range(5):
-        EV3.speaker.beep(1000*i)
+        EV3.speaker.beep(500*i)
         wait(50)
 
 
-def exit_zone(initial_zone):
-    TRUCK.turn(180)
-    if initial_zone != get_area():
-        # robot has left the zone
-        return True
-    else:
-        return False
-    # Very bad code! Please ignore
+# def exit_zone(initial_zone):
+#     set_colour_history()
+#     #direction = get_direction(colour_history)
 
+# def set_colour_history():
+#     for colour in set_colours.keys():
+#         if colour_deviation(light_sensor.rgb(),set_colours[colour],15):
+#             colour_history.append(colour)
+#             colour_history.pop(0)
+
+# def get_direction_towards(colour_history):
+#     for colour in colour_history.reverse():
+#         for label in set_colours.keys:
+#             if "Warehouse" in label:
+#                 if (colour == set_colours[label]):
+#                     direction = "Warehouse"
+#                     break
+#         if (colour == set_colours["Warehouse"]):
+#             direction = "Roundabout"
+#             break
+#     return direction
 
 def detect_item_fail(stat):
     """
