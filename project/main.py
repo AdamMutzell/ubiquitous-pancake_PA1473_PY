@@ -33,6 +33,7 @@ light_sensor = ColorSensor(Port.S3)
 Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 direction = {"Warehouse","Roundabout"}
+colour_history = [(0,0,0),(0,0,0),(0,0,0)]
 
 #saved_colours = open("savedColours.txt", "r")
 preset_colours = {"Zone_1": Color.GREEN, "Zone_2": Color.BLUE,
@@ -41,7 +42,6 @@ preset_colours = {"Zone_1": Color.GREEN, "Zone_2": Color.BLUE,
 
 use_calibrator = False
 set_colours = None
-# Change to false to skip calibration mode and use .txt file if avalible
 
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
 TRUCK = DriveBase(left_motor=Right_drive, right_motor=Left_drive,
@@ -95,6 +95,10 @@ def startup():
 def main():  # Main Class
     wait(2000)
     while True:
+        get_colour_history()
+        if Button.DOWN in EV3.buttons.pressed():
+            for colour in colour_history:
+
         emergency_mode(True,Front_button)
 
 
@@ -298,7 +302,7 @@ def Siren(beep_frequency, sine_frequency):
         
 def Super_Beep():
     for i in range(5):
-        EV3.speaker.beep(1000*i)
+        EV3.speaker.beep(500*i)
         wait(50)
 
 def exit_zone(initial_zone):
@@ -310,6 +314,15 @@ def exit_zone(initial_zone):
         return False
     # Very bad code! Please ignore
 
+def get_colour_history():
+    for colour in set_colours:
+        if colour_deviation(colour,light_sensor.color.rgb()):
+            colour_history.append
+
+    if light_sensor.color != colour_history[-1]:
+        colour_history.append(light_sensor.color)
+        colour_history.pop(0)
+    return colour_history
 
 def emergency_mode():
     Siren(10000, 1)
