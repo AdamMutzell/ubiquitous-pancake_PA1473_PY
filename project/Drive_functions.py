@@ -9,6 +9,14 @@ import math
 
 
 def colour_target(color_1, color_2):
+    """
+    Takes two colours and get's the colour in between those values
+
+    color_1 - list: Containing RGB values
+    color_2 - list: Containing RGB values
+
+    Returs a mix of the two colours
+    """
 
     line_to_follow = [((color_1[0] + color_2[0]) / 2),
                       ((color_1[1] + color_2[1]) / 2), ((color_1[2] + color_2[2]) / 2)]
@@ -17,6 +25,13 @@ def colour_target(color_1, color_2):
 
 
 def angle_to_colour(line_to_follow, color_on_ground):
+    """Takes in two colours and returns the estimated angle between them
+
+    line_to_follow - list: Containing RGB values
+    color_on_ground - list: Containing RGB values
+
+    Returns the estimated angle between the two colours
+    """
     angle = 0
     hue_diffrence = color_on_ground[0] - line_to_follow[0]
     saturation_diffrence = color_on_ground[1] - line_to_follow[1]
@@ -48,6 +63,10 @@ def angle_to_speed(speed, angle, factor):
 
 
 def turn_around(Drivebase, Ultrasonic_sensor):
+    """Turns the robot around
+
+    Returns none"""
+
     TRUCK = Drivebase
     while obstacle(300, "Driving", Ultrasonic_sensor) is True:
         wait(1000)
@@ -58,3 +77,38 @@ def turn_around(Drivebase, Ultrasonic_sensor):
         wait(1000)
     TRUCK.straight(140)
     TRUCK.turn(-90)
+
+
+def colour_deviation(colour_one, colour_two, deviation):
+    """
+    colour_one - list, containing the first colour in the RGB colour space
+    colour_two - list, containing the second colour in the RGB colour space
+    deviation - int, the amount of deviation allowed
+
+    Returns if two colours are simillar enough, given a devitation
+    """
+    # Check if the colours are simillar enough
+    acceptable_deviation = False
+
+    r_colour_one = colour_one[0]
+    g_colour_one = colour_one[1]
+    b_colour_one = colour_one[2]
+
+    r_colour_two = colour_two[0]
+    g_colour_two = colour_two[1]
+    b_colour_two = colour_two[2]
+
+    r_deviation = abs(r_colour_one - r_colour_two)
+    g_deviation = abs(g_colour_one - g_colour_two)
+    b_deviation = abs(b_colour_one - b_colour_two)
+
+    if r_deviation > deviation:
+        acceptable_deviation = False
+    elif g_deviation > deviation:
+        acceptable_deviation = False
+    elif b_deviation > deviation:
+        acceptable_deviation = False
+    else:
+        acceptable_deviation = True
+
+    return acceptable_deviation
