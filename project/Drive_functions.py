@@ -89,9 +89,6 @@ def colour_deviation(colour_one, colour_two, deviation):
     """
     # Check if the colours are simillar enough
     acceptable_deviation = False
-
-    print(colour_one)
-    print(colour_two)
     
     r_colour_one = colour_one[0]
     g_colour_one = colour_one[1]

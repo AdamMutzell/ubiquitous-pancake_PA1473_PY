@@ -32,13 +32,13 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 
 # Initizles colours and directions for the robot
-direction = ""
-colour_history = [(0,0,0),(0,0,0),(0,0,0)]
-preset_colours = {"Zone_1": Color.GREEN.rgb(), "Zone_2": Color.RED.rgb(),
-                  "Zone_3": Color.BLUE.rgb(), "Roundabout": Color.BROWN.rgb(), "Warehouse_line": Color.YELLOW.rgb(),
-                  "Warehouse_start": Color.BLACK.rgb(), "Warehouse_blue": Color.BLUE.rgb(), "Warehouse_red": Color.RED.rgb(), "Background": Color.WHITE.rgb()}
+# direction = ""
+# colour_history = [(0,0,0),(0,0,0),(0,0,0)]
+# preset_colours = {"Zone_1": Color.GREEN.rgb(), "Zone_2": Color.RED.rgb(),
+#                   "Zone_3": Color.BLUE.rgb(), "Roundabout": Color.BROWN.rgb(), "Warehouse_line": Color.YELLOW.rgb(),
+#                   "Warehouse_start": Color.BLACK.rgb(), "Warehouse_blue": Color.BLUE.rgb(), "Warehouse_red": Color.RED.rgb(), "Background": Color.WHITE.rgb()}
 
-set_colours = preset_colours
+# set_colours = preset_colours
 # Initizles start up statments
 # Change to false to skip calibration mode and use .txt file if avalible
 pickupstatus = False
@@ -99,18 +99,7 @@ def startup():
 
 
 def main():  # Main Class
-    wait(2000)
-    while True:
-        set_colour_history()
-        if Button.DOWN in EV3.buttons.pressed():
-            if get_direction_towards(colour_history) == "Roundabout":
-                Super_Beep()
-                EV3.turn(180)
-                #drive towards roundabout
-        else:
-            drive()
-
-        #emergency_mode(True,Front_button)
+    test_drive()
 
 
 def test_drive():
