@@ -251,27 +251,27 @@ def Super_Beep():
         wait(50)
 
 
-def exit_zone(initial_zone):
-    set_colour_history()
-    #direction = get_direction(colour_history)
+# def exit_zone(initial_zone):
+#     set_colour_history()
+#     #direction = get_direction(colour_history)
 
-def set_colour_history():
-    for colour in set_colours.keys():
-        if colour_deviation(light_sensor.rgb(),set_colours[colour],15):
-            colour_history.append(colour)
-            colour_history.pop(0)
+# def set_colour_history():
+#     for colour in set_colours.keys():
+#         if colour_deviation(light_sensor.rgb(),set_colours[colour],15):
+#             colour_history.append(colour)
+#             colour_history.pop(0)
 
-def get_direction_towards(colour_history):
-    for colour in colour_history.reverse():
-        for label in set_colours.keys:
-            if "Warehouse" in label:
-                if (colour == set_colours[label]):
-                    direction = "Warehouse"
-                    break
-        if (colour == set_colours["Warehouse"]):
-            direction = "Roundabout"
-            break
-    return direction
+# def get_direction_towards(colour_history):
+#     for colour in colour_history.reverse():
+#         for label in set_colours.keys:
+#             if "Warehouse" in label:
+#                 if (colour == set_colours[label]):
+#                     direction = "Warehouse"
+#                     break
+#         if (colour == set_colours["Warehouse"]):
+#             direction = "Roundabout"
+#             break
+#     return direction
 
 def detect_item_fail(stat):
     """
