@@ -121,7 +121,6 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
     speed = 0
 
     list_of_colours = list_rgb_colurs
-    print(len(list_of_colours))
     index_of_colours = 0
     on_line = False
     drive_check = True
