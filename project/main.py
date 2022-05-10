@@ -14,6 +14,8 @@ from pybricks.robotics import DriveBase
 from pybricks.tools import wait
 from pybricks.media.ev3dev import SoundFile
 
+from Drive_functions import turn_around
+
 # Initialise the EV3
 EV3 = EV3Brick()
 
@@ -30,10 +32,13 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 
 # Initizles colours and directions for the robot
-direction = {"Warehouse", "Roundabout"}
-preset_colours = {"Zone_1": Color.GREEN, "Zone_2": Color.RED,
-                  "Zone_3": Color.BLUE, "Roundabout": Color.BROWN, "Warehouse_line": Color.YELLOW,
-                  "Warehouse_start": Color.BLACK, "Warehouse_blue": Color.BLUE, "Warehouse_red": Color.RED, "Background": Color.WHITE}
+direction = ""
+colour_history = [(0,0,0),(0,0,0),(0,0,0)]
+preset_colours = {"Zone_1": Color.GREEN.rgb(), "Zone_2": Color.RED.rgb(),
+                  "Zone_3": Color.BLUE.rgb(), "Roundabout": Color.BROWN.rgb(), "Warehouse_line": Color.YELLOW.rgb(),
+                  "Warehouse_start": Color.BLACK.rgb(), "Warehouse_blue": Color.BLUE.rgb(), "Warehouse_red": Color.RED.rgb(), "Background": Color.WHITE.rgb()}
+
+set_colours = preset_colours
 # Initizles start up statments
 # Change to false to skip calibration mode and use .txt file if avalible
 pickupstatus = False
@@ -96,11 +101,16 @@ def startup():
 def main():  # Main Class
     wait(2000)
     while True:
-        get_colour_history()
+        set_colour_history()
         if Button.DOWN in EV3.buttons.pressed():
-            for colour in colour_history:
+            if get_direction_towards(colour_history) == "Roundabout":
+                Super_Beep()
+                EV3.turn(180)
+                #drive towards roundabout
+        else:
+            drive()
 
-        emergency_mode(True,Front_button)
+        #emergency_mode(True,Front_button)
 
 
 def test_drive():
@@ -253,23 +263,26 @@ def Super_Beep():
 
 
 def exit_zone(initial_zone):
-    TRUCK.turn(180)
-    if initial_zone != get_area():
-        # robot has left the zone
-        return True
-    else:
-        return False
-    # Very bad code! Please ignore
+    set_colour_history()
+    #direction = get_direction(colour_history)
 
-def get_colour_history():
-    for colour in set_colours:
-        if colour_deviation(colour,light_sensor.color.rgb()):
-            colour_history.append
+def set_colour_history():
+    for colour in set_colours.keys():
+        if colour_deviation(light_sensor.rgb(),set_colours[colour],15):
+            colour_history.append(colour)
+            colour_history.pop(0)
 
-    if light_sensor.color != colour_history[-1]:
-        colour_history.append(light_sensor.color)
-        colour_history.pop(0)
-    return colour_history
+def get_direction_towards(colour_history):
+    for colour in colour_history.reverse():
+        for label in set_colours.keys:
+            if "Warehouse" in label:
+                if (colour == set_colours[label]):
+                    direction = "Warehouse"
+                    break
+        if (colour == set_colours["Warehouse"]):
+            direction = "Roundabout"
+            break
+    return direction
 
 def detect_item_fail(stat):
     """
