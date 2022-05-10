@@ -94,7 +94,13 @@ def startup():
 
 
 def main():  # Main Class
-    test_drive()
+    wait(2000)
+    while True:
+        get_colour_history()
+        if Button.DOWN in EV3.buttons.pressed():
+            for colour in colour_history:
+
+        emergency_mode(True,Front_button)
 
 
 def test_drive():
@@ -115,7 +121,6 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
     speed = 0
 
     list_of_colours = list_rgb_colurs
-    print(len(list_of_colours))
     index_of_colours = 0
     on_line = False
     drive_check = True
@@ -243,7 +248,7 @@ def Siren(beep_frequency, sine_frequency):
 
 def Super_Beep():
     for i in range(5):
-        EV3.speaker.beep(1000*i)
+        EV3.speaker.beep(500*i)
         wait(50)
 
 
@@ -256,6 +261,15 @@ def exit_zone(initial_zone):
         return False
     # Very bad code! Please ignore
 
+def get_colour_history():
+    for colour in set_colours:
+        if colour_deviation(colour,light_sensor.color.rgb()):
+            colour_history.append
+
+    if light_sensor.color != colour_history[-1]:
+        colour_history.append(light_sensor.color)
+        colour_history.pop(0)
+    return colour_history
 
 def detect_item_fail(stat):
     """
