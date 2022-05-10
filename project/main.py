@@ -182,7 +182,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
             wait(400)
         while on_line is True:
 
-            TRUCK.drive(-speed*4, angle*3)
+            TRUCK.drive(-50, 20)
 
             color_rgb = light_sensor.rgb()
             on_line = colour_deviation(color_rgb, colour_two, 4)
