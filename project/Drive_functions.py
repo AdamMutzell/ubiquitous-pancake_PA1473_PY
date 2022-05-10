@@ -40,9 +40,9 @@ def angle_to_colour(line_to_follow, color_on_ground):
     sum_of_diffrence = (
         hue_diffrence + saturation_diffrence + value_diffrence) / 300
 
-    angle = -90 * sum_of_diffrence
+    angle = 90 * sum_of_diffrence
 
-    return angle
+    return -angle
 
 
 def angle_to_speed(speed, angle, factor):

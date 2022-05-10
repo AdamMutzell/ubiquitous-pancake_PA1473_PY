@@ -314,5 +314,3 @@ if __name__ == '__main__':  # Keep this!
     sys.exit(main())
 
 EV3.speaker.play_file(SoundFile.OVERPOWER)
-
-main()
