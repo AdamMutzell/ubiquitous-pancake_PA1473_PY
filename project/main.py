@@ -34,9 +34,9 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 # Initizles colours and directions for the robot
 direction = ""
 colour_history = [(0,0,0),(0,0,0),(0,0,0)]
-preset_colours = {"Zone_1": Color.GREEN, "Zone_2": Color.RED,
-                  "Zone_3": Color.BLUE, "Roundabout": Color.BROWN, "Warehouse_line": Color.YELLOW,
-                  "Warehouse_start": Color.BLACK, "Warehouse_blue": Color.BLUE, "Warehouse_red": Color.RED, "Background": Color.WHITE}
+preset_colours = {"Zone_1": Color.GREEN.rgb(), "Zone_2": Color.RED.rgb(),
+                  "Zone_3": Color.BLUE.rgb(), "Roundabout": Color.BROWN.rgb(), "Warehouse_line": Color.YELLOW.rgb(),
+                  "Warehouse_start": Color.BLACK.rgb(), "Warehouse_blue": Color.BLUE.rgb(), "Warehouse_red": Color.RED.rgb(), "Background": Color.WHITE.rgb()}
 
 set_colours = preset_colours
 # Initizles start up statments
@@ -267,8 +267,8 @@ def exit_zone(initial_zone):
     #direction = get_direction(colour_history)
 
 def set_colour_history():
-    for colour in set_colours:
-        if colour_deviation(light_sensor.rgb(),colour,15):
+    for colour in set_colours.keys():
+        if colour_deviation(light_sensor.rgb(),set_colours[colour],15):
             colour_history.append(colour)
             colour_history.pop(0)
 
