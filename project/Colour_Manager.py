@@ -53,7 +53,7 @@ def Get_File():
             colours[label] = colour
         saved_colours.close()
         return colours
-    except:
+    except FileNotFoundError:
         print("no .txt file found! returning None")
         return None
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env pybricks-micropython
+from inspect import getfile
 import sys
+
 import __init__
 from Drive_functions import angle_to_colour, colour_target, angle_to_speed, colour_deviation
 from Crane_functions import crane_movement, crane_pickup
@@ -34,9 +36,9 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 # Initizles colours and directions for the robot
 direction = ""
 colour_history = [(0,0,0),(0,0,0),(0,0,0)]
-preset_colours = {"Zone_1": Color.GREEN.rgb(), "Zone_2": Color.RED.rgb(),
-                  "Zone_3": Color.BLUE.rgb(), "Roundabout": Color.BROWN.rgb(), "Warehouse_line": Color.YELLOW.rgb(),
-                  "Warehouse_start": Color.BLACK.rgb(), "Warehouse_blue": Color.BLUE.rgb(), "Warehouse_red": Color.RED.rgb(), "Background": Color.WHITE.rgb()}
+preset_colours = {"Zone_1": Color.GREEN, "Zone_2": Color.RED,
+                  "Zone_3": Color.BLUE, "Roundabout": Color.BROWN, "Warehouse_line": Color.YELLOW,
+                  "Warehouse_start": Color.BLACK, "Warehouse_blue": Color.BLUE, "Warehouse_red": Color.RED, "Background": Color.WHITE}
 
 set_colours = preset_colours
 # Initizles start up statments
@@ -100,15 +102,15 @@ def startup():
 
 def main():  # Main Class
     wait(2000)
+    startup()
     while True:
         set_colour_history()
         if Button.DOWN in EV3.buttons.pressed():
-            if get_direction_towards(colour_history) == "Roundabout":
-                Super_Beep()
-                EV3.turn(180)
-                #drive towards roundabout
-        else:
-            drive()
+            if colour_deviation(light_sensor.color.rgb(),set_colours["Roundabout"]) == False:
+                if get_direction_towards(colour_history) == "Roundabout":
+                    Super_Beep()
+                    EV3.turn(180)
+                    #drive towards roundabout
 
         #emergency_mode(True,Front_button)
 
@@ -269,8 +271,9 @@ def exit_zone(initial_zone):
 def set_colour_history():
     for colour in set_colours.keys():
         if colour_deviation(light_sensor.rgb(),set_colours[colour],15):
-            colour_history.append(colour)
-            colour_history.pop(0)
+            if set_colours[colour] not in colour_history:
+                colour_history.append(set_colours[colour])
+                colour_history.pop(0)
 
 def get_direction_towards(colour_history):
     for colour in colour_history.reverse():
