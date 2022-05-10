@@ -72,7 +72,7 @@ def startup():
             print("Calibration started")
             wait(500)
             set_colours = Calibrate_Colours(
-                preset_colours, EV3, light_sensor)
+                preset_colours, EV3)
         if Button.DOWN in EV3.buttons.pressed():
             EV3.speaker.say('Using last calibration')
             set_colours = Get_File()
@@ -117,7 +117,7 @@ def test_drive():
     list_of_colours, colour_background, warehouse_colour, warehouse_line = startup()
     print(list_of_colours, colour_background, warehouse_colour, warehouse_line)
     drive(list_of_colours, colour_background,
-          warehouse_colour, warehouse_line, EV3=EV3)
+          warehouse_colour, warehouse_line)
 
 
 def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
@@ -131,7 +131,6 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
     speed = 0
 
     list_of_colours = list_rgb_colurs
-    print(len(list_of_colours))
     index_of_colours = 0
     on_line = False
     drive_check = True

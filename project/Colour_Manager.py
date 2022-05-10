@@ -45,7 +45,7 @@ def Get_File():
         for colour_item in saved_colours.readlines():
             row = colour_item[:-1].split(":")
             label = row[0]
-            colour_string = row[1][1:-1].split(",")
+            colour_string = row[1][1:-2].split(",")
             colour = []
             for value in colour_string:
                 colour.append(int(value))
