@@ -99,7 +99,7 @@ def startup():
 
 
 def main():  # Main Class
-    test_drive()
+    test_warehouse()
 
 
 def test_drive():
@@ -107,6 +107,13 @@ def test_drive():
     print(list_of_colours, colour_background, warehouse_colour, warehouse_line)
     drive(list_of_colours, colour_background,
           warehouse_colour, warehouse_line)
+
+
+def test_warehouse():
+    warehouse_line = (48, 37, 6)
+    warehouse_blue = (6, 6, 8)
+    warehouse_colour = warehouse_blue
+    warehouse_drive(light_sensor, TRUCK, warehouse_colour, warehouse_line)
 
 
 def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
@@ -191,7 +198,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
     return None
 
 
-def warehouse_drive(light_sensor, drivebase, warehouse, outside_area, line_warehouse):
+def warehouse_drive(light_sensor, drivebase, warehouse, line_warehouse):
     """_summary_
 
     Args:
@@ -200,7 +207,7 @@ def warehouse_drive(light_sensor, drivebase, warehouse, outside_area, line_wareh
     # Initialize variables
     ROBOT = drivebase
     distance_travled = 0
-    drive_speed = 0
+    drive_speed = 50
     turn_factor = 10
     continue_driving = True
     straight_on_line = False
@@ -208,10 +215,21 @@ def warehouse_drive(light_sensor, drivebase, warehouse, outside_area, line_wareh
     enter_pickup = False
 
     # Check which way it's supposed to turn, depening on the warehouse
-    if warehouse == "Red":
+    # Red warehouse
+    if warehouse[0] >= warehouse[2]:
         turn_direction = -1
-    elif warehouse == "Blue":
+        turn_factor = 45
+        # Say which warehouse you are in
+        EV3.speaker.say('In the Red Warehouse')
+    # Blue warehouse
+    elif warehouse[2] >= warehouse[0]:
         turn_direction = 1
+        turn_factor = 90
+        # Say which ware you are in
+        EV3.speaker.say('In the Blue Warehouse')
+
+    # make a turn so that it's facing the middle of the warehouse
+    ROBOT.turn(turn_direction * turn_factor)
 
     # Drive untill you find the yellow line
     while continue_driving is True:
@@ -224,28 +242,13 @@ def warehouse_drive(light_sensor, drivebase, warehouse, outside_area, line_wareh
             EV3.screen.print('Line found')
             # Wait for the robot to stop
             continue_driving = False
-        # Check if the robot is on a white backgorund
-        elif colour_deviation(light_sensor.rgb(), outside_area, 4) is True:
-            # If it is, stop the robot
-            ROBOT.stop()
-            # Make it so it can't turn anymore
-            turn_factor = 0
-            drive_speed = 5
-
-        ROBOT.drive(drive_speed, turn_direction*turn_factor)
+        ROBOT.drive(drive_speed, 0)
     # Make sure it's straight on the yellow line
+    ROBOT.reset()
     while straight_on_line is False:
-        # Check if the robot is on white_background
-        if colour_deviation(light_sensor.rgb(), outside_area, 4) is True:
-            # If it is, stop the robot
-            ROBOT.stop()
-            # Turn the robot 180 degrees
-            ROBOT.turn(180)
-            # Wait for the robot to stop
-            wait(500)
-            straight_on_line = True
+
         # Check if the robot ses an object infront of it
-        elif obstacle(50, "Driving", Ultrasonic_sensor) is True:
+        if obstacle(50, "Driving", Ultrasonic_sensor) is True and ROBOT.distance() > 100:
             # enter crane pickup
             straight_on_line = True
         # If not, continue driving on the line until you reach white

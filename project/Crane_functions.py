@@ -61,6 +61,7 @@ def crane_pickup(DriveBase, angle_of_crane, background, line_colour):
     ROBOT = DriveBase
     DRIVING_INITAL = 20
     pickupstatus = False
+    pallet_found = button_pressed(Front_button)
 
     # Seetings for the crane motor
     #Crane_motor.control.stall_tolerances(stall_limit=90, stall_time_limit=5000)
@@ -68,7 +69,8 @@ def crane_pickup(DriveBase, angle_of_crane, background, line_colour):
     Crane_motor.run_target(speed_of_crane, angle_of_crane)
 
     # Drive forward untill the button is pressed
-    while button_pressed(Front_button) is False:
+    while pallet_found is False:
+        pallet_found = button_pressed(Front_button)
         # Get the RGB of the background
         colour_rgb = light_sensor.rgb()
         # Get the line to follow
