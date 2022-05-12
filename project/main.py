@@ -162,10 +162,10 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
 
         # Check if we want to change route
         if Button.LEFT in EV3.buttons.pressed():
-            list_of_colours = change_route(
+            list_of_colours, alt_route = change_route(
                 'LEFT', list_of_colours, colour_two, alt_route)
         elif Button.RIGHT in EV3.buttons.pressed():
-            list_of_colours = change_route(
+            list_of_colours, alt_route = change_route(
                 'RIGHT', list_of_colours, colour_two, alt_route)
         # Emergency mode
 
