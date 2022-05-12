@@ -66,7 +66,8 @@ def crane_pickup(DriveBase, angle_of_crane, background, line_colour):
     # Seetings for the crane motor
     #Crane_motor.control.stall_tolerances(stall_limit=90, stall_time_limit=5000)
     # Raise the crane to the angle of the pallet
-    Crane_motor.run_target(speed_of_crane, angle_of_crane)
+    Crane_motor.run_target(speed=speed_of_crane,
+                           target_angle=angle_of_crane, wait=False)
 
     # Drive forward untill the button is pressed
     while pallet_found is False:
@@ -78,7 +79,7 @@ def crane_pickup(DriveBase, angle_of_crane, background, line_colour):
         # get the new angle
         angle = angle_to_colour(line_to_follow, colour_rgb)
         # get the speed
-        speed = angle_to_speed(DRIVING_INITAL, angle, 3)
+        speed = angle_to_speed(DRIVING_INITAL, angle, 1)
 
         # Drive
         ROBOT.drive(speed, angle)
@@ -92,14 +93,13 @@ def crane_pickup(DriveBase, angle_of_crane, background, line_colour):
 
 
 def raise_incremental(angle_at_start):
-    duty_limit = 20
-    angle = angle_at_start
-    speed_of_crane = 50
+    Crane_motor.stop()
+    angle = angle_at_start + 30
+    current_angle = angle_at_start
+    while current_angle < angle:
+        Crane_motor.track_target(angle)
+        current_angle = Crane_motor.angle()
 
-    while angle == angle_at_start:
-        angle = Crane_motor.run_until_stalled(
-            speed_of_crane, Stop.HOLD, duty_limit)
-        duty_limit += 5
-        if duty_limit == 100:
-            break
+    Crane_motor.hold()
+
     return None
