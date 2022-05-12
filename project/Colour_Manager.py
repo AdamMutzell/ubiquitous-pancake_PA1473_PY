@@ -4,7 +4,8 @@ from pybricks.ev3devices import ColorSensor
 from pybricks.parameters import Port
 
 light_sensor = ColorSensor(Port.S3)
-colour_history = [0,0,0]
+colour_history = [0, 0, 0]
+
 
 def Calibrate_Colours(colours, EV3):
     """
@@ -61,6 +62,7 @@ def Get_File():
         print("no .txt file found! returning None")
         saved_colours = open("savedColours.txt", "x")
         return None
+
 
 def get_colour(light_sensor):
     """
