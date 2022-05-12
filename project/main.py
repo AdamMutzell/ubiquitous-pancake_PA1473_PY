@@ -163,6 +163,20 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
             list_of_colours, alt_route = change_route('LEFT',list_of_colours,colour_two,alt_route)
         elif Button.RIGHT in EV3.buttons.pressed():
             list_of_colours, alt_route = change_route('RIGHT',list_of_colours,colour_two,alt_route)
+        elif Button.DOWN in EV3.buttons.pressed() and pickupstatus == True:
+            TRUCK.stop()
+            EV3.speaker.say('Putting down object')
+            TRUCK.turn(90)
+            TRUCK.straight(100)
+            crane_movement(50, -1)
+            TRUCK.straight(-100)
+            TRUCK.turn(-90)
+        elif Button.DOWN in EV3.buttons.pressed() and pickupstatus == False:
+            #turn arouuuund
+            TRUCK.stop()
+            EV3.speaker.say('Abort Pickup. Turning around')
+            TRUCK.turn(180)
+            
         # Emergency mode
 
         # if pickupstatus is True and detect_item_fail(Front_button, pickupstatus) is False:
