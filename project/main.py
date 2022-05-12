@@ -274,18 +274,8 @@ def warehouse_drive(light_sensor, drivebase, warehouse, start_warehouse, line_wa
     ROBOT.stop()
     ROBOT.straight(-200)
     continue_driving = True
-    while continue_driving is True:
-        # Drive slightly towards the right untill it find white or the line
-        # Check if the robot is on the line
-        ROBOT.turn(-turn_direction * turn_factor)
-        if colour_deviation(light_sensor.rgb(), line_warehouse, 4) is True:
-            # If it is, stop the robot
-            ROBOT.stop()
-            # Say that it has found the line
-            EV3.screen.print('Line found')
-            # Wait for the robot to stop
-            continue_driving = False
-        ROBOT.drive(drive_speed/2, 0)
+
+    # Need a piece of code to follow the yellow line out of the warehouse
 
     while start_zone is False:
         if colour_deviation(light_sensor.rgb(), start_warehouse, 4) is True:
@@ -294,7 +284,7 @@ def warehouse_drive(light_sensor, drivebase, warehouse, start_warehouse, line_wa
         angle = angle_to_colour(line_to_follow, light_sensor.rgb())
         drive_speed = angle_to_speed(DRIVING_INITAL, angle, 1)
         ROBOT.drive(drive_speed, angle)
-
+    ROBOT.stop()
     pass
 
 
