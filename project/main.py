@@ -110,9 +110,10 @@ def test_drive():
 
 
 def test_warehouse():
-    warehouse_line = (48, 37, 6)
-    warehouse_blue = (6, 6, 8)
+    warehouse_line = (58, 53, 12)
+    warehouse_blue = (7, 8, 13)
     warehouse_colour = warehouse_blue
+    print("Starting")
     warehouse_drive(light_sensor, TRUCK, warehouse_colour, warehouse_line)
 
 
