@@ -42,8 +42,9 @@ def Get_File():
     colours = {}
     try:
         saved_colours = open("savedColours.txt", "r")
-
+        print('saved')
         for colour_item in saved_colours.readlines():
+            print('read')
             row = colour_item[:-1].split(":")
             label = row[0]
             colour_string = row[1][1:-2].split(",")
@@ -59,6 +60,7 @@ def Get_File():
         return colours
     except:
         print("no .txt file found! returning None")
+        saved_colours = open("savedColours.txt", "x")
         return None
 
 

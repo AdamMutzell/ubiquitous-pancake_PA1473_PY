@@ -1,4 +1,3 @@
-from tkinter import LEFT
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor, ColorSensor, UltrasonicSensor
 from pybricks.parameters import Port, Color, Direction
@@ -121,22 +120,20 @@ def change_route(button_input, list_of_colors, current_color, other_route):
     if button_input == 'LEFT':
         # If the last Blue-value of the last color is greater than the other route's Blue-value
         # Then it should stay on route.
-        if list_of_colors[2][2] > other_route[2]:
-            EV3Brick.speaker.say("Already driving towards Blue Warehouse")
-        elif current_color[2][0] > other_route[0] and current_color == list_of_colors[2]:
-            EV3Brick.speaker.say("Turning around to Blue Warehouse")
+        if list_of_colors[2][2] < other_route[2]:
+            EV3Brick().speaker.say("Already driving towards Red Warehouse")
+        elif current_color[0] < other_route[0] and current_color == list_of_colors[2]:
+            EV3Brick().speaker.say("Turning around to Red Warehouse")
         else:
-            EV3Brick.speaker.say("Change Route to Blue Warehouse")
+            EV3Brick().speaker.say("Change Route to Red Warehouse")
             list_of_colors[2] = other_route
             return list_of_colors
     elif button_input == 'RIGHT':
-        # If the last Blue-value of the last color is greater than the other route's Blue-value
-        # Then it should stay on route.
         if list_of_colors[2][0] > other_route[0]:
-            EV3Brick.speaker.say("Already driving towards Blue Warehouse")
-        elif current_color[2][2] > other_route[2] and current_color == list_of_colors[2]:
-            EV3Brick.speaker.say("Turning around to Blue Warehouse")
+            EV3Brick().speaker.say("Already driving towards Blue Warehouse")
+        elif current_color[2] > other_route[2] and current_color == list_of_colors[2]:
+            EV3Brick().speaker.say("Turning around to Blue Warehouse")
         else:
-            EV3Brick.speaker.say("Change Route to Blue Warehouse")
+            EV3Brick().speaker.say("Change Route to Blue Warehouse")
             list_of_colors[2] = other_route
     return list_of_colors

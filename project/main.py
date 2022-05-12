@@ -1,7 +1,7 @@
 #!/usr/bin/env pybricks-micropython
 import sys
 import __init__
-from Drive_functions import angle_to_colour, colour_target, angle_to_speed, colour_deviation
+from Drive_functions import angle_to_colour, colour_target, angle_to_speed, colour_deviation, change_route
 from Crane_functions import crane_movement, crane_pickup
 from Sensor_functions import button_pressed, obstacle
 from Colour_Manager import Calibrate_Colours, Get_File
@@ -34,16 +34,16 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 # Initizles colours and directions for the robot
 # direction = ""
 # colour_history = [(0,0,0),(0,0,0),(0,0,0)]
-# preset_colours = {"Zone_1": Color.GREEN.rgb(), "Zone_2": Color.RED.rgb(),
-#                   "Zone_3": Color.BLUE.rgb(), "Roundabout": Color.BROWN.rgb(), "Warehouse_line": Color.YELLOW.rgb(),
-#                   "Warehouse_start": Color.BLACK.rgb(), "Warehouse_blue": Color.BLUE.rgb(), "Warehouse_red": Color.RED.rgb(), "Background": Color.WHITE.rgb()}
+preset_colours = {"Zone_1": Color.GREEN, "Zone_2": Color.RED,
+                   "Zone_3": Color.BLUE, "Roundabout": Color.BROWN, "Warehouse_line": Color.YELLOW,
+                   "Warehouse_start": Color.BLACK, "Warehouse_blue": Color.BLUE, "Warehouse_red": Color.RED, "Background": Color.WHITE}
 
 # set_colours = preset_colours
 # Initizles start up statments
 # Change to false to skip calibration mode and use .txt file if avalible
 pickupstatus = False
 start_time = None
-DRIVING_INITAL = 50
+DRIVING_INITAL = 1
 
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
 TRUCK = DriveBase(left_motor=Right_drive, right_motor=Left_drive,
@@ -86,7 +86,7 @@ def startup():
             print("Driving towards Red Warehouse")
             return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2'],
                     set_colours['Warehouse_start']], set_colours['Background'],
-                    set_colours["Warehouse_red"], set_colours["Warehouse_line"])
+                    set_colours["Warehouse_red"], set_colours["Warehouse_line"], set_colours['Zone_3'])
         elif Button.RIGHT in EV3.buttons.pressed():
             # drive towards blue warehouse
             EV3.speaker.say('Driving towards Blue Warehouse')
@@ -95,18 +95,18 @@ def startup():
             print("Driving towards Blue Warehouse")
             return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_3'],
                     set_colours['Warehouse_start']], set_colours['Background'],
-                    set_colours["Warehouse_blue"], set_colours["Warehouse_line"])
+                    set_colours["Warehouse_blue"], set_colours["Warehouse_line"], set_colours['Zone_2'])
 
 
 def main():  # Main Class
-    test_warehouse()
+    test_drive()
 
 
 def test_drive():
-    list_of_colours, colour_background, warehouse_colour, warehouse_line = startup()
+    list_of_colours, colour_background, warehouse_colour, warehouse_line, alt_route = startup()
     print(list_of_colours, colour_background, warehouse_colour, warehouse_line)
     drive(list_of_colours, colour_background,
-          warehouse_colour, warehouse_line)
+          warehouse_colour, warehouse_line, alt_route)
 
 
 def test_warehouse():
@@ -117,7 +117,7 @@ def test_warehouse():
     warehouse_drive(light_sensor, TRUCK, warehouse_colour, warehouse_line)
 
 
-def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
+def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, alt_route):
     """
     list_rgb_colurs - list, containing the colours to be on the lockout for
     background_color - list, the colour to be used as background
@@ -158,6 +158,11 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
             TRUCK.drive(0, -30)
             wait(800)
 
+        # Check if we want to change route
+        if Button.LEFT in EV3.buttons.pressed():
+            list_of_colours = change_route('LEFT',list_of_colours,colour_two,alt_route)
+        elif Button.RIGHT in EV3.buttons.pressed():
+            list_of_colours = change_route('RIGHT',list_of_colours,colour_two,alt_route)
         # Emergency mode
 
         # if pickupstatus is True and detect_item_fail(Front_button, pickupstatus) is False:
