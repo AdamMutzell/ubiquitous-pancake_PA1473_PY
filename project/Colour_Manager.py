@@ -41,20 +41,25 @@ def Get_File():
     colours = {}
     try:
         saved_colours = open("savedColours.txt", "r")
-
+        print('saved')
         for colour_item in saved_colours.readlines():
+            print('read')
             row = colour_item[:-1].split(":")
             label = row[0]
             colour_string = row[1][1:-2].split(",")
             colour = []
             for value in colour_string:
-                colour.append(int(value))
+                try:
+                    colour.append(int(value))
+                except:
+                    print(value)
             colour = tuple(colour)
             colours[label] = colour
         saved_colours.close()
         return colours
     except:
         print("no .txt file found! returning None")
+        saved_colours = open("savedColours.txt", "x")
         return None
 
 def get_colour(light_sensor):
