@@ -3,7 +3,7 @@ from inspect import getfile
 import sys
 
 import __init__
-from Drive_functions import angle_to_colour, colour_target, angle_to_speed, colour_deviation
+from Drive_functions import angle_to_colour, colour_target, angle_to_speed, colour_deviation, change_route
 from Crane_functions import crane_movement, crane_pickup
 from Sensor_functions import button_pressed, obstacle
 from Colour_Manager import Calibrate_Colours, Get_File
@@ -87,7 +87,7 @@ def startup():
             print("Driving towards Red Warehouse")
             return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2'],
                     set_colours['Warehouse_start']], set_colours['Background'],
-                    set_colours["Warehouse_red"], set_colours["Warehouse_line"])
+                    set_colours["Warehouse_red"], set_colours["Warehouse_line"], set_colours['Zone_3'])
         elif Button.RIGHT in EV3.buttons.pressed():
             # drive towards blue warehouse
             EV3.speaker.say('Driving towards Blue Warehouse')
@@ -96,10 +96,11 @@ def startup():
             print("Driving towards Blue Warehouse")
             return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_3'],
                     set_colours['Warehouse_start']], set_colours['Background'],
-                    set_colours["Warehouse_blue"], set_colours["Warehouse_line"])
+                    set_colours["Warehouse_blue"], set_colours["Warehouse_line"], set_colours['Zone_2'])
 
 
 def main():  # Main Class
+<<<<<<< HEAD
     set_colours = Get_File()
     colour_history = [set_colours["Warehouse_blue"],(0,0,0),(0,0,0)]
     set_colour_history()
@@ -108,16 +109,29 @@ def main():  # Main Class
             exit_zone()
 
         #emergency_mode(True,Front_button)
+=======
+    test_warehouse()
+>>>>>>> 3181bc694da8cea587d374dbd93e407ada0d67ec
 
 
 def test_drive():
-    list_of_colours, colour_background, warehouse_colour, warehouse_line = startup()
+    list_of_colours, colour_background, warehouse_colour, warehouse_line, alt_route = startup()
     print(list_of_colours, colour_background, warehouse_colour, warehouse_line)
     drive(list_of_colours, colour_background,
-          warehouse_colour, warehouse_line)
+          warehouse_colour, warehouse_line, alt_route)
 
 
-def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
+def test_warehouse():
+    warehouse_line = (58, 53, 12)
+    warehouse_blue = (7, 8, 13)
+    warehouse_start = (5, 6, 80)
+    warehouse_colour = warehouse_blue
+    print("Starting")
+    warehouse_drive(light_sensor, TRUCK, warehouse_colour,
+                    warehouse_start, warehouse_line)
+
+
+def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, alt_route):
     """
     list_rgb_colurs - list, containing the colours to be on the lockout for
     background_color - list, the colour to be used as background
@@ -158,6 +172,26 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
             TRUCK.drive(0, -30)
             wait(800)
 
+        # Check if we want to change route
+        if Button.LEFT in EV3.buttons.pressed():
+            list_of_colours, alt_route = change_route(
+                'LEFT', list_of_colours, colour_two, alt_route)
+        elif Button.RIGHT in EV3.buttons.pressed():
+            list_of_colours, alt_route = change_route('RIGHT',list_of_colours,colour_two,alt_route)
+        elif Button.DOWN in EV3.buttons.pressed() and pickupstatus == True:
+            TRUCK.stop()
+            EV3.speaker.say('Putting down object')
+            TRUCK.turn(90)
+            TRUCK.straight(100)
+            crane_movement(50, -1)
+            TRUCK.straight(-100)
+            TRUCK.turn(-90)
+        elif Button.DOWN in EV3.buttons.pressed() and pickupstatus == False:
+            #turn arouuuund
+            TRUCK.stop()
+            EV3.speaker.say('Abort Pickup. Turning around')
+            TRUCK.turn(180)
+            
         # Emergency mode
 
         # if pickupstatus is True and detect_item_fail(Front_button, pickupstatus) is False:
@@ -199,7 +233,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
     return None
 
 
-def warehouse_drive(light_sensor, drivebase, warehouse, line_warehouse):
+def warehouse_drive(light_sensor, drivebase, warehouse, start_warehouse, line_warehouse):
     """_summary_
 
     Args:
@@ -208,16 +242,65 @@ def warehouse_drive(light_sensor, drivebase, warehouse, line_warehouse):
     # Initialize variables
     ROBOT = drivebase
     distance_travled = 0
+    drive_speed = 20
+    turn_factor = 10
     continue_driving = True
+    straight_on_line = False
+    start_zone = False
     pickup_pallet = False
     enter_pickup = False
 
     # Check which way it's supposed to turn, depening on the warehouse
-    if warehouse == "Red":
+    # Red warehouse
+    if warehouse[0] >= warehouse[2]:
         turn_direction = -1
-    elif warehouse == "Blue":
+        turn_factor = 45
+        # Say which warehouse you are in
+        EV3.speaker.say('In the Red Warehouse')
+    # Blue warehouse
+    elif warehouse[2] >= warehouse[0]:
         turn_direction = 1
+        turn_factor = 3
+        # Say which ware you are in
+        EV3.speaker.say('In the Blue Warehouse')
 
+    # make a turn so that it's facing the middle of the warehouse
+    ROBOT.reset()
+    # Drive untill you find the yellow line
+    while continue_driving is True:
+        ROBOT.turn(turn_direction * turn_factor)
+        # Drive slightly towards the right untill it find white or the line
+        # Check if the robot is on the line
+        if colour_deviation(light_sensor.rgb(), line_warehouse, 4) is True:
+            # If it is, stop the robot
+            ROBOT.stop()
+            # Say that it has found the line
+            EV3.screen.print('Line found')
+            # Wait for the robot to stop
+            continue_driving = False
+    # Make sure it's straight on the yellow line
+    ROBOT.reset()
+    while straight_on_line is False:
+
+        # Check if the robot ses an object infront of it
+        if obstacle(100, "Driving", Ultrasonic_sensor) is True:
+            # enter crane pickup
+            EV3.screen.print('Pallet found')
+            straight_on_line = True
+        # If not, continue driving on the line until you reach white
+        line_to_follow = colour_target(warehouse, line_warehouse)
+        angle = angle_to_colour(line_to_follow, light_sensor.rgb())
+        drive_speed = angle_to_speed(DRIVING_INITAL, angle, 1)
+        ROBOT.drive(drive_speed, angle)
+
+    crane_pickup(ROBOT, 0, warehouse, line_warehouse)
+
+    # Exit the zone
+    ROBOT.stop()
+    ROBOT.straight(-200)
+    continue_driving = True
+
+<<<<<<< HEAD
     # Check until you find a pallet
     while pickup_pallet is False:
         # Check if there is a pallet in front
@@ -242,8 +325,27 @@ def warehouse_drive(light_sensor, drivebase, warehouse, line_warehouse):
             #    distance_travled += 10
             #    ROBOT.straight(10)
         continue_driving = True
+=======
+    # Need a piece of code to follow the yellow line out of the warehouse
+>>>>>>> 3181bc694da8cea587d374dbd93e407ada0d67ec
 
+    while start_zone is False:
+        if colour_deviation(light_sensor.rgb(), start_warehouse, 4) is True:
+            start_zone = True
+        line_to_follow = colour_target(warehouse, line_warehouse)
+        angle = angle_to_colour(line_to_follow, light_sensor.rgb())
+        drive_speed = angle_to_speed(DRIVING_INITAL, angle, 1)
+        ROBOT.drive(drive_speed, angle)
+    ROBOT.stop()
     pass
+
+
+def zig_zag_angle(drivebase, colour_on_ground, turn_angle):
+    ROBOT = drivebase
+    # Turn the robot
+    ROBOT.turn(turn_angle)
+    # Wait
+    ROBOT.turn(-2*turn_angle)
 
 
 def Siren(beep_frequency, sine_frequency):
