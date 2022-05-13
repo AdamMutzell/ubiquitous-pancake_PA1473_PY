@@ -100,8 +100,8 @@ def startup():
 
 
 def main():  # Main Class
-<<<<<<< HEAD
     set_colours = Get_File()
+    print(set_colours)
     colour_history = [set_colours["Warehouse_blue"],(0,0,0),(0,0,0)]
     set_colour_history()
     while True:
@@ -109,9 +109,6 @@ def main():  # Main Class
             exit_zone()
 
         #emergency_mode(True,Front_button)
-=======
-    test_warehouse()
->>>>>>> 3181bc694da8cea587d374dbd93e407ada0d67ec
 
 
 def test_drive():
