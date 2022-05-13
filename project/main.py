@@ -36,11 +36,11 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 # Initizles colours and directions for the robot
 direction = ""
 colour_history = [(0,0,0),(0,0,0),(0,0,0)]
-preset_colours = {"Zone_1": Color.GREEN, "Zone_2": Color.RED,
-                  "Zone_3": Color.BLUE, "Roundabout": Color.BROWN, "Warehouse_line": Color.YELLOW,
-                  "Warehouse_start": Color.BLACK, "Warehouse_blue": Color.BLUE, "Warehouse_red": Color.RED, "Background": Color.WHITE}
+set_colours = {"Zone_1", "Zone_2",
+                  "Zone_3", "Roundabout", "Warehouse_line",
+                  "Warehouse_start", "Warehouse_blue", "Warehouse_red", "Background"}
 
-set_colours = preset_colours
+# set_colours = colour_labels
 # Initizles start up statments
 # Change to false to skip calibration mode and use .txt file if avalible
 pickupstatus = False
@@ -73,8 +73,7 @@ def startup():
             EV3.screen.print('Calibration start')
             print("Calibration started")
             wait(500)
-            set_colours = Calibrate_Colours(
-                preset_colours, EV3)
+            set_colours = Calibrate_Colours(colour_labels, EV3)
         if Button.DOWN in EV3.buttons.pressed():
             EV3.speaker.say('Using last calibration')
             set_colours = Get_File()
@@ -101,16 +100,12 @@ def startup():
 
 
 def main():  # Main Class
-    wait(2000)
-    startup()
+    set_colours = Get_File()
+    colour_history = [set_colours["Warehouse_blue"],(0,0,0),(0,0,0)]
+    set_colour_history()
     while True:
-        set_colour_history()
         if Button.DOWN in EV3.buttons.pressed():
-            if colour_deviation(light_sensor.color.rgb(),set_colours["Roundabout"]) == False:
-                if get_direction_towards(colour_history) == "Roundabout":
-                    Super_Beep()
-                    EV3.turn(180)
-                    #drive towards roundabout
+            exit_zone()
 
         #emergency_mode(True,Front_button)
 
@@ -195,7 +190,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line):
             wait(400)
         while on_line is True:
 
-            TRUCK.drive(-speed*4, angle*3)
+            TRUCK.drive(-50, 20)
 
             color_rgb = light_sensor.rgb()
             on_line = colour_deviation(color_rgb, colour_two, 4)
@@ -233,18 +228,19 @@ def warehouse_drive(light_sensor, drivebase, warehouse, line_warehouse):
         # Drives until it finds the yellow line in the warehouse
         while continue_driving == True:
             # Might be a conflict if colour_warehouse is not RGB
-            if colour_deviation(light_sensor.rgb(), colour_warehouse, 5) == True:
+            #if colour_deviation(light_sensor.rgb(), colour_warehouse, 5) == True:
                 # Drive the same length it took to find the yellow line and turn
                 ROBOT.turn(-90*turn_direction)
                 if enter_pickup is True:
-                    crane_pickup(TRUCK, 1000, max_angle, min_angle)
+                    pass
+                    #crane_pickup(TRUCK, 1000, max_angle, min_angle)
                 else:
                     ROBOT.straight(distance_travled)
                     continue_driving = False
-            else:
-                # Drive small steps to find the yellow line
-                distance_travled += 10
-                ROBOT.straight(10)
+            #else:
+            #    # Drive small steps to find the yellow line
+            #    distance_travled += 10
+            #    ROBOT.straight(10)
         continue_driving = True
 
     pass
@@ -263,29 +259,39 @@ def Super_Beep():
         EV3.speaker.beep(500*i)
         wait(50)
 
-
-def exit_zone(initial_zone):
-    set_colour_history()
-    #direction = get_direction(colour_history)
-
 def set_colour_history():
     for colour in set_colours.keys():
         if colour_deviation(light_sensor.rgb(),set_colours[colour],15):
             if set_colours[colour] not in colour_history:
                 colour_history.append(set_colours[colour])
                 colour_history.pop(0)
+    return colour_history
 
-def get_direction_towards(colour_history):
-    for colour in colour_history.reverse():
-        for label in set_colours.keys:
-            if "Warehouse" in label:
-                if (colour == set_colours[label]):
-                    direction = "Warehouse"
-                    break
-        if (colour == set_colours["Warehouse"]):
-            direction = "Roundabout"
-            break
+def get_direction_towards(_colour_history):
+    direction = "unknown"
+    if colour_history != None:
+        for colour in _colour_history.reverse():
+            for label in set_colours.keys:
+                if "Warehouse" in label:
+                    if (colour == set_colours[label]):
+                        direction = "Roundabout"
+                        return direction
+            if (colour == set_colours["Roundabout"]):
+                direction = "Warehouse"
+                return direction
+
     return direction
+
+def exit_zone():
+    if (set_colours["Roundabout"]):
+        if colour_deviation(light_sensor.rgb(),set_colours["Roundabout"],15) == False:
+            direction_towards = get_direction_towards(colour_history)
+            print(direction_towards)
+            if direction_towards == "Roundabout":
+                Super_Beep()
+                EV3.turn(180)
+                wait(100)
+                #drive towards roundabout
 
 def detect_item_fail(stat):
     """
@@ -317,5 +323,3 @@ if __name__ == '__main__':  # Keep this!
     sys.exit(main())
 
 EV3.speaker.play_file(SoundFile.OVERPOWER)
-
-main()
