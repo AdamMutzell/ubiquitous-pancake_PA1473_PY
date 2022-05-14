@@ -6,6 +6,13 @@ from pybricks.parameters import Port
 light_sensor = ColorSensor(Port.S3)
 colour_history = [0, 0, 0]
 
+def set_colour_history(colours_to_compare):
+    for colour in colours_to_compare.keys():
+        if colour_deviation(light_sensor.rgb(),colours_to_compare[colour],15):
+            if colours_to_compare[colour] not in colour_history:
+                colour_history.append(colours_to_compare[colour])
+                colour_history.pop(0)
+    return colour_history
 
 def Calibrate_Colours(colour_labels, EV3):
     """
@@ -62,6 +69,40 @@ def Get_File():
         print("no .txt file found! returning None")
         saved_colours = open("savedColours.txt", "x")
         return None
+
+def colour_deviation(colour_one, colour_two, deviation):
+    """
+    colour_one - list, containing the first colour in the RGB colour space
+    colour_two - list, containing the second colour in the RGB colour space
+    deviation - int, the amount of deviation allowed
+
+    Returns if two colours are simillar enough, given a devitation
+    """
+    # Check if the colours are simillar enough
+    acceptable_deviation = False
+
+    r_colour_one = colour_one[0]
+    g_colour_one = colour_one[1]
+    b_colour_one = colour_one[2]
+
+    r_colour_two = colour_two[0]
+    g_colour_two = colour_two[1]
+    b_colour_two = colour_two[2]
+
+    r_deviation = abs(r_colour_one - r_colour_two)
+    g_deviation = abs(g_colour_one - g_colour_two)
+    b_deviation = abs(b_colour_one - b_colour_two)
+
+    if r_deviation > deviation:
+        acceptable_deviation = False
+    elif g_deviation > deviation:
+        acceptable_deviation = False
+    elif b_deviation > deviation:
+        acceptable_deviation = False
+    else:
+        acceptable_deviation = True
+
+    return acceptable_deviation
 
 
 def get_colour(light_sensor):

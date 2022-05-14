@@ -80,42 +80,6 @@ def turn_around(Drivebase, Ultrasonic_sensor):
     TRUCK.straight(140)
     TRUCK.turn(-90)
 
-
-def colour_deviation(colour_one, colour_two, deviation):
-    """
-    colour_one - list, containing the first colour in the RGB colour space
-    colour_two - list, containing the second colour in the RGB colour space
-    deviation - int, the amount of deviation allowed
-
-    Returns if two colours are simillar enough, given a devitation
-    """
-    # Check if the colours are simillar enough
-    acceptable_deviation = False
-
-    r_colour_one = colour_one[0]
-    g_colour_one = colour_one[1]
-    b_colour_one = colour_one[2]
-
-    r_colour_two = colour_two[0]
-    g_colour_two = colour_two[1]
-    b_colour_two = colour_two[2]
-
-    r_deviation = abs(r_colour_one - r_colour_two)
-    g_deviation = abs(g_colour_one - g_colour_two)
-    b_deviation = abs(b_colour_one - b_colour_two)
-
-    if r_deviation > deviation:
-        acceptable_deviation = False
-    elif g_deviation > deviation:
-        acceptable_deviation = False
-    elif b_deviation > deviation:
-        acceptable_deviation = False
-    else:
-        acceptable_deviation = True
-
-    return acceptable_deviation
-
-
 def change_route(button_input, list_of_colors, current_color, other_route):
     if button_input == 'LEFT':
         # If the last Blue-value of the last color is greater than the other route's Blue-value

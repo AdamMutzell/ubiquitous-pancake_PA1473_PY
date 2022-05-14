@@ -1,12 +1,13 @@
 #!/usr/bin/env pybricks-micropython
 from inspect import getfile
 import sys
+from webbrowser import get
 
 import __init__
-from Drive_functions import angle_to_colour, colour_target, angle_to_speed, colour_deviation, change_route
+from Drive_functions import angle_to_colour, colour_target, angle_to_speed, change_route
 from Crane_functions import crane_movement, crane_pickup
 from Sensor_functions import button_pressed, obstacle
-from Colour_Manager import Calibrate_Colours, Get_File
+from Colour_Manager import Calibrate_Colours, Get_File, colour_deviation
 import math
 import time
 from pybricks.hubs import EV3Brick
@@ -36,13 +37,11 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 # Initizles colours and directions for the robot
 direction = ""
 colour_history = [(0,0,0),(0,0,0),(0,0,0)]
-set_colours = {"Zone_1", "Zone_2",
-                  "Zone_3", "Roundabout", "Warehouse_line",
-                  "Warehouse_start", "Warehouse_blue", "Warehouse_red", "Background"}
+set_colours = {"Zone_1":(9, 34, 16), "Zone_2":(74, 26, 44),"Zone_3":(11, 30, 54),
+               "Roundabout":(17, 18, 13),
+               "Warehouse_line":(58, 53, 12),"Warehouse_start":(5, 6, 80), "Warehouse_blue":(7, 8, 13), "Warehouse_red":(14, 9, 13),
+               "Background":(74, 87, 100)}
 
-# set_colours = colour_labels
-# Initizles start up statments
-# Change to false to skip calibration mode and use .txt file if avalible
 pickupstatus = False
 start_time = None
 DRIVING_INITAL = 50
@@ -73,7 +72,7 @@ def startup():
             EV3.screen.print('Calibration start')
             print("Calibration started")
             wait(500)
-            set_colours = Calibrate_Colours(colour_labels, EV3)
+            set_colours = Calibrate_Colours(set_colours, EV3)
         if Button.DOWN in EV3.buttons.pressed():
             EV3.speaker.say('Using last calibration')
             set_colours = Get_File()
@@ -100,15 +99,10 @@ def startup():
 
 
 def main():  # Main Class
-    set_colours = Get_File()
-    print(set_colours)
-    colour_history = [set_colours["Warehouse_blue"],(0,0,0),(0,0,0)]
-    set_colour_history()
+    startup()
     while True:
         if Button.DOWN in EV3.buttons.pressed():
-            exit_zone()
-
-        #emergency_mode(True,Front_button)
+            try_exit_zone()
 
 
 def test_drive():
@@ -126,7 +120,6 @@ def test_warehouse():
     print("Starting")
     warehouse_drive(light_sensor, TRUCK, warehouse_colour,
                     warehouse_start, warehouse_line)
-
 
 def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, alt_route):
     """
@@ -297,34 +290,7 @@ def warehouse_drive(light_sensor, drivebase, warehouse, start_warehouse, line_wa
     ROBOT.straight(-200)
     continue_driving = True
 
-<<<<<<< HEAD
-    # Check until you find a pallet
-    while pickup_pallet is False:
-        # Check if there is a pallet in front
-        if obstacle(1000, "pallet_detection", Ultrasonic_sensor) is True:
-            enter_pickup = True
-            # Go to the next area
-        ROBOT.turn(90*turn_direction)
-        # Drives until it finds the yellow line in the warehouse
-        while continue_driving == True:
-            # Might be a conflict if colour_warehouse is not RGB
-            #if colour_deviation(light_sensor.rgb(), colour_warehouse, 5) == True:
-                # Drive the same length it took to find the yellow line and turn
-                ROBOT.turn(-90*turn_direction)
-                if enter_pickup is True:
-                    pass
-                    #crane_pickup(TRUCK, 1000, max_angle, min_angle)
-                else:
-                    ROBOT.straight(distance_travled)
-                    continue_driving = False
-            #else:
-            #    # Drive small steps to find the yellow line
-            #    distance_travled += 10
-            #    ROBOT.straight(10)
-        continue_driving = True
-=======
     # Need a piece of code to follow the yellow line out of the warehouse
->>>>>>> 3181bc694da8cea587d374dbd93e407ada0d67ec
 
     while start_zone is False:
         if colour_deviation(light_sensor.rgb(), start_warehouse, 4) is True:
@@ -353,44 +319,37 @@ def Siren(beep_frequency, sine_frequency):
         EV3.speaker.play_file(SoundFile.OVERPOWER)
 
 
-def Super_Beep():
+def super_beep():
     for i in range(5):
         EV3.speaker.beep(500*i)
         wait(50)
 
-def set_colour_history():
-    for colour in set_colours.keys():
-        if colour_deviation(light_sensor.rgb(),set_colours[colour],15):
-            if set_colours[colour] not in colour_history:
-                colour_history.append(set_colours[colour])
-                colour_history.pop(0)
-    return colour_history
-
 def get_direction_towards(_colour_history):
     direction = "unknown"
-    if colour_history != None:
-        for colour in _colour_history.reverse():
-            for label in set_colours.keys:
-                if "Warehouse" in label:
-                    if (colour == set_colours[label]):
-                        direction = "Roundabout"
-                        return direction
+    for colour in reversed(_colour_history):
+        for label in set_colours.keys():
+            if "Warehouse" in label and colour == set_colours[label]:
+                    direction = "Roundabout"
+                    return direction
             if (colour == set_colours["Roundabout"]):
-                direction = "Warehouse"
-                return direction
-
+                if colour != _colour_history[-1]:
+                    #if last registered colour is roundabout we are already standing inside it
+                    direction = "Warehouse"
+                    return direction
     return direction
 
-def exit_zone():
-    if (set_colours["Roundabout"]):
-        if colour_deviation(light_sensor.rgb(),set_colours["Roundabout"],15) == False:
-            direction_towards = get_direction_towards(colour_history)
-            print(direction_towards)
-            if direction_towards == "Roundabout":
-                Super_Beep()
-                EV3.turn(180)
-                wait(100)
-                #drive towards roundabout
+def try_exit_zone():
+    direction_towards = get_direction_towards(colour_history)
+    if direction_towards == "Roundabout":
+        super_beep()
+        turn_around()
+        #drive towards roundabout
+    elif direction_towards == "Warehouse":
+        super_beep()
+        pass
+        #drive forwards towards roundabout
+    else:
+        EV3.speaker.beep(100)
 
 def detect_item_fail(stat):
     """
@@ -407,7 +366,7 @@ def detect_item_fail(stat):
                 start_time = time.time()
             # If an object haven't been on the crane for 5 seconds, make a sound
             if time.time() - start_time > 5:
-                Super_Beep()
+                super_beep()
                 start_time = None
             else:
                 return True
