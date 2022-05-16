@@ -55,6 +55,7 @@ def Get_File():
             row = colour_item[:-1].split(":")
             label = row[0]
             colour_string = row[1][1:-1].split(",")
+            print(colour_string)
             colour = []
             for value in colour_string:
                 try:
