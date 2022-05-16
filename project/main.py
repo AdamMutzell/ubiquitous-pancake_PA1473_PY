@@ -1,9 +1,7 @@
 #!/usr/bin/env pybricks-micropython
 from inspect import getfile
-import sys
-from webbrowser import get
-
 import __init__
+import sys
 from Drive_functions import angle_to_colour, colour_target, angle_to_speed, change_route
 from Crane_functions import crane_movement, crane_pickup
 from Sensor_functions import button_pressed, obstacle
@@ -36,11 +34,11 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 # Initizles colours and directions for the robot
 direction = ""
-colour_history = [(0,0,0),(0,0,0),(0,0,0)]
-set_colours = {"Zone_1":(9, 34, 16), "Zone_2":(74, 26, 44),"Zone_3":(11, 30, 54),
-               "Roundabout":(17, 18, 13),
-               "Warehouse_line":(58, 53, 12),"Warehouse_start":(5, 6, 80), "Warehouse_blue":(7, 8, 13), "Warehouse_red":(14, 9, 13),
-               "Background":(74, 87, 100)}
+colour_history = [(0, 0, 0), (0, 0, 0), (0, 0, 0)]
+set_colours = {"Zone_1": (9, 34, 16), "Zone_2": (74, 26, 44), "Zone_3": (11, 30, 54),
+               "Roundabout": (17, 18, 13),
+               "Warehouse_line": (58, 53, 12), "Warehouse_start": (5, 6, 80), "Warehouse_blue": (7, 8, 13), "Warehouse_red": (14, 9, 13),
+               "Background": (74, 87, 100)}
 
 pickupstatus = False
 start_time = None
@@ -64,6 +62,8 @@ def startup():
     Returns a list of colours, the background colour, the warehouse colour, and the warehouse line colour
     """
     running = True
+
+    global set_colours
     while running:
         if Button.UP in EV3.buttons.pressed():
             # kör igång kalibrering
@@ -71,13 +71,11 @@ def startup():
             EV3.speaker.play_file(SoundFile.READY)
             EV3.screen.print('Calibration start')
             print("Calibration started")
-            wait(500)
             set_colours = Calibrate_Colours(set_colours, EV3)
         if Button.DOWN in EV3.buttons.pressed():
             EV3.speaker.say('Using last calibration')
             set_colours = Get_File()
             print("colours read from file as : "+str(set_colours))
-            wait(500)
         elif Button.LEFT in EV3.buttons.pressed():
             # drive towards red warehouse
             EV3.speaker.say('Driving towards Red Warehouse')
@@ -99,10 +97,10 @@ def startup():
 
 
 def main():  # Main Class
-    startup()
-    while True:
-        if Button.DOWN in EV3.buttons.pressed():
-            try_exit_zone()
+    test_warehouse()
+    # while True:
+    #    if Button.DOWN in EV3.buttons.pressed():
+    #        try_exit_zone()
 
 
 def test_drive():
@@ -113,13 +111,14 @@ def test_drive():
 
 
 def test_warehouse():
-    warehouse_line = (58, 53, 12)
-    warehouse_blue = (7, 8, 13)
-    warehouse_start = (5, 6, 80)
-    warehouse_colour = warehouse_blue
+    warehouse_line = (35, 30, 7)
+    warehouse_red = (10, 7, 9)
+    warehouse_start = (4, 5, 5)
+    warehouse_colour = warehouse_red
     print("Starting")
     warehouse_drive(light_sensor, TRUCK, warehouse_colour,
                     warehouse_start, warehouse_line)
+
 
 def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, alt_route):
     """
@@ -167,7 +166,8 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
             list_of_colours, alt_route = change_route(
                 'LEFT', list_of_colours, colour_two, alt_route)
         elif Button.RIGHT in EV3.buttons.pressed():
-            list_of_colours, alt_route = change_route('RIGHT',list_of_colours,colour_two,alt_route)
+            list_of_colours, alt_route = change_route(
+                'RIGHT', list_of_colours, colour_two, alt_route)
         elif Button.DOWN in EV3.buttons.pressed() and pickupstatus == True:
             TRUCK.stop()
             EV3.speaker.say('Putting down object')
@@ -177,11 +177,11 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
             TRUCK.straight(-100)
             TRUCK.turn(-90)
         elif Button.DOWN in EV3.buttons.pressed() and pickupstatus == False:
-            #turn arouuuund
+            # turn arouuuund
             TRUCK.stop()
             EV3.speaker.say('Abort Pickup. Turning around')
             TRUCK.turn(180)
-            
+
         # Emergency mode
 
         # if pickupstatus is True and detect_item_fail(Front_button, pickupstatus) is False:
@@ -243,10 +243,12 @@ def warehouse_drive(light_sensor, drivebase, warehouse, start_warehouse, line_wa
     # Check which way it's supposed to turn, depening on the warehouse
     # Red warehouse
     if warehouse[0] >= warehouse[2]:
-        turn_direction = -1
-        turn_factor = 45
+        turn_direction = 1
+        turn_factor = 3
         # Say which warehouse you are in
         EV3.speaker.say('In the Red Warehouse')
+        ROBOT.turn(-turn_direction*40)
+        ROBOT.straight(90)
     # Blue warehouse
     elif warehouse[2] >= warehouse[0]:
         turn_direction = 1
@@ -261,7 +263,7 @@ def warehouse_drive(light_sensor, drivebase, warehouse, start_warehouse, line_wa
         ROBOT.turn(turn_direction * turn_factor)
         # Drive slightly towards the right untill it find white or the line
         # Check if the robot is on the line
-        if colour_deviation(light_sensor.rgb(), line_warehouse, 4) is True:
+        if colour_deviation(light_sensor.rgb(), line_warehouse, 5) is True:
             # If it is, stop the robot
             ROBOT.stop()
             # Say that it has found the line
@@ -273,7 +275,7 @@ def warehouse_drive(light_sensor, drivebase, warehouse, start_warehouse, line_wa
     while straight_on_line is False:
 
         # Check if the robot ses an object infront of it
-        if obstacle(100, "Driving", Ultrasonic_sensor) is True:
+        if obstacle(300, "Driving", Ultrasonic_sensor) is True or button_pressed(Front_button) is True:
             # enter crane pickup
             EV3.screen.print('Pallet found')
             straight_on_line = True
@@ -324,32 +326,35 @@ def super_beep():
         EV3.speaker.beep(500*i)
         wait(50)
 
+
 def get_direction_towards(_colour_history):
     direction = "unknown"
     for colour in reversed(_colour_history):
         for label in set_colours.keys():
             if "Warehouse" in label and colour == set_colours[label]:
-                    direction = "Roundabout"
-                    return direction
+                direction = "Roundabout"
+                return direction
             if (colour == set_colours["Roundabout"]):
                 if colour != _colour_history[-1]:
-                    #if last registered colour is roundabout we are already standing inside it
+                    # if last registered colour is roundabout we are already standing inside it
                     direction = "Warehouse"
                     return direction
     return direction
+
 
 def try_exit_zone():
     direction_towards = get_direction_towards(colour_history)
     if direction_towards == "Roundabout":
         super_beep()
         turn_around()
-        #drive towards roundabout
+        # drive towards roundabout
     elif direction_towards == "Warehouse":
         super_beep()
         pass
-        #drive forwards towards roundabout
+        # drive forwards towards roundabout
     else:
         EV3.speaker.beep(100)
+
 
 def detect_item_fail(stat):
     """
