@@ -94,7 +94,7 @@ def crane_pickup(DriveBase, angle_of_crane, background, line_colour):
 
 def raise_incremental(angle_at_start):
     Crane_motor.stop()
-    angle = angle_at_start + 30
+    angle = angle_at_start + 10
     current_angle = angle_at_start
     while current_angle < angle:
         Crane_motor.track_target(angle)
