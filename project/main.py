@@ -1,11 +1,12 @@
 #!/usr/bin/env pybricks-micropython
+#from ast import Try
 from inspect import getfile
 import __init__
 import sys
 from Drive_functions import angle_to_colour, colour_target, angle_to_speed, change_route
 from Crane_functions import crane_movement, crane_pickup
 from Sensor_functions import button_pressed, obstacle
-from Colour_Manager import Calibrate_Colours, Get_File, colour_deviation
+from Colour_Manager import Calibrate_Colours, Get_File, colour_deviation,set_colour_history
 import math
 import time
 from pybricks.hubs import EV3Brick
@@ -49,7 +50,7 @@ DRIVING_INITAL = 50
 
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
 TRUCK = DriveBase(left_motor=Right_drive, right_motor=Left_drive,
-                  wheel_diameter=47, axle_track=128)
+                  wheel_diameter=33, axle_track=128)
 
 # Makes a start up sound, to signify everything went well
 sound_start = EV3.speaker.beep()
@@ -150,6 +151,9 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
     EV3.screen.print("Following a line")
 
     while drive_check is True:
+        print(set_colours)
+        current_history = set_colour_history(set_colours,colour_history)
+
         # Check the line it's following
         colour_two = list_of_colours[index_of_colours]
 
@@ -192,6 +196,9 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
             TRUCK.stop()
             EV3.speaker.say('Abort Pickup. Turning around')
             TRUCK.turn(180)
+        elif Button.CENTER in EV3.buttons.pressed():
+            try_exit_zone()
+            list_of_colours = [set_colours["Roundabout"]]
 
         # Emergency mode
 
@@ -326,7 +333,7 @@ def Siren(beep_frequency, sine_frequency):
     threshold = 0.8
     sine_wave = abs(math.sin(time.time()*sine_frequency))
     if sine_wave >= threshold:
-        EV3.speaker.play_file(SoundFile.OVERPOWER)
+        EV3.speaker.beep(beep_frequency)
 
 
 def super_beep():
@@ -354,14 +361,17 @@ def try_exit_zone():
     direction_towards = get_direction_towards(colour_history)
     if direction_towards == "Roundabout":
         super_beep()
-        turn_around()
-        # drive towards roundabout
+        TRUCK.turn(180)
+        TRUCK.straight(40)
+        colour_history[0] = set_colours["Warehouse_blue"]
+        #drive towards roundabout
     elif direction_towards == "Warehouse":
         super_beep()
-        pass
-        # drive forwards towards roundabout
+        TRUCK.straight(100)
+        #drive forwards towards roundabout
     else:
         EV3.speaker.beep(100)
+    wait(100)
 
 
 def detect_item_fail(stat):
