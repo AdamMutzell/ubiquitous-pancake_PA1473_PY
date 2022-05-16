@@ -35,7 +35,7 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 # Initizles colours and directions for the robot
 direction = ""
 colour_history = [(0, 0, 0), (0, 0, 0), (0, 0, 0)]
-set_colours = {"Zone_1": (9, 34, 16), "Zone_2": (74, 26, 44), "Zone_3": (11, 30, 54),
+set_colours = {"Zone_1": (9, 34, 16), "Red": (74, 26, 44), "Dark_Blue": (11, 30, 54), "Light_Blue": (15, 35, 55),
                "Roundabout": (17, 18, 13),
                "Warehouse_line": (58, 53, 12), "Warehouse_start": (5, 6, 80), "Warehouse_blue": (7, 8, 13), "Warehouse_red": (14, 9, 13),
                "Background": (74, 87, 100)}
@@ -87,18 +87,18 @@ def startup():
             EV3.speaker.play_file(SoundFile.READY)
             EV3.screen.print('Driving towards Red Warehouse')
             print("Driving towards Red Warehouse")
-            return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_2'],
+            return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Red'],
                     set_colours['Warehouse_start']], set_colours['Background'],
-                    set_colours["Warehouse_red"], set_colours["Warehouse_line"], set_colours['Zone_3'])
+                    set_colours["Warehouse_red"], set_colours["Warehouse_line"], set_colours['Dark_Blue'])
         elif Button.RIGHT in EV3.buttons.pressed():
             # drive towards blue warehouse
             EV3.speaker.say('Driving towards Blue Warehouse')
             EV3.speaker.play_file(SoundFile.READY)
             EV3.screen.print('Driving towards Blue Warehouse')
             print("Driving towards Blue Warehouse")
-            return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Zone_3'],
+            return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Dark_Blue'], set_colours['Light_Blue'],
                     set_colours['Warehouse_start']], set_colours['Background'],
-                    set_colours["Warehouse_blue"], set_colours["Warehouse_line"], set_colours['Zone_2'])
+                    set_colours["Warehouse_blue"], set_colours["Warehouse_line"], set_colours['Red'])
 
 
 def main():  # Main Class
@@ -170,11 +170,15 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
 
         # Check if we want to change route
         if Button.LEFT in EV3.buttons.pressed():
-            list_of_colours, alt_route = change_route(
-                'LEFT', list_of_colours, colour_two, alt_route)
+            TRUCK.stop()
+            EV3.speaker.say("Change Route to Red Warehouse")
+            list_of_colours = [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Red'],
+                    set_colours['Warehouse_start']]
         elif Button.RIGHT in EV3.buttons.pressed():
-            list_of_colours, alt_route = change_route(
-                'RIGHT', list_of_colours, colour_two, alt_route)
+            TRUCK.stop()
+            EV3.speaker.say("Change Route to Blue Warehouse")
+            list_of_colours = [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Dark_Blue'], set_colours['Light_Blue'],
+                    set_colours['Warehouse_start']]
         elif Button.DOWN in EV3.buttons.pressed() and pickupstatus == True:
             TRUCK.stop()
             EV3.speaker.say('Putting down object')
