@@ -24,7 +24,6 @@ def Calibrate_Colours(colour_labels, EV3):
     saved_colours = open("savedColours.txt", "w")
     colour_dict = {}
     for label in colour_labels.keys():
-
         print("set colour for: "+label)
         EV3.screen.print(label)
         # add robot voice command here?
