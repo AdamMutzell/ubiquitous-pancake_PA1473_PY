@@ -42,6 +42,9 @@ set_colours = {"Zone_1": (9, 34, 16), "Zone_2": (74, 26, 44), "Zone_3": (11, 30,
 
 pickupstatus = False
 start_time = None
+turn = -1
+seen_line = False
+
 DRIVING_INITAL = 50
 
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
@@ -129,16 +132,16 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
     """
     angle = 0
     speed = 0
+    global turn
+    global seen_line
 
     list_of_colours = list_rgb_colurs
     index_of_colours = 0
-    on_line = False
     drive_check = True
     # Update to be a variable that is set by the startup function
     colour_one = background_color
     colour_two = list_of_colours[0]
 
-    line_to_follow = colour_target(colour_one, colour_two)
     color_rgb = light_sensor.rgb()
 
     # Print the hsv it's on
@@ -153,13 +156,15 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
         color_rgb = light_sensor.rgb()
 
         # Check if the next colour is present
-        if colour_deviation(color_rgb, list_of_colours[index_of_colours + 1], 4) == True:
+        if colour_deviation(color_rgb, list_of_colours[index_of_colours + 1], 8) == True:
             index_of_colours += 1
             colour_two = list_of_colours[index_of_colours]
             # Say that it has changed colours
             EV3.screen.print('New colour found')
-            TRUCK.drive(0, -30)
-            wait(800)
+            print("New colour found")
+            TRUCK.straight(75)
+            turn = -1
+            seen_line = False
 
         # Check if we want to change route
         if Button.LEFT in EV3.buttons.pressed():
@@ -194,7 +199,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
         #          warehouse_colour, warehouse_line, EV3)
         #           """"
 
-        if obstacle(200, "Driving", Ultrasonic_sensor) is True:
+        if obstacle(100, "Driving", Ultrasonic_sensor) is True:
             TRUCK.stop()
             EV3.speaker.say("There is an obstacle")
             EV3.speaker.play_file(SoundFile.OVERPOWER)
@@ -203,23 +208,20 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
         # Check if we are at the end of the list
         if index_of_colours == len(list_of_colours) - 1:
             drive_check = False
-        # get the new angle
-        angle = angle_to_colour(line_to_follow, color_rgb)
-        # get the speed
-        speed = angle_to_speed(DRIVING_INITAL, angle, 3)
-        # drive the robot
-        if colour_deviation(color_rgb, colour_two, 4) is True:
-            on_line = True
-            TRUCK.drive(0, 7)
-            wait(400)
-        while on_line is True:
 
-            TRUCK.drive(-50, 20)
+        # drive the robot zig-zag style
+        TRUCK.drive(60, turn*60)
+        #Checks if the sensor is passes the line
+        on_line = colour_deviation(color_rgb, colour_two, 20)
+        #If the sensor has passed line we set it as seen
+        if on_line == True and seen_line == False:
+            seen_line = True
+        #If it has seen the line and passed it the direction of th turn is changed
+        if colour_deviation(color_rgb, colour_two, 30) == False and seen_line == True:
+            turn = -turn
+            seen_line = False
 
-            color_rgb = light_sensor.rgb()
-            on_line = colour_deviation(color_rgb, colour_two, 4)
 
-        TRUCK.drive(speed, angle)
     return None
 
 
