@@ -1,18 +1,51 @@
 #!/usr/bin/env pybricks-micropython
+from turtle import speed
+from matplotlib import offsetbox
+from pandas import pivot
 from pybricks.parameters import Stop
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor, ColorSensor, UltrasonicSensor
 from pybricks.parameters import Port
 from pybricks.tools import wait
 from Sensor_functions import button_pressed
-from Drive_functions import angle_to_colour, colour_target, angle_to_speed
+from Drive_functions import angle_to_colour, colour_target, angle_to_speed, turn_around
+import math
+
+from project.main import TRUCK
 
 EV3 = EV3Brick()
-Crane_motor = Motor(Port.A, gears=[12, 36])
+crane_motor = Motor(Port.A, gears=[12, 36])
 Front_button = TouchSensor(Port.S1)
 light_sensor = ColorSensor(Port.S3)
 Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
+resting_angle = crane_motor.angle()
+
+elevated_offset = 0.0
+#all values in cm
+pallet_height = 15.5
+pallet_length = 10
+
+pivot_height = 3.3
+fork_length = 15.0
+#^do not set this to zero
+
+def set_crane_rotation(height,speed):
+    catheus = (height - pivot_height) + elevated_offset
+    target_angle =  math.degrees(math.asin(catheus/fork_length))
+    crane_motor.run_target(speed,target_angle,then=Stop.HOLD,wait = True)
+    
+def pick_up_pallet(speed,timeout,height= pallet_height):
+    """timeout - maximum amount of iterations to look for button press before aborting"""
+    set_crane_rotation(height,speed)
+
+    while Front_button.pressed() == False or timeout <= 0:
+        TRUCK.straight(2)
+        timeout -= 1
+    set_crane_rotation(height + 5,speed*2)
+    TRUCK.straigth(-pallet_length)
+    set_crane_rotation(0,speed)
+    turn_around(TRUCK,Ultrasonic_sensor)
 
 def crane_movement(direction, speed):  # Function for moving the crane up
     """
@@ -21,10 +54,10 @@ def crane_movement(direction, speed):  # Function for moving the crane up
     speed, a value between 0 and 100, indicating the speed of the movement
     Returns an angle of the crane at it's maximum angle
     """
-    Crane_motor.stop()
+    crane_motor.stop()
 
     speed_of_crane = speed * direction
-    return Crane_motor.run_until_stalled(speed_of_crane, then=Stop.BRAKE, duty_limit=50)
+    return crane_motor.run_until_stalled(speed_of_crane, then=Stop.BRAKE, duty_limit=50)
 
 
 def crane_hold():  # Function for moving the crane up
@@ -35,7 +68,7 @@ def crane_hold():  # Function for moving the crane up
     """
     # To prevent problems with the crane holding
     speed_of_crane = 50
-    return Crane_motor.run_until_stalled(speed_of_crane, Stop.HOLD, duty_limit=90)
+    return crane_motor.run_until_stalled(speed_of_crane, Stop.HOLD, duty_limit=90)
 
 # Function for moving the crane up
 
@@ -64,9 +97,9 @@ def crane_pickup(DriveBase, angle_of_crane, background, line_colour):
     pallet_found = button_pressed(Front_button)
 
     # Seetings for the crane motor
-    #Crane_motor.control.stall_tolerances(stall_limit=90, stall_time_limit=5000)
+    #crane_motor.control.stall_tolerances(stall_limit=90, stall_time_limit=5000)
     # Raise the crane to the angle of the pallet
-    Crane_motor.run_target(speed=speed_of_crane,
+    crane_motor.run_target(speed=speed_of_crane,
                            target_angle=angle_of_crane, wait=False)
 
     # Drive forward untill the button is pressed
@@ -93,13 +126,13 @@ def crane_pickup(DriveBase, angle_of_crane, background, line_colour):
 
 
 def raise_incremental(angle_at_start):
-    Crane_motor.stop()
-    angle = angle_at_start + 30
+    crane_motor.stop()
+    angle = angle_at_start + 10
     current_angle = angle_at_start
     while current_angle < angle:
-        Crane_motor.track_target(angle)
-        current_angle = Crane_motor.angle()
+        crane_motor.track_target(angle)
+        current_angle = crane_motor.angle()
 
-    Crane_motor.hold()
+    crane_motor.hold()
 
     return None
