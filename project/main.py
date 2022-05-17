@@ -35,7 +35,6 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 # Initizles colours and directions for the robot
 direction = ""
-colour_history = [(0, 0, 0), (0, 0, 0), (0, 0, 0)]
 set_colours = {"Zone_1": (9, 34, 16), "Zone_2": (74, 26, 44), "Zone_3": (11, 30, 54),
                "Roundabout": (17, 18, 13),
                "Warehouse_line": (58, 53, 12), "Warehouse_start": (5, 6, 80), "Warehouse_blue": (7, 8, 13), "Warehouse_red": (14, 9, 13),
@@ -46,7 +45,7 @@ start_time = None
 turn = -1
 seen_line = False
 
-DRIVING_INITAL = 50
+DRIVING_INITAL = 0
 
 # Initialze the drivebase of the robot. Handles the motors (USE THIS)
 TRUCK = DriveBase(left_motor=Right_drive, right_motor=Left_drive,
@@ -103,22 +102,14 @@ def startup():
 
 
 def main():  # Main Class
-<<<<<<< HEAD
 
     #startup()
-    test_drive()
+    alternate_drive()
         
-=======
-    test_drive()
-    # while True:
-    #    if Button.DOWN in EV3.buttons.pressed():
-    #        try_exit_zone()
->>>>>>> a402403729f5d7e6dcc0f11858e2282facf6f138
 
 
 def test_drive():
     list_of_colours, colour_background, warehouse_colour, warehouse_line, alt_route = startup()
-    print(list_of_colours, colour_background, warehouse_colour, warehouse_line)
     drive(list_of_colours, colour_background,
           warehouse_colour, warehouse_line, alt_route)
 
@@ -153,12 +144,12 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
     colour_two = list_of_colours[0]
 
     color_rgb = light_sensor.rgb()
+    colour_history = [(0, 0, 0), (0, 0, 0), (0, 0, 0)]
 
     # Print the hsv it's on
     EV3.screen.print("Following a line")
 
     while drive_check is True:
-        print(set_colours)
         current_history = set_colour_history(set_colours,colour_history)
 
         # Check the line it's following
@@ -200,7 +191,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
             EV3.speaker.say('Abort Pickup. Turning around')
             TRUCK.turn(180)
         elif Button.CENTER in EV3.buttons.pressed():
-            try_exit_zone()
+            try_exit_zone(colour_history)
             list_of_colours = [set_colours["Roundabout"]]
 
         # Emergency mode
@@ -360,7 +351,7 @@ def get_direction_towards(_colour_history):
     return direction
 
 
-def try_exit_zone():
+def try_exit_zone(colour_history):
     direction_towards = get_direction_towards(colour_history)
     if direction_towards == "Roundabout":
         super_beep()

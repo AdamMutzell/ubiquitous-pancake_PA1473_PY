@@ -6,13 +6,16 @@ from pybricks.parameters import Port
 light_sensor = ColorSensor(Port.S3)
 
 def set_colour_history(colours_to_compare,current_colour_history):
+    labels = ["","",""]
     for colour in colours_to_compare.keys():
-        print(colours_to_compare[colour])
-        if colour_deviation(light_sensor.rgb(),colours_to_compare[colour],15):
-            if colours_to_compare[colour] not in current_colour_history:
-                current_colour_history.append(colours_to_compare[colour])
-                current_colour_history.pop(0)
-                print(current_colour_history.reverse())
+        if colour != colours_to_compare["Background"]:
+            if colour_deviation(light_sensor.rgb(),colours_to_compare[colour],15):
+                if colours_to_compare[colour] not in current_colour_history:
+                    current_colour_history.append(colours_to_compare[colour])
+                    current_colour_history.pop(0)
+                    labels.append(colour)
+                    labels.pop(0)
+                    print("colour history:",labels)
     return current_colour_history
 
 def Calibrate_Colours(colour_labels, EV3):
@@ -54,7 +57,7 @@ def Get_File():
             print('read')
             row = colour_item[:-1].split(":")
             label = row[0]
-            colour_string = row[1][1:-1].split(",")
+            colour_string = row[1][1:-2].split(",")
             print(colour_string)
             colour = []
             for value in colour_string:
