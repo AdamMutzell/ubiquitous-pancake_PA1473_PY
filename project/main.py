@@ -107,7 +107,7 @@ def startup():
 
 
 def main():  # Main Class
-    pick_up_pallet(10000, 15, TRUCK)
+    test_drive()
     # test_drive()
 
 
@@ -150,7 +150,6 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
     # Update to be a variable that is set by the startup function
     colour_one = background_color
     colour_two = list_of_colours[0]
-    pickupstatus = False
 
     color_rgb = light_sensor.rgb()
 
@@ -239,10 +238,11 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
             Siren(1000,0.5)
             TRUCK.stop()
         
-        if detect_item(pickupstatus) == False:
+        if detect_item(pickupstatus):
+            print("emergency_mode")
             while Button.CENTER not in EV3.buttons.pressed():
-                pass
-
+                wait(100)
+            pickupstatus = False
 
         # Check if we are at the end of the list
         if index_of_colours == len(list_of_colours) - 1:
@@ -252,7 +252,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
         # drive the robot zig-zag style
         TRUCK.drive(40, turn*50)
         # Checks if the sensor is passes the line
-        on_line = colour_deviation(color_rgb, colour_two, 8)
+        on_line = colour_deviation(color_rgb, colour_two, 9)
         # If the sensor has passed line we set it as seen
         if on_line == True and seen_line == False:
             seen_line = True
@@ -272,6 +272,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
                                  background_color, warehouse_line, line_to_warehouse]
         warehouse_drive(light_sensor, TRUCK, colour_warehouse_list,elevated_pallet)
         # Call on drive with the reversed list of colours
+        print(reversed_list)
         drive(reversed_list, background_color,
               warehouse_colour, warehouse_line, pickupstatus)
     else:
@@ -416,12 +417,13 @@ def detect_item(status):
                 super_beep()
                 EV3.speaker.say('Emergency mode, press center button to continue')
                 start_time = None
-            else:
                 return True
+            else:
+                return False
         # If object is on the crane, reset the timer
         elif button_pressed(Front_button) == True:
             start_time = time.time()
-            return True
+            return False
     return False
 
 
