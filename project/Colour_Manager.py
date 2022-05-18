@@ -7,8 +7,8 @@ light_sensor = ColorSensor(Port.S3)
 
 
 def set_colour_history(new_colour, colour_history):
-    colour_history.append[new_colour]
-    colour_history.pop[0]
+    colour_history.append(new_colour)
+    colour_history.pop(0)
     return colour_history
 
 
@@ -48,7 +48,7 @@ def Get_File():
         print('saved')
         for colour_item in saved_colours.readlines():
             print('read')
-            row = colour_item[:-1].split(":")
+            row = colour_item[:-2].split(":")
             label = row[0]
             colour_string = row[1][1:-1].split(",")
             print(colour_string)

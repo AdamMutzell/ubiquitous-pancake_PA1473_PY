@@ -31,7 +31,7 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 
 # Initizles colours and directions for the robot
-colour_history = [(float('inf'), 0, 0) for i in range(4)]
+colour_history = [(0, 0, 0) for i in range(4)]
 print(colour_history)
 set_colours = {"Zone_1": (9, 34, 16), "Red": (74, 26, 44), "Dark_Blue": (11, 30, 54), "Light_Blue": (15, 35, 55),
                "Roundabout": (17, 18, 13),
@@ -135,6 +135,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
     speed = 0
     global turn
     global seen_line
+    global colour_history
 
     elevated_pallet = False
 
@@ -170,10 +171,10 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
             EV3.screen.print('New colour found')
             print("New colour found")
 
-            set_colour_history(colour_two, colour_history)
+            colour_history = set_colour_history(colour_two, colour_history)
 
             TRUCK.straight(75)
-            turn = -1
+            turn = 1
             seen_line = False
         if Button.UP in EV3.buttons.pressed():
             elevated_pallet = not elevated_pallet
@@ -234,14 +235,14 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
             drive_check = False
 
         # drive the robot zig-zag style
-        TRUCK.drive(60, turn*60)
+        TRUCK.drive(40, turn*60)
         # Checks if the sensor is passes the line
-        on_line = colour_deviation(color_rgb, colour_two, 25)
+        on_line = colour_deviation(color_rgb, colour_two, 13)
         # If the sensor has passed line we set it as seen
         if on_line == True and seen_line == False:
             seen_line = True
         # If it has seen the line and passed it the direction of th turn is changed
-        if colour_deviation(color_rgb, colour_two, 30) == False and seen_line == True:
+        if colour_deviation(color_rgb, colour_two, 15) == False and seen_line == True:
             turn = -turn
             seen_line = False
     # Needs to contatin, the colour of the warehouse, the line in the warehouse,
