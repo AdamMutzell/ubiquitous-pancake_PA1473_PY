@@ -16,6 +16,8 @@ from pybricks.robotics import DriveBase
 from pybricks.tools import wait
 from pybricks.media.ev3dev import SoundFile
 
+from project.Crane_functions import set_crane_rotation
+
 # Initialise the EV3
 EV3 = EV3Brick()
 
@@ -68,6 +70,8 @@ def startup():
     running = True
 
     global set_colours
+    set_crane_rotation(0,10)
+
     while running:
         if Button.UP in EV3.buttons.pressed():
             # kör igång kalibrering
@@ -237,7 +241,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
         
         if detect_item(pickupstatus) == False:
             while Button.CENTER not in EV3.buttons.pressed():
-                
+                pass
 
 
         # Check if we are at the end of the list
