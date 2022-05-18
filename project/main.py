@@ -103,6 +103,7 @@ def startup():
 
 def main():  # Main Class
     pick_up_pallet(100, 15, TRUCK)
+    super_beep(1000)
     # test_drive()
 
 
@@ -179,6 +180,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
         if Button.UP in EV3.buttons.pressed():
             elevated_pallet = not elevated_pallet
             EV3.speaker.say("elevated_pallet set to: " + str(elevated_pallet))
+            wait(50)
 
         # Check if we want to change route
         if Button.LEFT in EV3.buttons.pressed():
@@ -227,7 +229,8 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
         if obstacle(100, "Driving", Ultrasonic_sensor) is True:
             TRUCK.stop()
             EV3.speaker.say("There is an obstacle")
-            EV3.speaker.play_file(SoundFile.OVERPOWER)
+            #EV3.speaker.play_file(SoundFile.OVERPOWER)
+            Siren(1000,0.5)
             TRUCK.stop()
 
         # Check if we are at the end of the list

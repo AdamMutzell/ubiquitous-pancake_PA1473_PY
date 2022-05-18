@@ -18,7 +18,7 @@ resting_angle = crane_motor.angle()
 
 elevated_offset = 0.5
 #all values in cm
-pallet_height = 6.0
+pallet_height = 12.0
 pallet_length = 8.0
 
 pivot_height = 3.3
@@ -27,18 +27,25 @@ fork_length = 14.0
 
 def set_crane_rotation(height, speed):
     catheus = (height - pivot_height) + elevated_offset
-    target_angle =  math.degrees(math.asin(catheus/fork_length))
+    if catheus > 0:
+        target_angle =  math.degrees(math.asin(catheus/fork_length))
+    else:
+        target_angle = 0
+    print(target_angle)
     crane_motor.run_target(speed,target_angle,then=Stop.HOLD,wait = True)
     
 def pick_up_pallet(speed,timeout,truck,height= pallet_height):
     """timeout - maximum amount of iterations to look for button press before aborting"""
+    print(crane_motor.angle())
     set_crane_rotation(height, speed)
-
-    while Front_button.pressed() == False or timeout <= 0:
-        truck.straight(2)
+    while Front_button.pressed() == False or timeout > 0:
+        truck.drive(1,0)
         timeout -= 1
-    set_crane_rotation(height + 5,speed*2)
-    truck.straigth(-pallet_length)
+        print(Front_button.pressed())
+        wait(10)
+    truck.stop()
+    set_crane_rotation(height,speed)
+    truck.straight(-pallet_length*10)
     set_crane_rotation(0,speed)
     turn_around(truck,Ultrasonic_sensor)
 
