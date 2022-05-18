@@ -147,6 +147,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
     # Update to be a variable that is set by the startup function
     colour_one = background_color
     colour_two = list_of_colours[0]
+    pickupstatus = False
 
     color_rgb = light_sensor.rgb()
 
@@ -180,12 +181,12 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
             TRUCK.stop()
             EV3.speaker.say("Change Route to Red Warehouse")
             list_of_colours = [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Red'],
-                    set_colours['Warehouse_start']]
+                               set_colours['Warehouse_start']]
         elif Button.RIGHT in EV3.buttons.pressed():
             TRUCK.stop()
             EV3.speaker.say("Change Route to Blue Warehouse")
             list_of_colours = [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Dark_Blue'], set_colours['Light_Blue'],
-                    set_colours['Warehouse_start']]
+                               set_colours['Warehouse_start']]
         elif Button.DOWN in EV3.buttons.pressed() and pickupstatus == True:
             TRUCK.stop()
             EV3.speaker.say('Putting down object')
@@ -243,7 +244,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
         reversed_list = list_of_colours[::-1]
         line_to_warehouse = reversed_list[0]
         colour_warehouse_list = [warehouse_colour,
-                                 warehouse_line, background_color, line_to_warehouse]
+                                 background_color, warehouse_line, line_to_warehouse]
         warehouse_drive(light_sensor, TRUCK, colour_warehouse_list)
         # Call on drive with the reversed list of colours
     else:
