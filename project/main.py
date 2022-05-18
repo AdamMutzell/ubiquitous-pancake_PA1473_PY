@@ -1,6 +1,5 @@
 #!/usr/bin/env pybricks-micropython
 #from ast import Try
-from inspect import getfile
 import __init__
 import sys
 from Drive_functions import angle_to_colour, colour_target, angle_to_speed, change_route
@@ -15,8 +14,6 @@ from pybricks.parameters import Port, Color, Direction, Button, Stop
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait
 from pybricks.media.ev3dev import SoundFile
-
-from Drive_functions import turn_around
 
 # Initialise the EV3
 EV3 = EV3Brick()
@@ -41,6 +38,7 @@ set_colours = {"Zone_1": (9, 34, 16), "Red": (74, 26, 44), "Dark_Blue": (11, 30,
                "Warehouse_line": (58, 53, 12), "Warehouse_start": (5, 6, 80), "Warehouse_blue": (7, 8, 13), "Warehouse_red": (14, 9, 13),
                "Background": (74, 87, 100)}
 
+# Initizles variables
 pickupstatus = False
 start_time = None
 turn = -1
@@ -104,7 +102,8 @@ def startup():
 
 
 def main():  # Main Class
-    test_drive()
+    pick_up_pallet(100, 15, TRUCK)
+    # test_drive()
 
 
 def test_drive():
@@ -143,8 +142,6 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
     list_of_colours = list_rgb_colurs
     index_of_colours = 0
     drive_check = True
-    colour_warehouse_list = []
-    target = "not set"
     # Update to be a variable that is set by the startup function
     colour_one = background_color
     colour_two = list_of_colours[0]
@@ -179,31 +176,24 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
             TRUCK.straight(75)
             turn = 1
             seen_line = False
+        if Button.UP in EV3.buttons.pressed():
+            elevated_pallet = not elevated_pallet
+            EV3.speaker.say("elevated_pallet set to: " + str(elevated_pallet))
 
         # Check if we want to change route
         if Button.LEFT in EV3.buttons.pressed():
-            if target == "Red":  # if button is pressed twice
-                elevated_pallet = not elevated_pallet
-                print("elevated_pallet set to: ", elevated_pallet)
-            else:
-                target = "Red"
-                TRUCK.stop()
-                EV3.speaker.say("elevated_pallet set to: " +
-                                str(elevated_pallet))
-                list_of_colours = [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Red'],
-                                   set_colours['Warehouse_start']]
+            TRUCK.stop()
+            EV3.speaker.say("Change Route to Red Warehouse")
+            list_of_colours = [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Red'],
+                               set_colours['Warehouse_start']]
+            wait(100)
         elif Button.RIGHT in EV3.buttons.pressed():
-            if target == "Blue":  # if button is pressed twice
-                elevated_pallet = not elevated_pallet
-                EV3.speaker.say("elevated_pallet set to: " +
-                                str(elevated_pallet))
-            else:
-                target = "Blue"
-                TRUCK.stop()
-                EV3.speaker.say("Change Route to Blue Warehouse")
-                list_of_colours = [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Dark_Blue'], set_colours['Light_Blue'],
-                                   set_colours['Warehouse_start']]
 
+            TRUCK.stop()
+            EV3.speaker.say("Change Route to Blue Warehouse")
+            list_of_colours = [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Dark_Blue'], set_colours['Light_Blue'],
+                               set_colours['Warehouse_start']]
+            wait(100)
         elif Button.DOWN in EV3.buttons.pressed() and pickupstatus == True:
             TRUCK.stop()
             EV3.speaker.say('Putting down object')
@@ -273,22 +263,22 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
     return None
 
 
-def warehouse_drive(light_sensor, drivebase, colour_list, elevated_surface):
-    """_summary_
+def warehouse_drive(light_sensor, drivebase, colour_list, elevated_surface=False):
+    """
+    light_sensor - Class, contating the light sensor
+    drivebase - Class, contating the drivebase
+    colour_list - List, contating the colours that are relvant
+    elevated_surface - Boolean, contating if the pallet is elevated
 
-    Args:
-        colours (_type_): _description_
+    returns True
     """
     # Initialize variables
     ROBOT = drivebase
-    distance_travled = 0
     drive_speed = 20
     turn_factor = 10
     continue_driving = True
     straight_on_line = False
     start_zone = False
-    pickup_pallet = False
-    enter_pickup = False
 
     warehouse = colour_list[0]
     outside_warehouse = colour_list[1]
@@ -300,7 +290,6 @@ def warehouse_drive(light_sensor, drivebase, colour_list, elevated_surface):
     if warehouse[0] >= warehouse[2]:
         turn_direction = 1
         turn_factor = 3
-        # Say which warehouse you are in
         EV3.speaker.say('In the Red Warehouse')
         ROBOT.turn(-turn_direction*40)
         ROBOT.straight(90)
@@ -308,65 +297,59 @@ def warehouse_drive(light_sensor, drivebase, colour_list, elevated_surface):
     elif warehouse[2] >= warehouse[0]:
         turn_direction = 1
         turn_factor = 3
-        # Say which ware you are in
         EV3.speaker.say('In the Blue Warehouse')
 
-    # make a turn so that it's facing the middle of the warehouse
     ROBOT.reset()
     # Drive untill you find the yellow line
     while continue_driving is True:
         ROBOT.turn(turn_direction * turn_factor)
-        # Drive slightly towards the right untill it find white or the line
         # Check if the robot is on the line
         if colour_deviation(light_sensor.rgb(), line_warehouse, 5) is True:
             # If it is, stop the robot
             ROBOT.stop()
-            # Say that it has found the line
             EV3.screen.print('Line found')
-            # Wait for the robot to stop
             continue_driving = False
-    # Make sure it's straight on the yellow line
+    # Reset information so that the robot can get back out later
     ROBOT.reset()
     while straight_on_line is False:
-
-        # Check if the robot ses an object infront of it
+        # Check if the robot has an object infront of it
         if obstacle(300, "Driving", Ultrasonic_sensor) is True or button_pressed(Front_button) is True:
             # enter crane pickup
             EV3.screen.print('Pallet found')
             straight_on_line = True
+
         # If not, continue driving on the line until you reach white
         line_to_follow = colour_target(warehouse, line_warehouse)
         angle = angle_to_colour(line_to_follow, light_sensor.rgb())
         drive_speed = angle_to_speed(DRIVING_INITAL, angle, 1)
         ROBOT.drive(drive_speed, angle)
-    if elevated_surface:
-        pick_up_pallet()
-    crane_pickup(ROBOT, 0, warehouse, line_warehouse)
 
-    # Exit the zone
+    if elevated_surface:
+        pick_up_pallet(100, 15, TRUCK)
+    else:
+        crane_pickup(ROBOT, 0, warehouse, line_warehouse)
+
+    # Exit the zone, driving back 1.5 times the distance it has driven
     ROBOT.stop()
     distance_to_travel = -ROBOT.distance()
     for i in range(0, 15):
         ROBOT.straight(distance_to_travel/10)
+        # Searches for the line or white background
         if colour_deviation(light_sensor.rgb(), outside_warehouse, 6) is True \
                 or colour_deviation(light_sensor.rgb(), path_to_warehouse, 6):
             break
+
     # hardcoded turn so that it won't see the same colour again
     ROBOT.turn(turn_direction * 30)
+
+    # Turns until it finds the line
     while start_zone is False:
         ROBOT.turn(turn_direction * turn_factor*3)
         if colour_deviation(light_sensor.rgb(), path_to_warehouse, 6):
             start_zone = True
+
     ROBOT.stop()
     pass
-
-
-def zig_zag_angle(drivebase, colour_on_ground, turn_angle):
-    ROBOT = drivebase
-    # Turn the robot
-    ROBOT.turn(turn_angle)
-    # Wait
-    ROBOT.turn(-2*turn_angle)
 
 
 def Siren(beep_frequency, sine_frequency):
@@ -378,6 +361,7 @@ def Siren(beep_frequency, sine_frequency):
 
 
 def super_beep():
+    """Super beep, makes a speical beep sound effect"""
     for i in range(5):
         EV3.speaker.beep(500*i)
         wait(50)
@@ -441,4 +425,5 @@ def detect_item_fail(stat):
 if __name__ == '__main__':  # Keep this!
     sys.exit(main())
 
+# Play an end sound
 EV3.speaker.play_file(SoundFile.OVERPOWER)

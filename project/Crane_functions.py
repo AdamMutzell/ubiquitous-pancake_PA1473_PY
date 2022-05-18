@@ -16,35 +16,31 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 resting_angle = crane_motor.angle()
 
-elevated_offset = 0.0
-# all values in cm
-pallet_height = 15.5
-pallet_length = 10
+elevated_offset = 0.5
+#all values in cm
+pallet_height = 6.0
+pallet_length = 8.0
 
 pivot_height = 3.3
-fork_length = 15.0
-# ^do not set this to zero
-
+fork_length = 14.0
+#^do not set this to zero
 
 def set_crane_rotation(height, speed):
     catheus = (height - pivot_height) + elevated_offset
-    target_angle = math.degrees(math.asin(catheus/fork_length))
-    crane_motor.run_target(speed, target_angle, then=Stop.HOLD, wait=True)
-
-
-def pick_up_pallet(speed, Drivebase, timeout, height=pallet_height):
+    target_angle =  math.degrees(math.asin(catheus/fork_length))
+    crane_motor.run_target(speed,target_angle,then=Stop.HOLD,wait = True)
+    
+def pick_up_pallet(speed,timeout,truck,height= pallet_height):
     """timeout - maximum amount of iterations to look for button press before aborting"""
-    TRUCK = Drivebase
     set_crane_rotation(height, speed)
 
     while Front_button.pressed() == False or timeout <= 0:
-        TRUCK.straight(2)
+        truck.straight(2)
         timeout -= 1
-    set_crane_rotation(height + 5, speed*2)
-    TRUCK.straigth(-pallet_length)
-    set_crane_rotation(0, speed)
-    turn_around(TRUCK, Ultrasonic_sensor)
-
+    set_crane_rotation(height + 5,speed*2)
+    truck.straigth(-pallet_length)
+    set_crane_rotation(0,speed)
+    turn_around(truck,Ultrasonic_sensor)
 
 def crane_movement(direction, speed):  # Function for moving the crane up
     """
@@ -83,20 +79,13 @@ def crane_pickup(DriveBase, angle_of_crane, background, line_colour):
 
     Returns None
     """
-    # To do, check out stop function on target and stall limits
-    # Very incomplete code, sorry 'bout that.
-
     # Initializing the variables
     speed_of_crane = 50
-    raise_angle = 50
-    distance_traveled = 0
     ROBOT = DriveBase
     DRIVING_INITAL = 20
     pickupstatus = False
     pallet_found = button_pressed(Front_button)
 
-    # Seetings for the crane motor
-    #crane_motor.control.stall_tolerances(stall_limit=90, stall_time_limit=5000)
     # Raise the crane to the angle of the pallet
     crane_motor.run_target(speed=speed_of_crane,
                            target_angle=angle_of_crane, wait=False)
@@ -120,11 +109,10 @@ def crane_pickup(DriveBase, angle_of_crane, background, line_colour):
     EV3.speaker.beep()
     return pickupstatus
 
-# Function for moving the crane up
-# Might need to use run untill target as it goes full power
-
 
 def raise_incremental(angle_at_start):
+    """Raise the crane 10 degrees
+    """
     crane_motor.stop()
     angle = angle_at_start + 10
     current_angle = angle_at_start

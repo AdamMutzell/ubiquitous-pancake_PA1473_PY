@@ -46,18 +46,22 @@ def angle_to_colour(line_to_follow, color_on_ground):
 
     return -angle
 
-def curve(factor,x,m):
+
+def curve(factor, x, m):
     return factor * x**2+m
 
-def interpolate_motor_movement(initial_speed,target_angle,dampener_amount,motor):
+
+def interpolate_motor_movement(initial_speed, target_angle, dampener_amount, motor):
     moving = True
     iteration = 0
     while moving:
-        current_drive_speed = initial_speed * curve(-dampener_amount,iteration,1)
+        current_drive_speed = initial_speed * \
+            curve(-dampener_amount, iteration, 1)
         if motor.angle != target_angle:
             motor.run()
         iteration += 1
         wait(2)
+
 
 def angle_to_speed(speed, angle, factor):
     """
@@ -84,13 +88,14 @@ def turn_around(Drivebase, Ultrasonic_sensor):
     TRUCK = Drivebase
     while obstacle(300, "Driving", Ultrasonic_sensor) is True:
         wait(1000)
-    #TRUCK.straight(140)
+    # TRUCK.straight(140)
     TRUCK.turn(-90)
 
     while obstacle(300, "Driving", Ultrasonic_sensor) is True:
         wait(1000)
-    #TRUCK.straight(140)
+    # TRUCK.straight(140)
     TRUCK.turn(-90)
+
 
 def change_route(button_input, list_of_colors, current_color, other_route):
     if button_input == 'LEFT':
