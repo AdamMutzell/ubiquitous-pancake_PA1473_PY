@@ -233,6 +233,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
         # Check if we are at the end of the list
         if index_of_colours == len(list_of_colours) - 1:
             drive_check = False
+            break
 
         # drive the robot zig-zag style
         TRUCK.drive(40, turn*50)
@@ -250,6 +251,8 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
     if pickupstatus is False:
         pickupstatus = True
         reversed_list = list_of_colours[::-1]
+        reversed_list = reversed_list[1:]
+        reversed_list.append(list_of_colours[:-1])
         line_to_warehouse = reversed_list[0]
         colour_warehouse_list = [warehouse_colour,
                                  background_color, warehouse_line, line_to_warehouse]
@@ -282,19 +285,19 @@ def warehouse_drive(light_sensor, drivebase, colour_list, elevated_surface=False
 
     warehouse = colour_list[0]
     outside_warehouse = colour_list[1]
-    path_to_warehouse = colour_list[2]
-    line_warehouse = colour_list[3]
+    line_warehouse = colour_list[2]
+    path_to_warehouse = colour_list[3]
 
     # Check which way it's supposed to turn, depening on the warehouse
     # Red warehouse
-    if warehouse[0] >= warehouse[2]:
+    if path_to_warehouse[0] >= path_to_warehouse[2]:
         turn_direction = 1
         turn_factor = 3
         EV3.speaker.say('In the Red Warehouse')
         ROBOT.turn(-turn_direction*40)
         ROBOT.straight(90)
     # Blue warehouse
-    elif warehouse[2] >= warehouse[0]:
+    elif path_to_warehouse[2] >= path_to_warehouse[0]:
         turn_direction = 1
         turn_factor = 3
         EV3.speaker.say('In the Blue Warehouse')
