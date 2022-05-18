@@ -1,6 +1,5 @@
 #!/usr/bin/env pybricks-micropython
 #from ast import Try
-from cmath import inf
 from inspect import getfile
 import __init__
 import sys
@@ -35,7 +34,7 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 
 # Initizles colours and directions for the robot
-colour_history = [(math.inf, 0, 0) for i in range(4)]
+colour_history = [(float('inf'), 0, 0) for i in range(4)]
 print(colour_history)
 set_colours = {"Zone_1": (9, 34, 16), "Red": (74, 26, 44), "Dark_Blue": (11, 30, 54), "Light_Blue": (15, 35, 55),
                "Roundabout": (17, 18, 13),
@@ -92,7 +91,7 @@ def startup():
             print("Driving towards Red Warehouse")
             return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Red'],
                     set_colours['Warehouse_start']], set_colours['Background'],
-                    set_colours["Warehouse_red"], set_colours["Warehouse_line"], set_colours['Dark_Blue'])
+                    set_colours["Warehouse_red"], set_colours["Warehouse_line"])
         elif Button.RIGHT in EV3.buttons.pressed():
             # drive towards blue warehouse
             EV3.speaker.say('Driving towards Blue Warehouse')
@@ -101,7 +100,7 @@ def startup():
             print("Driving towards Blue Warehouse")
             return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Dark_Blue'], set_colours['Light_Blue'],
                     set_colours['Warehouse_start']], set_colours['Background'],
-                    set_colours["Warehouse_blue"], set_colours["Warehouse_line"], set_colours['Red'])
+                    set_colours["Warehouse_blue"], set_colours["Warehouse_line"])
 
 
 def main():  # Main Class
@@ -109,9 +108,9 @@ def main():  # Main Class
 
 
 def test_drive():
-    list_of_colours, colour_background, warehouse_colour, warehouse_line, alt_route = startup()
+    list_of_colours, colour_background, warehouse_colour, warehouse_line = startup()
     drive(list_of_colours, colour_background,
-          warehouse_colour, warehouse_line, alt_route)
+          warehouse_colour, warehouse_line)
 
 
 def test_warehouse():
@@ -126,7 +125,7 @@ def test_warehouse():
     warehouse_drive(light_sensor, TRUCK, colour_list)
 
 
-def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, alt_route):
+def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, pickupstatus=False):
     """
     list_rgb_colurs - list, containing the colours to be on the lockout for
     background_color - list, the colour to be used as background
@@ -265,6 +264,8 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
                                  background_color, warehouse_line, line_to_warehouse]
         warehouse_drive(light_sensor, TRUCK, colour_warehouse_list)
         # Call on drive with the reversed list of colours
+        drive(reversed_list, background_color,
+              warehouse_colour, warehouse_line, pickupstatus)
     else:
         # What to do when you have arrived at the pickup and delivery zone
         pass

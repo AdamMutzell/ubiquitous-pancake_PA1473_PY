@@ -5,10 +5,12 @@ from pybricks.parameters import Port
 
 light_sensor = ColorSensor(Port.S3)
 
-def set_colour_history(new_colour,colour_history):
+
+def set_colour_history(new_colour, colour_history):
     colour_history.append[new_colour]
     colour_history.pop[0]
     return colour_history
+
 
 def Calibrate_Colours(colour_labels, EV3):
     """
@@ -49,7 +51,7 @@ def Get_File():
             print('read')
             row = colour_item[:-1].split(":")
             label = row[0]
-            colour_string = row[1][1:-2].split(",")
+            colour_string = row[1][1:-1].split(",")
             print(colour_string)
             colour = []
             for value in colour_string:
@@ -65,6 +67,7 @@ def Get_File():
         print("no .txt file found! returning None")
         saved_colours = open("savedColours.txt", "x")
         return None
+
 
 def colour_deviation(colour_one, colour_two, deviation):
     """
