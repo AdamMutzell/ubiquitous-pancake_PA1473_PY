@@ -1,7 +1,4 @@
 #!/usr/bin/env pybricks-micropython
-from turtle import speed
-from matplotlib import offsetbox
-from pandas import pivot
 from pybricks.parameters import Stop
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor, ColorSensor, UltrasonicSensor
@@ -10,8 +7,6 @@ from pybricks.tools import wait
 from Sensor_functions import button_pressed
 from Drive_functions import angle_to_colour, colour_target, angle_to_speed, turn_around
 import math
-
-from project.main import TRUCK
 
 EV3 = EV3Brick()
 crane_motor = Motor(Port.A, gears=[12, 36])
@@ -30,14 +25,14 @@ pivot_height = 3.3
 fork_length = 14.0
 #^do not set this to zero
 
-def set_crane_rotation(height,speed):
+def set_crane_rotation(height, speed):
     catheus = (height - pivot_height) + elevated_offset
     target_angle =  math.degrees(math.asin(catheus/fork_length))
     crane_motor.run_target(speed,target_angle,then=Stop.HOLD,wait = True)
     
 def pick_up_pallet(speed,timeout,truck,height= pallet_height):
     """timeout - maximum amount of iterations to look for button press before aborting"""
-    set_crane_rotation(height,speed)
+    set_crane_rotation(height, speed)
 
     while Front_button.pressed() == False or timeout <= 0:
         truck.straight(2)

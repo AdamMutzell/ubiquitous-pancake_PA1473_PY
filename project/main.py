@@ -1,11 +1,10 @@
 #!/usr/bin/env pybricks-micropython
 #from ast import Try
-from cmath import inf
 from inspect import getfile
 import __init__
 import sys
 from Drive_functions import angle_to_colour, colour_target, angle_to_speed, change_route
-from Crane_functions import crane_movement, crane_pickup,pick_up_pallet
+from Crane_functions import crane_movement, crane_pickup, pick_up_pallet
 from Sensor_functions import button_pressed, obstacle
 from Colour_Manager import Calibrate_Colours, Get_File, colour_deviation, set_colour_history
 import math
@@ -92,7 +91,7 @@ def startup():
             print("Driving towards Red Warehouse")
             return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Red'],
                     set_colours['Warehouse_start']], set_colours['Background'],
-                    set_colours["Warehouse_red"], set_colours["Warehouse_line"], set_colours['Dark_Blue'])
+                    set_colours["Warehouse_red"], set_colours["Warehouse_line"])
         elif Button.RIGHT in EV3.buttons.pressed():
             # drive towards blue warehouse
             EV3.speaker.say('Driving towards Blue Warehouse')
@@ -101,17 +100,18 @@ def startup():
             print("Driving towards Blue Warehouse")
             return ([set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Dark_Blue'], set_colours['Light_Blue'],
                     set_colours['Warehouse_start']], set_colours['Background'],
-                    set_colours["Warehouse_blue"], set_colours["Warehouse_line"], set_colours['Red'])
+                    set_colours["Warehouse_blue"], set_colours["Warehouse_line"])
 
 
 def main():  # Main Class
-    test_drive()
+    pick_up_pallet(100,15,TRUCK)
+    #test_drive()
 
 
 def test_drive():
-    list_of_colours, colour_background, warehouse_colour, warehouse_line, alt_route = startup()
+    list_of_colours, colour_background, warehouse_colour, warehouse_line = startup()
     drive(list_of_colours, colour_background,
-          warehouse_colour, warehouse_line, alt_route)
+          warehouse_colour, warehouse_line)
 
 
 def test_warehouse():
@@ -126,7 +126,7 @@ def test_warehouse():
     warehouse_drive(light_sensor, TRUCK, colour_list)
 
 
-def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, alt_route):
+def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, pickupstatus=False):
     """
     list_rgb_colurs - list, containing the colours to be on the lockout for
     background_color - list, the colour to be used as background
@@ -143,11 +143,10 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
     list_of_colours = list_rgb_colurs
     index_of_colours = 0
     drive_check = True
-    colour_warehouse_list = []
-    target = "not set"
     # Update to be a variable that is set by the startup function
     colour_one = background_color
     colour_two = list_of_colours[0]
+    pickupstatus = False
 
     color_rgb = light_sensor.rgb()
 
@@ -157,7 +156,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
     while drive_check is True:
 
         if siren_active:
-            Siren(400,0.5)
+            Siren(400, 0.5)
         # Check the line it's following
         colour_two = list_of_colours[index_of_colours]
 
@@ -172,35 +171,30 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
             # Say that it has changed colours
             EV3.screen.print('New colour found')
             print("New colour found")
-            
-            set_colour_history(colour_two,colour_history)
-            
+
+            set_colour_history(colour_two, colour_history)
+
             TRUCK.straight(75)
             turn = -1
             seen_line = False
+        if Button.UP in EV3.buttons.pressed():
+            elevated_pallet = not elevated_pallet
+            EV3.speaker.say("elevated_pallet set to: " + str(elevated_pallet))
 
         # Check if we want to change route
         if Button.LEFT in EV3.buttons.pressed():
-            if target == "Red":#if button is pressed twice
-                elevated_pallet = not elevated_pallet
-                print("elevated_pallet set to: ",elevated_pallet)
-            else:
-                target = "Red"
-                TRUCK.stop()
-                EV3.speaker.say("elevated_pallet set to: "+str(elevated_pallet))
-                list_of_colours = [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Red'],
-                        set_colours['Warehouse_start']]
+            TRUCK.stop()
+            EV3.speaker.say("Change Route to Red Warehouse")
+            list_of_colours = [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Red'],
+                                set_colours['Warehouse_start']]
+            wait(100)
         elif Button.RIGHT in EV3.buttons.pressed():
-            if target == "Blue":#if button is pressed twice
-                elevated_pallet = not elevated_pallet
-                EV3.speaker.say("elevated_pallet set to: "+str(elevated_pallet))
-            else:
-                target = "Blue"
-                TRUCK.stop()
-                EV3.speaker.say("Change Route to Blue Warehouse")
-                list_of_colours = [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Dark_Blue'], set_colours['Light_Blue'],
-                        set_colours['Warehouse_start']]
 
+            TRUCK.stop()
+            EV3.speaker.say("Change Route to Blue Warehouse")
+            list_of_colours = [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Dark_Blue'], set_colours['Light_Blue'],
+                                set_colours['Warehouse_start']]
+            wait(100)
         elif Button.DOWN in EV3.buttons.pressed() and pickupstatus == True:
             TRUCK.stop()
             EV3.speaker.say('Putting down object')
@@ -259,16 +253,18 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, a
         reversed_list = list_of_colours[::-1]
         line_to_warehouse = reversed_list[0]
         colour_warehouse_list = [warehouse_colour,
-                                 warehouse_line, background_color, line_to_warehouse]
+                                 background_color, warehouse_line, line_to_warehouse]
         warehouse_drive(light_sensor, TRUCK, colour_warehouse_list)
         # Call on drive with the reversed list of colours
+        drive(reversed_list, background_color,
+              warehouse_colour, warehouse_line, pickupstatus)
     else:
         # What to do when you have arrived at the pickup and delivery zone
         pass
     return None
 
 
-def warehouse_drive(light_sensor, drivebase, colour_list,elevated_surface):
+def warehouse_drive(light_sensor, drivebase, colour_list, elevated_surface):
     """_summary_
 
     Args:
