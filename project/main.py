@@ -103,8 +103,7 @@ def startup():
 
 
 def main():  # Main Class
-    pick_up_pallet(100, 15, TRUCK)
-    super_beep(1000)
+    pick_up_pallet(10000, 15, TRUCK)
     # test_drive()
 
 

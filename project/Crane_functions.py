@@ -6,6 +6,7 @@ from pybricks.parameters import Port
 from pybricks.tools import wait
 from Sensor_functions import button_pressed
 from Drive_functions import angle_to_colour, colour_target, angle_to_speed, turn_around
+from Beep_Pack import *
 import math
 
 EV3 = EV3Brick()
@@ -18,8 +19,8 @@ resting_angle = crane_motor.angle()
 
 elevated_offset = 0.5
 #all values in cm
-pallet_height = 12.0
-pallet_length = 8.0
+pallet_height = 11.0
+pallet_length = 6.0
 
 pivot_height = 3.3
 fork_length = 14.0
@@ -36,15 +37,16 @@ def set_crane_rotation(height, speed):
     
 def pick_up_pallet(speed,timeout,truck,height= pallet_height):
     """timeout - maximum amount of iterations to look for button press before aborting"""
-    print(crane_motor.angle())
     set_crane_rotation(height, speed)
     while Front_button.pressed() == False or timeout > 0:
         truck.drive(10,0)
         timeout -= 1
-        print(Front_button.pressed())
         wait(10)
+    super_beep(1000)
+    
     truck.stop()
-    set_crane_rotation(height,speed)
+    set_crane_rotation(height+3,speed)
+    crane_motor.hold()
     truck.straight(-pallet_length*10)
     set_crane_rotation(0,speed)
     turn_around(truck,Ultrasonic_sensor)

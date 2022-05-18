@@ -4,7 +4,7 @@ import math
 import time
 
 brick = EV3Brick()
-def Siren(beep_frequency, sine_frequency,brick):
+def Siren(beep_frequency, sine_frequency):
     """call this inside a while loop for desired effect"""
     threshold = 0.8
     sine_wave = abs(math.sin(time.time()*sine_frequency))
