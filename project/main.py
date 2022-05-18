@@ -102,7 +102,7 @@ def startup():
 
 
 def main():  # Main Class
-    pick_up_pallet(100, 15, TRUCK)
+    test_drive()
     # test_drive()
 
 
@@ -173,7 +173,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
 
             colour_history = set_colour_history(colour_two, colour_history)
 
-            TRUCK.straight(75)
+            TRUCK.straight(30)
             turn = 1
             seen_line = False
         if Button.UP in EV3.buttons.pressed():
@@ -235,14 +235,14 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
             drive_check = False
 
         # drive the robot zig-zag style
-        TRUCK.drive(40, turn*60)
+        TRUCK.drive(40, turn*50)
         # Checks if the sensor is passes the line
-        on_line = colour_deviation(color_rgb, colour_two, 13)
+        on_line = colour_deviation(color_rgb, colour_two, 8)
         # If the sensor has passed line we set it as seen
         if on_line == True and seen_line == False:
             seen_line = True
         # If it has seen the line and passed it the direction of th turn is changed
-        if colour_deviation(color_rgb, colour_two, 15) == False and seen_line == True:
+        if colour_deviation(color_rgb, background_color, 10) == True and seen_line == True:
             turn = -turn
             seen_line = False
     # Needs to contatin, the colour of the warehouse, the line in the warehouse,
