@@ -7,6 +7,9 @@ from pybricks.media.ev3dev import SoundFile
 from Sensor_functions import obstacle
 import math
 
+from Beep_Pack import Siren
+
+
 EV3 = EV3Brick()
 
 
@@ -89,12 +92,12 @@ def turn_around(Drivebase, Ultrasonic_sensor):
 
     TRUCK = Drivebase
     while obstacle(300, "Driving", Ultrasonic_sensor) is True:
-        wait(1000)
+        Siren(500,0.5)
     # TRUCK.straight(140)
     TRUCK.turn(-90)
 
     while obstacle(300, "Driving", Ultrasonic_sensor) is True:
-        wait(1000)
+        Siren(500,0.5)
     # TRUCK.straight(140)
     TRUCK.turn(-90)
 

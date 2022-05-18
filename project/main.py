@@ -2,6 +2,7 @@
 #from ast import Try
 import __init__
 import sys
+from Beep_Pack import *
 from Drive_functions import angle_to_colour, colour_target, angle_to_speed, change_route
 from Crane_functions import crane_movement, crane_pickup, pick_up_pallet
 from Sensor_functions import button_pressed, obstacle
@@ -102,7 +103,7 @@ def startup():
 
 
 def main():  # Main Class
-    test_drive()
+    pick_up_pallet(10000, 15, TRUCK)
     # test_drive()
 
 
@@ -179,6 +180,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
         if Button.UP in EV3.buttons.pressed():
             elevated_pallet = not elevated_pallet
             EV3.speaker.say("elevated_pallet set to: " + str(elevated_pallet))
+            wait(50)
 
         # Check if we want to change route
         if Button.LEFT in EV3.buttons.pressed():
@@ -227,7 +229,8 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
         if obstacle(100, "Driving", Ultrasonic_sensor) is True:
             TRUCK.stop()
             EV3.speaker.say("There is an obstacle")
-            EV3.speaker.play_file(SoundFile.OVERPOWER)
+            #EV3.speaker.play_file(SoundFile.OVERPOWER)
+            Siren(1000,0.5)
             TRUCK.stop()
         
         if detect_item(pickupstatus) == False:
@@ -261,7 +264,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
         line_to_warehouse = reversed_list[0]
         colour_warehouse_list = [warehouse_colour,
                                  background_color, warehouse_line, line_to_warehouse]
-        warehouse_drive(light_sensor, TRUCK, colour_warehouse_list)
+        warehouse_drive(light_sensor, TRUCK, colour_warehouse_list,elevated_pallet)
         # Call on drive with the reversed list of colours
         drive(reversed_list, background_color,
               warehouse_colour, warehouse_line, pickupstatus)
@@ -358,22 +361,6 @@ def warehouse_drive(light_sensor, drivebase, colour_list, elevated_surface=False
 
     ROBOT.stop()
     pass
-
-
-def Siren(beep_frequency, sine_frequency):
-    """call this inside a while loop for desired effect"""
-    threshold = 0.8
-    sine_wave = abs(math.sin(time.time()*sine_frequency))
-    if sine_wave >= threshold:
-        EV3.speaker.beep(beep_frequency)
-
-
-def super_beep():
-    """Super beep, makes a speical beep sound effect"""
-    for i in range(5):
-        EV3.speaker.beep(500*i)
-        wait(50)
-
 
 def get_direction_towards(_colour_history):
     direction = "unknown"
