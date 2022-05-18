@@ -232,6 +232,11 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
             #EV3.speaker.play_file(SoundFile.OVERPOWER)
             Siren(1000,0.5)
             TRUCK.stop()
+        
+        if detect_item(pickupstatus) == False:
+            while Button.CENTER not in EV3.buttons.pressed():
+                
+
 
         # Check if we are at the end of the list
         if index_of_colours == len(list_of_colours) - 1:
@@ -247,8 +252,8 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
             seen_line = True
         # If it has seen the line and passed it the direction of th turn is changed
         if colour_deviation(color_rgb, background_color, 10) == True and seen_line == True:
-            turn = -turn
             seen_line = False
+            turn = -turn
     # Needs to contatin, the colour of the warehouse, the line in the warehouse,
     # the background and the line to the warehouse
     if pickupstatus is False:
@@ -294,14 +299,14 @@ def warehouse_drive(light_sensor, drivebase, colour_list, elevated_surface=False
     # Check which way it's supposed to turn, depening on the warehouse
     # Red warehouse
     if path_to_warehouse[0] >= path_to_warehouse[2]:
-        turn_direction = 1
+        turn_direction = -1
         turn_factor = 3
         EV3.speaker.say('In the Red Warehouse')
         ROBOT.turn(-turn_direction*40)
         ROBOT.straight(90)
     # Blue warehouse
     elif path_to_warehouse[2] >= path_to_warehouse[0]:
-        turn_direction = 1
+        turn_direction = -1
         turn_factor = 3
         EV3.speaker.say('In the Blue Warehouse')
 
@@ -386,7 +391,7 @@ def try_exit_zone(colour_history):
     wait(100)
 
 
-def detect_item_fail(stat):
+def detect_item(status):
     """
     pickupstatus - boolean, True if the truck is currently picking up an item
     button, a class handling the front button of the robot
@@ -394,14 +399,16 @@ def detect_item_fail(stat):
     Returns True if the pickup has failed, False otherwise
     """
     global start_time
-    if stat == True:
+    if status == True:
         if button_pressed(Front_button) == False:
             # For the first iteration, start the timer.
             if start_time == None:
                 start_time = time.time()
-            # If an object haven't been on the crane for 5 seconds, make a sound
+            # If an object haven't been on the crane for 5 seconds, make a sound and stop the truck
             if time.time() - start_time > 5:
+                TRUCK.stop()
                 super_beep()
+                EV3.speaker.say('Emergency mode, press center button to continue')
                 start_time = None
             else:
                 return True
