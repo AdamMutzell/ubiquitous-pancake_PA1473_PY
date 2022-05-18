@@ -34,10 +34,12 @@ def angle_to_colour(line_to_follow, color_on_ground):
 
     Returns the estimated angle between the two colours
     """
+
     angle = 0
     hue_diffrence = color_on_ground[0] - line_to_follow[0]
     saturation_diffrence = color_on_ground[1] - line_to_follow[1]
     value_diffrence = color_on_ground[2] - line_to_follow[2]
+
     # Get a value that is between -1 and 1
     sum_of_diffrence = (
         hue_diffrence + saturation_diffrence + value_diffrence) / 300

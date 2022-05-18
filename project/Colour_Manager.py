@@ -24,7 +24,6 @@ def Calibrate_Colours(colour_labels, EV3):
     for label in colour_labels.keys():
         print("set colour for: "+label)
         EV3.screen.print(label)
-        # add robot voice command here?
         wait(500)
         running = True
         while running:
@@ -80,6 +79,7 @@ def colour_deviation(colour_one, colour_two, deviation):
     # Check if the colours are simillar enough
     acceptable_deviation = False
 
+    # Takes all the RGB values and compares them
     r_colour_one = colour_one[0]
     g_colour_one = colour_one[1]
     b_colour_one = colour_one[2]
@@ -92,6 +92,7 @@ def colour_deviation(colour_one, colour_two, deviation):
     g_deviation = abs(g_colour_one - g_colour_two)
     b_deviation = abs(b_colour_one - b_colour_two)
 
+    # If the deviation is less than the allowed deviation, the colours are simillar enough
     if r_deviation > deviation:
         acceptable_deviation = False
     elif g_deviation > deviation:
