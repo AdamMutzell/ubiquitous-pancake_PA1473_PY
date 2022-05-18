@@ -179,18 +179,20 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
             seen_line = False
         if Button.UP in EV3.buttons.pressed():
             elevated_pallet = not elevated_pallet
+            TRUCK.stop()
             EV3.speaker.say("elevated_pallet set to: " + str(elevated_pallet))
             wait(50)
 
         # Check if we want to change route
         if Button.LEFT in EV3.buttons.pressed():
+            EV3.light.on(Color.RED)
             TRUCK.stop()
             EV3.speaker.say("Change Route to Red Warehouse")
             list_of_colours = [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Red'],
                                set_colours['Warehouse_start']]
             wait(100)
         elif Button.RIGHT in EV3.buttons.pressed():
-
+            EV3.light.on(Color.BLUE)
             TRUCK.stop()
             EV3.speaker.say("Change Route to Blue Warehouse")
             list_of_colours = [set_colours['Zone_1'], set_colours['Roundabout'], set_colours['Dark_Blue'], set_colours['Light_Blue'],
