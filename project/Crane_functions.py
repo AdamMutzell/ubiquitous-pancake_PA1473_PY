@@ -45,7 +45,7 @@ def pick_up_pallet(speed,timeout,truck,height= pallet_height):
     super_beep(1000)
     
     truck.stop()
-    set_crane_rotation(height+3,speed)
+    set_crane_rotation(height+5,speed)
     crane_motor.hold()
     truck.straight(-pallet_length*10)
     set_crane_rotation(0,speed)
