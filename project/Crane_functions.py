@@ -21,13 +21,13 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 resting_angle = crane_motor.angle()
 
-elevated_offset = 0.0
+elevated_offset = 0.5
 #all values in cm
-pallet_height = 15.5
-pallet_length = 10
+pallet_height = 6.0
+pallet_length = 8.0
 
 pivot_height = 3.3
-fork_length = 15.0
+fork_length = 14.0
 #^do not set this to zero
 
 def set_crane_rotation(height,speed):
@@ -35,17 +35,17 @@ def set_crane_rotation(height,speed):
     target_angle =  math.degrees(math.asin(catheus/fork_length))
     crane_motor.run_target(speed,target_angle,then=Stop.HOLD,wait = True)
     
-def pick_up_pallet(speed,timeout,height= pallet_height):
+def pick_up_pallet(speed,timeout,truck,height= pallet_height):
     """timeout - maximum amount of iterations to look for button press before aborting"""
     set_crane_rotation(height,speed)
 
     while Front_button.pressed() == False or timeout <= 0:
-        TRUCK.straight(2)
+        truck.straight(2)
         timeout -= 1
     set_crane_rotation(height + 5,speed*2)
-    TRUCK.straigth(-pallet_length)
+    truck.straigth(-pallet_length)
     set_crane_rotation(0,speed)
-    turn_around(TRUCK,Ultrasonic_sensor)
+    turn_around(truck,Ultrasonic_sensor)
 
 def crane_movement(direction, speed):  # Function for moving the crane up
     """

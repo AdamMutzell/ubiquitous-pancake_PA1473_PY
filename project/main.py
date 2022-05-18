@@ -35,7 +35,7 @@ Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 
 # Initizles colours and directions for the robot
-colour_history = [(math.inf,0,0) for i in range(4)]
+colour_history = [(float('inf'),0,0) for i in range(4)]
 print(colour_history)
 set_colours = {"Zone_1": (9, 34, 16), "Red": (74, 26, 44), "Dark_Blue": (11, 30, 54), "Light_Blue": (15, 35, 55),
                "Roundabout": (17, 18, 13),
@@ -335,7 +335,7 @@ def warehouse_drive(light_sensor, drivebase, colour_list,elevated_surface):
         drive_speed = angle_to_speed(DRIVING_INITAL, angle, 1)
         ROBOT.drive(drive_speed, angle)
     if elevated_surface:
-        pick_up_pallet()
+        pick_up_pallet(100,15,TRUCK)
     crane_pickup(ROBOT, 0, warehouse, line_warehouse)
 
     # Exit the zone
