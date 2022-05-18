@@ -39,7 +39,7 @@ def pick_up_pallet(speed,timeout,truck,height= pallet_height):
     print(crane_motor.angle())
     set_crane_rotation(height, speed)
     while Front_button.pressed() == False or timeout > 0:
-        truck.drive(1,0)
+        truck.drive(10,0)
         timeout -= 1
         print(Front_button.pressed())
         wait(10)

@@ -2,6 +2,7 @@
 #from ast import Try
 import __init__
 import sys
+from Beep_Pack import *
 from Drive_functions import angle_to_colour, colour_target, angle_to_speed, change_route
 from Crane_functions import crane_movement, crane_pickup, pick_up_pallet
 from Sensor_functions import button_pressed, obstacle
@@ -259,7 +260,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
         line_to_warehouse = reversed_list[0]
         colour_warehouse_list = [warehouse_colour,
                                  background_color, warehouse_line, line_to_warehouse]
-        warehouse_drive(light_sensor, TRUCK, colour_warehouse_list)
+        warehouse_drive(light_sensor, TRUCK, colour_warehouse_list,elevated_pallet)
         # Call on drive with the reversed list of colours
         drive(reversed_list, background_color,
               warehouse_colour, warehouse_line, pickupstatus)
@@ -356,22 +357,6 @@ def warehouse_drive(light_sensor, drivebase, colour_list, elevated_surface=False
 
     ROBOT.stop()
     pass
-
-
-def Siren(beep_frequency, sine_frequency):
-    """call this inside a while loop for desired effect"""
-    threshold = 0.8
-    sine_wave = abs(math.sin(time.time()*sine_frequency))
-    if sine_wave >= threshold:
-        EV3.speaker.beep(beep_frequency)
-
-
-def super_beep():
-    """Super beep, makes a speical beep sound effect"""
-    for i in range(5):
-        EV3.speaker.beep(500*i)
-        wait(50)
-
 
 def get_direction_towards(_colour_history):
     direction = "unknown"
