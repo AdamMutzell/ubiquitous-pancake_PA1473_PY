@@ -83,20 +83,13 @@ def crane_pickup(DriveBase, angle_of_crane, background, line_colour):
 
     Returns None
     """
-    # To do, check out stop function on target and stall limits
-    # Very incomplete code, sorry 'bout that.
-
     # Initializing the variables
     speed_of_crane = 50
-    raise_angle = 50
-    distance_traveled = 0
     ROBOT = DriveBase
     DRIVING_INITAL = 20
     pickupstatus = False
     pallet_found = button_pressed(Front_button)
 
-    # Seetings for the crane motor
-    #crane_motor.control.stall_tolerances(stall_limit=90, stall_time_limit=5000)
     # Raise the crane to the angle of the pallet
     crane_motor.run_target(speed=speed_of_crane,
                            target_angle=angle_of_crane, wait=False)
@@ -120,11 +113,10 @@ def crane_pickup(DriveBase, angle_of_crane, background, line_colour):
     EV3.speaker.beep()
     return pickupstatus
 
-# Function for moving the crane up
-# Might need to use run untill target as it goes full power
-
 
 def raise_incremental(angle_at_start):
+    """Raise the crane 10 degrees
+    """
     crane_motor.stop()
     angle = angle_at_start + 10
     current_angle = angle_at_start
