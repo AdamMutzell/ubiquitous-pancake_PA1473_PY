@@ -15,8 +15,7 @@ def set_colour_history(new_colour, colour_history):
 def Calibrate_Colours(colour_labels, EV3):
     """
     Enter a calibraton mode where the user must press a button on the brick and set the colour value for each individual colour reading.
-
-    Returns a dictionary of colour_labels and saves to txt file
+    Returns a dictionary of colour_labels and/or saves to txt file
     """
     selected_colour = ()
     saved_colours = open("savedColours.txt", "w")
