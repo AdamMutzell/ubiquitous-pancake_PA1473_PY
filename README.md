@@ -20,7 +20,7 @@ This system is being developed for the purpose of increasing the effectiveness o
 - [x] Have a truck follow a predetermined path.
 - [x] Have a truck follow a specified path from multiple options.
 - [x] Have a truck pick up an item from an elevated surface.
-- [x] Have a truck recognize that the picking-up of an item failed.
+- [ ] Have a truck recognize that the picking-up of an item failed.
 - [x] Have a truck recognize a misplaced item.
 - [x] Have trucks avoid collisions of trucks.
 - [x] Specify what color of object that the truck shall collect.
@@ -28,8 +28,8 @@ This system is being developed for the purpose of increasing the effectiveness o
 - [x] Change the color specification of a pickup-item without aborting the operation.
 - [x] Be notified if a truck have left the specified area.
 - [x] Be informed by what operation a truck is performing.
-- [ ] Exit the specified area in a safe manner.
+- [x] Exit the specified area in a safe manner.
 - [x] Return to the specified area in a safe manner.
-- [ ] Emergency mode, return to the start position when it drops a pallet (Pickup and delivery)
+- [x] Emergency mode, return to the start position when it drops a pallet (Pickup and delivery)
 - [x] Have a truck pickup a item with a specified color (by zone)
-- [ ] Optimize the time it takes to collect a pickup-item.
+- [x] Optimize the time it takes to collect a pickup-item.
