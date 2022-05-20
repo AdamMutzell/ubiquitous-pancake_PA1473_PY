@@ -220,16 +220,15 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
 
         # Emergency mode
 
-        # if pickupstatus is True and detect_item_fail(Front_button, pickupstatus) is False:
-        #    pickupstatus = False
-        #    EV3.screen.print('Driving back')
-        #    TRUCK.turn(180)
-        #    reversed_list = list_rgb_colurs[0:index_of_colours]
-        #    reversed_list = reversed_list[::-1]
-        #    siren_active = True
-        #    drive(reversed_list, background_color,
-        #          warehouse_colour, warehouse_line, EV3)
-        #           """"
+        if pickupstatus is True and detect_item(Front_button, pickupstatus) is False:
+            pickupstatus = False
+            EV3.screen.print('Driving back')
+            TRUCK.turn(180)
+            reversed_list = list_rgb_colurs[0:index_of_colours]
+            reversed_list = reversed_list[::-1]
+            siren_active = True
+            drive(reversed_list, background_color,
+                  warehouse_colour, warehouse_line, EV3)
 
         if obstacle(100, "Driving", Ultrasonic_sensor) is True:
             TRUCK.stop()

@@ -51,23 +51,6 @@ def angle_to_colour(line_to_follow, color_on_ground):
 
     return -angle
 
-
-def curve(factor, x, m):
-    return factor * x**2+m
-
-
-def interpolate_motor_movement(initial_speed, target_angle, dampener_amount, motor):
-    moving = True
-    iteration = 0
-    while moving:
-        current_drive_speed = initial_speed * \
-            curve(-dampener_amount, iteration, 1)
-        if motor.angle != target_angle:
-            motor.run()
-        iteration += 1
-        wait(2)
-
-
 def angle_to_speed(speed, angle, factor):
     """
     speed - int, the speed to be used
