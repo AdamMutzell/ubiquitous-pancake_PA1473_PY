@@ -17,9 +17,6 @@ def button_pressed(Front_button):  # Function for detecting button press
     else:
         return False
 
-# Function for detecting obstacles and stopping the robot.
-
-
 def obstacle(accepted_distance, current_mode, sensor):
     """
     accepted_distance - int, the distance to not accept any obstacles
@@ -32,7 +29,3 @@ def obstacle(accepted_distance, current_mode, sensor):
     if distance < accepted_distance and current_mode == "Driving":
         return True
     return False
-
-
-# Function for detecting if a pickup of an item has failed
-# Might be worth adding a check for the duty limit of a crane

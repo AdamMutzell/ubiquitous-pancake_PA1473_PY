@@ -6,6 +6,7 @@ from pybricks.parameters import Port
 from pybricks.tools import wait
 from Sensor_functions import button_pressed
 from Drive_functions import angle_to_colour, colour_target, angle_to_speed, turn_around
+from Beep_Pack import *
 import math
 
 EV3 = EV3Brick()
@@ -18,8 +19,8 @@ resting_angle = crane_motor.angle()
 
 elevated_offset = 0.5
 #all values in cm
-pallet_height = 6.0
-pallet_length = 8.0
+pallet_height = 11.0
+pallet_length = 6.0
 
 pivot_height = 3.3
 fork_length = 14.0
@@ -27,25 +28,32 @@ fork_length = 14.0
 
 def set_crane_rotation(height, speed):
     catheus = (height - pivot_height) + elevated_offset
-    target_angle =  math.degrees(math.asin(catheus/fork_length))
+    if catheus > 0:
+        target_angle =  math.degrees(math.asin(catheus/fork_length))
+    else:
+        target_angle = 0
+    print(target_angle)
     crane_motor.run_target(speed,target_angle,then=Stop.HOLD,wait = True)
     
 def pick_up_pallet(speed,timeout,truck,height= pallet_height):
     """timeout - maximum amount of iterations to look for button press before aborting"""
     set_crane_rotation(height, speed)
-
-    while Front_button.pressed() == False or timeout <= 0:
-        truck.straight(2)
+    while Front_button.pressed() == False or timeout > 0:
+        truck.drive(10,0)
         timeout -= 1
-    set_crane_rotation(height + 5,speed*2)
-    truck.straigth(-pallet_length)
+        wait(10)
+    super_beep(1000)
+    
+    truck.stop()
+    set_crane_rotation(height+5,speed)
+    crane_motor.hold()
+    truck.straight(-pallet_length*10)
     set_crane_rotation(0,speed)
     turn_around(truck,Ultrasonic_sensor)
 
 def crane_movement(direction, speed):  # Function for moving the crane up
     """
-    Crane_port - Class contatning the port, containing the port of the crane
-    direction, a value between -1 and 1, indicating the direction of the movement
+    direction, a value between -1 and 1, the direction of the movement
     speed, a value between 0 and 100, indicating the speed of the movement
     Returns an angle of the crane at it's maximum angle
     """
@@ -70,14 +78,8 @@ def crane_hold():  # Function for moving the crane up
 
 def crane_pickup(DriveBase, angle_of_crane, background, line_colour):
     """
-    Crane_port - Class containing the port, containing the port of the crane
     DriveBase - Class that handles the drving of the robot
-    Front_button - Class that handles the button on the front of the robot
     angle_of_crane - Int, containing the angle the crane should be
-    max_angle - int, containing the maximum angle the crane can be
-    min_angle - int, containing the minimum angle the crane can be
-
-    Returns None
     """
     # Initializing the variables
     speed_of_crane = 50
