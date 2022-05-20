@@ -53,8 +53,7 @@ def pick_up_pallet(speed,timeout,truck,height= pallet_height):
 
 def crane_movement(direction, speed):  # Function for moving the crane up
     """
-    Crane_port - Class contatning the port, containing the port of the crane
-    direction, a value between -1 and 1, indicating the direction of the movement
+    direction, a value between -1 and 1, the direction of the movement
     speed, a value between 0 and 100, indicating the speed of the movement
     Returns an angle of the crane at it's maximum angle
     """
@@ -79,14 +78,8 @@ def crane_hold():  # Function for moving the crane up
 
 def crane_pickup(DriveBase, angle_of_crane, background, line_colour):
     """
-    Crane_port - Class containing the port, containing the port of the crane
     DriveBase - Class that handles the drving of the robot
-    Front_button - Class that handles the button on the front of the robot
     angle_of_crane - Int, containing the angle the crane should be
-    max_angle - int, containing the maximum angle the crane can be
-    min_angle - int, containing the minimum angle the crane can be
-
-    Returns None
     """
     # Initializing the variables
     speed_of_crane = 50

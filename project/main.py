@@ -18,10 +18,10 @@ from pybricks.media.ev3dev import SoundFile
 
 from project.Crane_functions import set_crane_rotation
 
-# Initialise the EV3
+# Reference to our brick 
 EV3 = EV3Brick()
 
-# Initialzie the components of the robot
+# Initialize the components of the robot
 Crane_motor = Motor(Port.A, gears=[12, 36])
 Right_drive = Motor(
     Port.B, positive_direction=Direction.COUNTERCLOCKWISE, gears=[12, 20])
@@ -33,7 +33,7 @@ light_sensor = ColorSensor(Port.S3)
 Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
 
-# Initizles colours and directions for the robot
+# Initializes colours and directions for the robot
 colour_history = [(0, 0, 0) for i in range(4)]
 print(colour_history)
 set_colours = {"Zone_1": (9, 34, 16), "Red": (74, 26, 44), "Dark_Blue": (11, 30, 54), "Light_Blue": (15, 35, 55),
@@ -41,7 +41,7 @@ set_colours = {"Zone_1": (9, 34, 16), "Red": (74, 26, 44), "Dark_Blue": (11, 30,
                "Warehouse_line": (58, 53, 12), "Warehouse_start": (5, 6, 80), "Warehouse_blue": (7, 8, 13), "Warehouse_red": (14, 9, 13),
                "Background": (74, 87, 100)}
 
-# Initizles variables
+
 pickupstatus = False
 start_time = None
 turn = -1
@@ -65,7 +65,7 @@ def startup():
     ...choose to calibrate, or use a previously saved file.
     ...drive twoards a specfic place in the warehouse.
 
-    Returns a list of colours, the background colour, the warehouse colour, and the warehouse line colour
+    Returns a list of colours, describing the order of colours the robot should follow as a path
     """
     running = True
 
@@ -75,9 +75,9 @@ def startup():
     while running:
         if Button.UP in EV3.buttons.pressed():
             # kör igång kalibrering
-            EV3.speaker.say('Calibration start')
+            EV3.speaker.say('Calibration started')
             EV3.speaker.play_file(SoundFile.READY)
-            EV3.screen.print('Calibration start')
+            EV3.screen.print('Calibration started')
             print("Calibration started")
             set_colours = Calibrate_Colours(set_colours, EV3)
             wait(400)
@@ -108,7 +108,6 @@ def startup():
 
 def main():  # Main Class
     test_drive()
-    # test_drive()
 
 
 def test_drive():
@@ -133,7 +132,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
     """
     list_rgb_colurs - list, containing the colours to be on the lockout for
     background_color - list, the colour to be used as background
-    Drives the robot towards the target zone, using a list of colours to determine it's path.
+    Drives the robot towards the target zone, using the list of colours given to determine it's path.
     Returns nothing.
     """
     angle = 0
@@ -250,17 +249,15 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
 
         # drive the robot zig-zag style
         TRUCK.drive(40, turn*50)
-        # Checks if the sensor is passes the line
         on_line = colour_deviation(color_rgb, colour_two, 9)
         # If the sensor has passed line we set it as seen
         if on_line == True and seen_line == False:
             seen_line = True
-        # If it has seen the line and passed it the direction of th turn is changed
+        # If it has seen the line and passed it, the direction of turn gets reversed
         if colour_deviation(color_rgb, background_color, 10) == True and seen_line == True:
             seen_line = False
             turn = -turn
-    # Needs to contatin, the colour of the warehouse, the line in the warehouse,
-    # the background and the line to the warehouse
+
     if pickupstatus is False:
         pickupstatus = True
         reversed_list = list_of_colours[::-1]
@@ -274,9 +271,7 @@ def drive(list_rgb_colurs, background_color, warehouse_colour, warehouse_line, p
         print(reversed_list)
         drive(reversed_list, background_color,
               warehouse_colour, warehouse_line, pickupstatus)
-    else:
-        # What to do when you have arrived at the pickup and delivery zone
-        pass
+
     return None
 
 
@@ -286,10 +281,7 @@ def warehouse_drive(light_sensor, drivebase, colour_list, elevated_surface=False
     drivebase - Class, contating the drivebase
     colour_list - List, contating the colours that are relvant
     elevated_surface - Boolean, contating if the pallet is elevated
-
-    returns True
     """
-    # Initialize variables
     ROBOT = drivebase
     drive_speed = 20
     turn_factor = 10
@@ -329,7 +321,7 @@ def warehouse_drive(light_sensor, drivebase, colour_list, elevated_surface=False
     # Reset information so that the robot can get back out later
     ROBOT.reset()
     while straight_on_line is False:
-        # Check if the robot has an object infront of it
+        # Check if the robot has an object in front of it
         if obstacle(300, "Driving", Ultrasonic_sensor) is True or button_pressed(Front_button) is True:
             # enter crane pickup
             EV3.screen.print('Pallet found')
@@ -366,7 +358,6 @@ def warehouse_drive(light_sensor, drivebase, colour_list, elevated_surface=False
             start_zone = True
 
     ROBOT.stop()
-    pass
 
 def get_direction_towards(_colour_history):
     direction = "unknown"
@@ -399,9 +390,6 @@ def try_exit_zone(colour_history):
 
 def detect_item(status):
     """
-    pickupstatus - boolean, True if the truck is currently picking up an item
-    button, a class handling the front button of the robot
-
     Returns True if the pickup has failed, False otherwise
     """
     global start_time

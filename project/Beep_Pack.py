@@ -20,6 +20,7 @@ def super_beep(frequency):
         wait(50)
 
 def seizure(amount,min,max):
+    """for special beep occasions"""
     for i in range(amount):
         brick.speaker.beep(random.randrange(min,max))
         wait(2)
